@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TurtDex — Gen 1–10 Pokédex</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#e3350d;--dark-red:#b02a0a;--accent:#ffd700;--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#222240;--text:#f0f0f0;--muted:#9090b0;--border:#2a2a4a;--card:#1e1e35;--card-hover:#252545;--modal-bg:#13132a;}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(90deg,var(--dark-red),var(--red));padding:.7rem 1.2rem;display:flex;align-items:center;gap:.8rem;position:sticky;top:0;z-index:200;box-shadow:0 4px 24px rgba(0,0,0,.5);border-bottom:3px solid rgba(0,0,0,.3);flex-wrap:wrap}
+.logo{font-family:'Press Start 2P',monospace;color:#fff;font-size:clamp(10px,1.6vw,16px);text-shadow:2px 2px 0 var(--dark-red);letter-spacing:1px;white-space:nowrap}
+.logo span{color:var(--accent)}
+.lights{display:flex;gap:5px}
+.light{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.25);animation:blink 2s ease-in-out infinite}
+.light.b{background:#5bb8f5}.light.y{background:var(--accent);animation-delay:.3s}.light.g{background:#56d364;animation-delay:.6s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.mascot{width:32px;height:32px;object-fit:contain;animation:mascot-bob 2s ease-in-out infinite}
+@keyframes mascot-bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+.search-box{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 12px}
+.search-box input{background:none;border:none;outline:none;color:#fff;font-family:'Nunito',sans-serif;font-size:13px;width:clamp(70px,12vw,180px)}
+.search-box input::placeholder{color:rgba(255,255,255,.5)}
+.search-box.locked-ui{opacity:.6;cursor:pointer}
+.gen-select{background:rgba(0,0,0,.4);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;color:#fff;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;cursor:pointer;outline:none}
+.gen-select option{background:#1a1a2e}
+.hbtn{background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.2);border-radius:999px;color:#fff;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap}
+.hbtn:hover{background:rgba(0,0,0,.5)}
+.hbtn.playing{border-color:var(--accent);color:var(--accent)}
+.hbtn .bar{display:inline-flex;align-items:flex-end;gap:2px;height:13px}
+.hbtn .bar span{width:3px;background:currentColor;border-radius:2px}
+.hbtn.playing .bar span:nth-child(1){animation:bar1 .8s ease-in-out infinite}
+.hbtn.playing .bar span:nth-child(2){animation:bar2 .8s ease-in-out infinite .2s}
+.hbtn.playing .bar span:nth-child(3){animation:bar3 .8s ease-in-out infinite .1s}
+@keyframes bar1{0%,100%{height:4px}50%{height:12px}}
+@keyframes bar2{0%,100%{height:10px}50%{height:4px}}
+@keyframes bar3{0%,100%{height:6px}50%{height:14px}}
+.navbar{background:var(--surface);border-bottom:2px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:58px;z-index:190}
+.navbar::-webkit-scrollbar{display:none}
+.navbtn{font-family:'Press Start 2P',monospace;font-size:8px;padding:14px 18px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all .15s;white-space:nowrap}
+.navbtn:hover{color:var(--text)}.navbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section{display:none;min-height:60vh}.section.active{display:block}
+.section-wrap{max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+.section-title{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--accent);margin-bottom:.5rem}
+.section-sub{font-size:14px;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 1.5rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filter-section{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.filter-title{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);white-space:nowrap}
+.fchip{font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);color:var(--muted)}
+.fchip:hover{color:#fff;border-color:rgba(255,255,255,.3);transform:translateY(-1px)}
+.fchip.active{color:#fff;border-color:#fff;transform:scale(1.05)}
+.divider{width:1px;height:28px;background:var(--border);margin:0 4px}
+.clear-btn{font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;border:1.5px solid var(--border);cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.clear-btn:hover{border-color:var(--red);color:var(--red)}
+.filter-bar.locked-ui{opacity:.6;position:relative}
+.filter-bar.locked-ui::after{content:'🔒 Sign in to use filters';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Press Start 2P",monospace;font-size:8px;color:var(--accent);background:rgba(10,10,20,.7);cursor:pointer;letter-spacing:.5px}
+.count-bar{padding:.5rem 1.5rem;font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border)}
+.potd-wrap{max-width:1600px;margin:0 auto;padding:1rem 1.5rem;background:linear-gradient(135deg,var(--surface),var(--surface2));border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.potd-label{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--accent);margin-bottom:3px}
+.potd-date{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:.6rem}
+.potd-content{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+.potd-img{width:100px;height:100px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(255,215,0,.25));animation:float 3s ease-in-out infinite;flex-shrink:0;cursor:pointer}
+.potd-info{flex:1;min-width:180px}
+.potd-num{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);margin-bottom:3px}
+.potd-name{font-family:'Press Start 2P',monospace;font-size:11px;color:#fff;margin-bottom:7px;text-transform:uppercase}
+.potd-types{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.potd-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:8px;max-width:600px;font-style:italic}
+.potd-btn{font-family:'Press Start 2P',monospace;font-size:7px;background:linear-gradient(90deg,var(--dark-red),var(--red));border:none;color:#fff;padding:7px 14px;border-radius:8px;cursor:pointer}
+.compare-bar-wrap{padding:.75rem 1.2rem;background:var(--surface);border-bottom:1px solid var(--border)}
+.compare-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.compare-bar>span{font-size:12px;color:var(--muted);font-weight:700}
+.compare-slot{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;min-width:140px}
+.compare-slot img{width:32px;height:32px;object-fit:contain}
+.compare-slot-name{font-size:11px;font-weight:800;text-transform:capitalize}
+.compare-slot-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;margin-left:auto}
+.compare-btn-go{font-family:'Press Start 2P',monospace;font-size:7px;background:linear-gradient(90deg,var(--dark-red),var(--red));border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer}
+.compare-btn-go:disabled{opacity:.4;cursor:not-allowed}
+main{padding:1.2rem;max-width:1600px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:14px}
+.card{background:var(--card);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--border);position:relative}
+.card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.4);background:var(--card-hover)}
+.card.fav-card{border-color:rgba(255,215,0,.45);box-shadow:0 0 12px rgba(255,215,0,.15)}
+.card-locked{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;background:rgba(10,10,20,.55);border-radius:16px;z-index:5;pointer-events:none}
+.card-img-wrap{padding:1rem .8rem .5rem;display:flex;align-items:center;justify-content:center;min-height:112px;position:relative;overflow:hidden}
+.card-num{position:absolute;top:7px;left:9px;font-family:'Press Start 2P',monospace;font-size:6.5px;color:rgba(255,255,255,.5)}
+.card img{width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));transition:transform .3s;position:relative;z-index:1}
+.card:hover img{transform:scale(1.12) rotate(-4deg)}
+.card-body{padding:.55rem .9rem .8rem;background:rgba(0,0,0,.2)}
+.pname{font-family:'Press Start 2P',monospace;font-size:6.5px;text-transform:uppercase;color:#e8e8f0;margin-bottom:6px;line-height:1.4}
+.types{display:flex;gap:4px;flex-wrap:wrap}
+.tbadge{font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:999px;color:#fff;text-transform:uppercase;letter-spacing:.3px}
+.star-btn{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.35);border:none;cursor:pointer;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;z-index:2}
+.star-btn:hover{background:rgba(0,0,0,.6);transform:scale(1.15)}
+.star-btn svg{width:14px;height:14px;transition:fill .2s,stroke .2s}
+.star-btn.fav svg{fill:var(--accent);stroke:var(--accent)}
+.star-btn:not(.fav) svg{fill:none;stroke:rgba(255,255,255,.6)}
+.empty-turtwig{grid-column:1/-1;text-align:center;padding:3rem 2rem;color:var(--muted)}
+.empty-turtwig img{width:110px;height:110px;object-fit:contain;animation:float 3s ease-in-out infinite;margin-bottom:.5rem}
+.empty-turtwig p{font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.8}
+.loader{grid-column:1/-1;display:flex;justify-content:center;padding:3rem;gap:12px}
+.loader-dot{width:12px;height:12px;border-radius:50%;background:var(--red);animation:bounce .6s ease-in-out infinite}
+.loader-dot:nth-child(2){animation-delay:.15s;background:var(--accent)}.loader-dot:nth-child(3){animation-delay:.3s;background:#78C850}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)}
+.overlay.open{display:flex}
+.modal{background:var(--modal-bg);border-radius:24px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:popIn .25s cubic-bezier(.34,1.56,.64,1);border:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.modal::-webkit-scrollbar{width:5px}.modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-hero{padding:1.8rem 1.8rem 1rem;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;border-radius:24px 24px 0 0}
+.close-btn{position:absolute;top:11px;right:11px;background:rgba(0,0,0,.35);border:none;color:rgba(255,255,255,.8);font-size:15px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-star{position:absolute;top:11px;left:11px;background:rgba(0,0,0,.35);border:none;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.modal-star svg{width:15px;height:15px}
+.modal-star.fav svg{fill:var(--accent);stroke:var(--accent)}
+.modal-star:not(.fav) svg{fill:none;stroke:rgba(255,255,255,.7)}
+.modal-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:rgba(255,255,255,.8);font-size:14px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-prev{left:11px}.modal-next{right:11px}
+.modal-num{font-family:'Press Start 2P',monospace;font-size:8px;color:rgba(255,255,255,.5)}
+.modal-img{width:145px;height:145px;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4));animation:float 3s ease-in-out infinite}
+.modal-name{font-family:'Press Start 2P',monospace;font-size:clamp(9px,2.5vw,13px);color:#fff;text-align:center}
+.modal-types{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.modal-types .tbadge{font-size:11px;padding:3px 13px}
+.cry-btn{position:absolute;bottom:11px;right:11px;background:rgba(0,0,0,.35);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8)}
+.cry-btn svg{width:16px;height:16px}
+.cry-btn.playing{background:rgba(255,215,0,.25);color:var(--accent);animation:pulse-ring .7s ease-in-out infinite}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.4)}50%{box-shadow:0 0 0 8px rgba(255,215,0,0)}}
+.mbody{padding:1rem 1.3rem 1.3rem}
+.info-row{display:flex;justify-content:space-around;padding:.8rem;background:var(--surface);border-radius:12px;gap:6px;margin-bottom:.9rem;flex-wrap:wrap}
+.info-cell{text-align:center;min-width:50px}
+.info-cell span{display:block;font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:2px}
+.info-cell strong{font-size:13px;font-weight:800}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:.9rem;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:'Press Start 2P',monospace;font-size:6.5px;padding:7px 9px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.stat-row{display:grid;grid-template-columns:75px 1fr 36px;align-items:center;gap:9px;margin-bottom:8px}
+.stat-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.sbar-bg{background:var(--surface2);border-radius:999px;height:8px;overflow:hidden}
+.sbar{height:100%;border-radius:999px;transition:width .7s cubic-bezier(.22,1,.36,1)}
+.stat-val{font-size:11px;font-weight:800;text-align:right}
+.bst-row{display:flex;justify-content:space-between;padding:.45rem .7rem;background:var(--surface);border-radius:8px;margin-top:.4rem}
+.bst-label{font-family:'Press Start 2P',monospace;font-size:6.5px;color:var(--accent)}
+.bst-val{font-family:'Press Start 2P',monospace;font-size:9px;color:#fff}
+.dex-entry{background:var(--surface);border-radius:10px;padding:.8rem .9rem;margin-bottom:.5rem;border-left:3px solid var(--accent)}
+.game-label{font-size:8.5px;font-weight:800;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:3px}
+.dex-text{font-size:12px;line-height:1.7}
+.ability-list{display:grid;gap:7px;margin-bottom:.7rem}
+.ability-card{background:var(--surface);border-radius:10px;padding:.65rem .9rem;border:1px solid var(--border)}
+.ability-name{font-weight:800;font-size:12px;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.hidden-tag{font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;background:rgba(120,80,200,.25);color:#bb88ff;text-transform:uppercase}
+.ability-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.location-list{display:grid;gap:6px}
+.loc-card{background:var(--surface);border-radius:9px;padding:.55rem .9rem;border:1px solid var(--border)}
+.loc-name{font-size:11px;font-weight:700;display:block;margin-bottom:2px}
+.loc-details{font-size:10px;color:var(--muted);line-height:1.4}
+.no-data{font-size:12px;color:var(--muted);text-align:center;padding:1.2rem;font-style:italic}
+.loading-line{font-size:11px;color:var(--muted);text-align:center;padding:.8rem}
+.evo-chain{display:flex;align-items:center;flex-wrap:wrap;gap:5px;justify-content:center;padding:.9rem;background:var(--surface);border-radius:12px}
+.evo-mon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 9px;border-radius:9px;transition:background .15s}
+.evo-mon:hover{background:var(--surface2)}
+.evo-mon img{width:50px;height:50px;object-fit:contain}
+.evo-mon .emon{font-family:'Press Start 2P',monospace;font-size:5px;color:var(--muted);text-transform:uppercase;text-align:center}
+.evo-mon .enum{font-size:5px;font-family:'Press Start 2P',monospace;color:rgba(255,255,255,.3)}
+.evo-arr{color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px}
+.evo-trig{font-size:7px;color:var(--muted);text-align:center;max-width:50px;line-height:1.3}
+.s-hp{background:#ff5555}.s-atk{background:#f5a050}.s-def{background:#e8c830}.s-spa{background:#6090f0}.s-spd{background:#80c050}.s-spe{background:#f06090}
+.compare-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:.5rem;align-items:start;margin-bottom:1rem}
+.cmon-hero{display:flex;flex-direction:column;align-items:center;gap:5px;padding:1rem;border-radius:12px}
+.cmon-img{width:100px;height:100px;object-fit:contain}
+.cmon-name{font-family:'Press Start 2P',monospace;font-size:8px;text-align:center;text-transform:uppercase;color:#fff}
+.cmon-num{font-family:'Press Start 2P',monospace;font-size:6px;color:rgba(255,255,255,.5)}
+.vs-label{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--accent);align-self:center;text-align:center;padding:.5rem}
+.cstat-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;margin-bottom:7px}
+.cstat-val{font-size:13px;font-weight:800;text-align:center;padding:4px 8px;border-radius:6px;min-width:40px}
+.cstat-val.winner{background:rgba(86,211,100,.2);color:#56d364}
+.cstat-val.loser{background:rgba(255,85,85,.1);color:var(--muted)}
+.cstat-label{font-size:10px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase}
+.cstat-bar-l{flex:1;height:7px;border-radius:999px;overflow:hidden;display:flex;justify-content:flex-end}
+.cstat-bar-r{flex:1;height:7px;border-radius:999px;overflow:hidden}
+.cstat-fill{height:100%;border-radius:999px;transition:width .6s ease}
+.win-banner{text-align:center;padding:1rem;background:var(--surface);border-radius:12px;margin:1rem 0}
+.win-pct{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent);display:block;margin-bottom:4px}
+.win-name{font-size:14px;font-weight:800;color:#fff}
+.win-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.5rem;margin-bottom:2rem}
+.game-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;cursor:pointer;transition:all .2s}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.3);border-color:rgba(255,255,255,.2)}
+.game-icon{font-size:36px;margin-bottom:.75rem}
+.game-title{font-family:'Press Start 2P',monospace;font-size:9px;color:#fff;margin-bottom:.5rem;line-height:1.5}
+.game-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:.75rem}
+.game-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;display:inline-block}
+.game-status.done{background:rgba(86,211,100,.15);color:#56d364}
+.game-status.pending{background:rgba(255,215,0,.15);color:var(--accent)}
+.game-status.failed{background:rgba(255,85,85,.15);color:#ff5555}
+.game-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:2rem}
+.game-panel.active{display:block}
+.game-panel-title{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent);margin-bottom:.5rem}
+.lives-row{display:flex;gap:6px;margin-bottom:1rem}
+.life{font-size:18px;transition:filter .3s}
+.life.lost{filter:grayscale(1);opacity:.3}
+.riddle-silhouette{width:160px;height:160px;object-fit:contain;filter:brightness(0);margin:0 auto 1rem;display:block;animation:float 3s ease-in-out infinite}
+.riddle-desc{font-size:13px;color:var(--text);line-height:1.8;background:var(--surface2);border-radius:12px;padding:1rem;margin-bottom:1rem;border-left:3px solid var(--accent)}
+.riddle-hint{font-size:11px;color:var(--muted);margin-bottom:1rem;font-style:italic;min-height:18px}
+.game-feedback{font-size:13px;font-weight:700;padding:.6rem 1rem;border-radius:8px;margin-bottom:.75rem;display:none}
+.game-feedback.correct{background:rgba(86,211,100,.15);color:#56d364;display:block}
+.game-feedback.wrong{background:rgba(255,85,85,.15);color:#ff5555;display:block}
+.game-input-row{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.game-input{flex:1;min-width:180px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none}
+.game-input:focus{border-color:var(--accent)}
+.game-submit{font-family:'Press Start 2P',monospace;font-size:7px;background:linear-gradient(90deg,var(--dark-red),var(--red));border:none;color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer}
+.quiz-question{font-size:14px;font-weight:700;color:var(--text);margin-bottom:1rem;line-height:1.6}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.quiz-opt{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);transition:all .15s;text-align:left}
+.quiz-opt:hover:not(:disabled){border-color:rgba(255,255,255,.3)}
+.quiz-opt.correct{border-color:#56d364;background:rgba(86,211,100,.15);color:#56d364}
+.quiz-opt.wrong{border-color:#ff5555;background:rgba(255,85,85,.1);color:#ff5555}
+.quiz-opt:disabled{cursor:not-allowed;opacity:.7}
+.quiz-progress{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);margin-bottom:.75rem}
+.quiz-score-msg{text-align:center;padding:1.5rem;border-radius:12px;margin-top:1rem}
+.quiz-score-msg.great{background:rgba(86,211,100,.1);border:1px solid rgba(86,211,100,.3)}
+.quiz-score-msg.bad{background:rgba(255,85,85,.08);border:1px solid rgba(255,85,85,.2)}
+.score-emoji{font-size:48px;display:block;margin-bottom:.5rem}
+.score-title{font-family:'Press Start 2P',monospace;font-size:11px;margin-bottom:.5rem;color:#fff}
+.score-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.vote-team{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.vote-card{background:var(--surface2);border-radius:10px;padding:.6rem;text-align:center;border:1px solid var(--border)}
+.vote-card img{width:60px;height:60px;object-fit:contain}
+.vote-card-name{font-size:9px;font-weight:800;text-transform:capitalize;margin-top:3px;color:var(--muted)}
+.vote-btns{display:flex;gap:10px;justify-content:center;margin-bottom:.75rem}
+.vote-yes{font-family:'Press Start 2P',monospace;font-size:8px;padding:10px 20px;border:none;border-radius:10px;background:linear-gradient(90deg,#58b030,#80c050);color:#fff;cursor:pointer}
+.vote-no{font-family:'Press Start 2P',monospace;font-size:8px;padding:10px 20px;border:none;border-radius:10px;background:linear-gradient(90deg,#a02820,#e07028);color:#fff;cursor:pointer}
+.vote-result{text-align:center;padding:1rem;background:var(--surface2);border-radius:10px;display:none}
+.vote-pct{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent)}
+.vote-bar-wrap{height:14px;background:var(--surface);border-radius:999px;overflow:hidden;margin:.5rem 0;display:flex}
+.vote-bar-yes{background:#58b030;height:100%;transition:width .5s ease}
+.vote-bar-no{background:#a02820;height:100%;transition:width .5s ease}
+.vote-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.pins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem}
+.pin-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1rem;text-align:center;transition:all .2s;min-height:0}
+.pin-card.unlocked{border-color:var(--accent);background:linear-gradient(135deg,var(--surface),#2a2500)}
+.pin-card.locked{opacity:.45;filter:grayscale(.8)}
+.pin-icon{font-size:36px;margin-bottom:.5rem;display:block}
+.pin-name{font-family:'Press Start 2P',monospace;font-size:7px;color:#fff;margin-bottom:.3rem;line-height:1.5}
+.pin-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.pin-progress{font-size:10px;color:var(--accent);margin-top:.4rem;font-weight:700}
+.ach-section-title{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);margin:1.5rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.news-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem;transition:all .2s;text-decoration:none;color:inherit;margin-bottom:.75rem;display:block}
+.news-card:hover{border-color:rgba(255,255,255,.2);transform:translateX(4px)}
+.news-source{font-size:10px;font-weight:800;color:var(--accent);text-transform:uppercase;margin-bottom:3px}
+.news-title{font-size:13px;font-weight:800;color:var(--text);line-height:1.5;margin-bottom:4px}
+.news-date{font-size:10px;color:var(--muted)}
+.region-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+.rtab{font-family:'Press Start 2P',monospace;font-size:7px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.rtab.active{border-color:var(--accent);color:var(--accent);background:rgba(255,215,0,.08)}
+.gym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.gym-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s}
+.gym-card:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(0,0,0,.3)}
+.gym-header{padding:1rem;display:flex;align-items:center;gap:.75rem}
+.badge-icon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid rgba(255,255,255,.2)}
+.gym-leader-img{width:90px;height:90px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4));transition:transform .2s}
+.gym-card:hover .gym-leader-img{transform:scale(1.08) rotate(-2deg)}
+.gym-img-wrap{display:flex;align-items:center;justify-content:center;padding:.75rem .5rem .25rem;min-height:110px;position:relative}
+.gym-leader-name{font-family:'Press Start 2P',monospace;font-size:8px;color:#fff;margin-bottom:3px}
+.gym-city{font-size:11px;color:var(--muted);font-weight:700}
+.gym-body{padding:0 1rem 1rem}
+.gym-type-row{display:flex;gap:5px;margin-bottom:.6rem;flex-wrap:wrap}
+.gym-lore{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:.6rem}
+.gym-badge-name{font-size:10px;font-weight:800;color:var(--accent)}
+.faq-list{display:grid;gap:.75rem}
+.faq-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.faq-q{padding:1rem 1.2rem;font-weight:800;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-q:hover{background:var(--surface2)}
+.faq-q .arrow{transition:transform .2s;color:var(--accent)}
+.faq-item.open .arrow{transform:rotate(180deg)}
+.faq-a{display:none;padding:0 1.2rem 1rem;font-size:12px;color:var(--muted);line-height:1.8;border-top:1px solid var(--border)}
+.faq-item.open .faq-a{display:block}
+.team-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:transform .2s}
+.team-card:hover{transform:translateY(-4px)}
+.team-card-img{display:flex;align-items:center;justify-content:center;padding:.65rem .4rem .2rem;min-height:85px}
+.team-card img{width:68px;height:68px;object-fit:contain}
+.team-card-name{font-family:'Press Start 2P',monospace;font-size:5.5px;text-align:center;padding:0 .4rem .5rem;color:#e8e8f0;text-transform:uppercase}
+.team-card-num{font-family:'Press Start 2P',monospace;font-size:5px;color:rgba(255,255,255,.4);text-align:center;padding-bottom:.3rem}
+.team-card-types{display:flex;gap:3px;justify-content:center;padding-bottom:.5rem;flex-wrap:wrap}
+.team-card-types .tbadge{font-size:7px;padding:1px 6px}
+.auth-wall{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(10,10,20,.92);backdrop-filter:blur(12px)}
+.auth-wall.hidden{display:none}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:400px;overflow:hidden;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+.auth-hero{background:linear-gradient(135deg,var(--dark-red),var(--red));padding:1.5rem;text-align:center;position:relative;overflow:hidden}
+.auth-hero::before{content:'';position:absolute;inset:-20px;background:url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/387.png') center/120px no-repeat;opacity:.12;filter:grayscale(1)}
+.auth-hero-logo{font-family:'Press Start 2P',monospace;font-size:16px;color:#fff;text-shadow:2px 2px 0 var(--dark-red);position:relative;z-index:1}
+.auth-hero-logo span{color:var(--accent)}
+.auth-hero-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:.4rem;position:relative;z-index:1;font-weight:600}
+.auth-body{padding:1.25rem}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.auth-tab{flex:1;font-family:'Press Start 2P',monospace;font-size:7px;padding:7px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none}
+.auth-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.auth-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;margin-bottom:8px;display:block}
+.auth-input:focus{border-color:var(--accent)}
+.auth-input::placeholder{color:var(--muted)}
+.auth-submit{width:100%;background:linear-gradient(90deg,var(--dark-red),var(--red));border:none;border-radius:10px;padding:11px;color:#fff;font-family:'Press Start 2P',monospace;font-size:8px;cursor:pointer}
+.auth-err{font-size:11px;color:#ff6b6b;text-align:center;margin-top:.4rem;min-height:14px}
+.auth-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:block;text-align:center;margin-top:.6rem;width:100%}
+.auth-link:hover{color:var(--accent)}
+.auth-back{color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:.8rem;display:inline-block}
+.auth-reset-title{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--text);margin-bottom:.4rem}
+.auth-reset-sub{font-size:11px;color:var(--muted);margin-bottom:.8rem;line-height:1.5}
+.auth-code-hint{background:var(--surface2);border:1.5px dashed var(--accent);border-radius:10px;padding:.65rem;margin-bottom:.65rem;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);text-align:center;letter-spacing:3px}
+.auth-success{background:rgba(86,211,100,.1);border:1.5px solid #56d364;border-radius:10px;padding:.9rem;color:#56d364;font-size:12px;font-weight:700;text-align:center;margin-bottom:.9rem}
+.user-badge{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 10px 4px 5px}
+.user-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--dark-red),var(--accent));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.user-name{font-size:11px;font-weight:700;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:rgba(255,255,255,.7);font-size:10px;padding:3px 7px;cursor:pointer;font-weight:700}
+.logout-btn:hover{background:rgba(255,0,0,.25);color:#fff}
+.t-normal{background:#9a9a7a}.t-fire{background:#e07028}.t-water{background:#5878e0}.t-electric{background:#c8a800;color:#333!important}.t-grass{background:#58b030}.t-ice{background:#78c8c8;color:#333!important}.t-fighting{background:#a02820}.t-poison{background:#883888}.t-ground{background:#b89828;color:#333!important}.t-flying{background:#8878d0}.t-psychic{background:#d84870}.t-bug{background:#88a000}.t-rock{background:#908028}.t-ghost{background:#584880}.t-dragon{background:#5020d0}.t-dark{background:#584038}.t-steel{background:#888890;color:#333!important}.t-fairy{background:#c07890;color:#333!important}
+.card-bg-normal{background:linear-gradient(135deg,#b8b88a,#9a9a7a)}.card-bg-fire{background:linear-gradient(135deg,#ffa050,#e07028)}.card-bg-water{background:linear-gradient(135deg,#80a0f8,#5878e0)}.card-bg-electric{background:linear-gradient(135deg,#f8e040,#c8a800)}.card-bg-grass{background:linear-gradient(135deg,#80d060,#58b030)}.card-bg-ice{background:linear-gradient(135deg,#a0e0e0,#78c8c8)}.card-bg-fighting{background:linear-gradient(135deg,#d04040,#a02820)}.card-bg-poison{background:linear-gradient(135deg,#b060b0,#883888)}.card-bg-ground{background:linear-gradient(135deg,#d8c060,#b89828)}.card-bg-flying{background:linear-gradient(135deg,#b0a0f0,#8878d0)}.card-bg-psychic{background:linear-gradient(135deg,#f070a0,#d84870)}.card-bg-bug{background:linear-gradient(135deg,#b0c030,#88a000)}.card-bg-rock{background:linear-gradient(135deg,#c0b050,#908028)}.card-bg-ghost{background:linear-gradient(135deg,#8070b0,#584880)}.card-bg-dragon{background:linear-gradient(135deg,#7050f0,#5020d0)}.card-bg-dark{background:linear-gradient(135deg,#806050,#584038)}.card-bg-steel{background:linear-gradient(135deg,#b0b0c0,#888890)}.card-bg-fairy{background:linear-gradient(135deg,#e0a0b8,#c07890)}.card-bg-unknown{background:linear-gradient(135deg,#444,#222)}
+/* ── LIGHT MODE ── */
+body.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf2;--text:#1a1a2e;--muted:#5a6a7a;--border:#d0d8e4;--card:#ffffff;--card-hover:#f8fafc;--modal-bg:#ffffff}
+body.light header{background:linear-gradient(90deg,#c02008,#e3350d)}
+body.light .navbar{background:#fff;border-bottom-color:#d0d8e4}
+body.light .navbtn{color:#888}
+body.light .navbtn.active{color:var(--red)}
+body.light .count-bar{background:#f0f4f8}
+body.light .card-body{background:rgba(0,0,0,.04)}
+/* ── SHINY BUTTON ── */
+.shiny-btn{position:absolute;bottom:11px;left:11px;background:rgba(0,0,0,.35);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.shiny-btn:hover{background:rgba(0,0,0,.6);transform:scale(1.15)}
+.shiny-btn.active{background:rgba(255,215,0,.3);animation:pulse-ring .7s ease-in-out infinite}
+@keyframes shiny-sparkle{0%,100%{filter:drop-shadow(0 0 0px gold)}50%{filter:drop-shadow(0 0 16px gold)}}
+.modal-img.shiny{animation:float 3s ease-in-out infinite,shiny-sparkle 1.5s ease-in-out infinite}
+/* ── ONLINE PLAY ── */
+.online-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem}
+.otab{font-family:'Press Start 2P',monospace;font-size:8px;padding:9px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.otab:hover{color:var(--text);border-color:rgba(255,255,255,.3)}
+.otab.active{border-color:var(--accent);color:var(--accent);background:rgba(255,215,0,.08)}
+.otab-panel{display:none}.otab-panel.active{display:block}
+/* trainer layout */
+.trainer-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@media(max-width:700px){.trainer-layout{grid-template-columns:1fr}}
+.tform-row{margin-bottom:.9rem}
+.tform-label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.tform-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.tform-input:focus{border-color:var(--accent)}
+.gender-btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.gender-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(255,215,0,.08)}
+/* trainer card */
+.trainer-card-preview{background:linear-gradient(135deg,#1a2a4a,#0a1a3a);border-radius:20px;overflow:hidden;border:2px solid rgba(255,215,0,.3);box-shadow:0 8px 32px rgba(0,0,0,.4);min-height:280px}
+.tc-header{background:linear-gradient(90deg,var(--dark-red),var(--red));padding:.75rem 1.2rem;display:flex;justify-content:space-between;align-items:center}
+.tc-logo{font-family:'Press Start 2P',monospace;font-size:8px;color:#fff;letter-spacing:1px}
+.tc-id{font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,255,255,.7)}
+.tc-body{padding:1rem 1.2rem .5rem;display:flex;gap:1rem;align-items:center}
+.tc-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--dark-red),var(--accent));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:2px solid rgba(255,215,0,.4)}
+.tc-info{flex:1}
+.tc-name{font-family:'Press Start 2P',monospace;font-size:9px;color:#fff;margin-bottom:4px;line-height:1.5}
+.tc-dob{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:2px}
+.tc-gender{font-size:11px;color:rgba(255,255,255,.5)}
+.tc-section{padding:.5rem 1.2rem;border-top:1px solid rgba(255,255,255,.08)}
+.tc-section-label{font-family:'Press Start 2P',monospace;font-size:6.5px;color:var(--accent);margin-bottom:.4rem}
+.tc-fav-row{display:flex;align-items:center;gap:8px}
+.tc-fav-img{width:44px;height:44px;object-fit:contain}
+.tc-fav-name{font-size:12px;font-weight:800;color:#fff;text-transform:capitalize}
+.tc-bday-row{display:flex;align-items:center;gap:8px}
+.tc-footer{padding:.75rem 1.2rem;background:rgba(0,0,0,.2);display:flex;justify-content:space-between;align-items:center}
+.tc-badges{display:flex;gap:4px;flex-wrap:wrap}
+.tc-badge-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3)}
+.tc-score{font-family:'Press Start 2P',monospace;font-size:6.5px;color:var(--accent)}
+/* BST battle */
+.battle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.battle-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:.65rem .5rem;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.battle-card:hover:not(.disabled){border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.battle-card.selected{border-color:#56d364;background:rgba(86,211,100,.1)}
+.battle-card.disabled{opacity:.5;cursor:not-allowed}
+.battle-card.revealed-win{border-color:#56d364;background:rgba(86,211,100,.15)}
+.battle-card.revealed-lose{border-color:#ff5555;background:rgba(255,85,85,.08)}
+.battle-card.revealed-draw{border-color:var(--accent);background:rgba(255,215,0,.08)}
+.battle-card img{width:64px;height:64px;object-fit:contain}
+.battle-card-name{font-family:'Press Start 2P',monospace;font-size:5.5px;color:var(--muted);text-transform:uppercase;margin:.3rem 0}
+.battle-bst{font-size:11px;font-weight:800;color:var(--text)}
+.battle-bst.hidden{color:transparent;text-shadow:0 0 8px rgba(255,255,255,.5)}
+.battle-score{display:flex;justify-content:center;align-items:center;gap:1.5rem;padding:1rem;background:var(--surface);border-radius:12px;margin-bottom:1rem}
+.battle-score-side{text-align:center}
+.battle-score-name{font-size:11px;color:var(--muted);font-weight:700}
+.battle-score-num{font-family:'Press Start 2P',monospace;font-size:24px;color:#fff}
+.battle-score-vs{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent)}
+.battle-result-msg{text-align:center;padding:1rem;border-radius:12px;font-family:'Press Start 2P',monospace;font-size:9px;margin-bottom:1rem}
+.battle-result-msg.win{background:rgba(86,211,100,.1);color:#56d364}
+.battle-result-msg.lose{background:rgba(255,85,85,.08);color:#ff5555}
+.battle-result-msg.draw{background:rgba(255,215,0,.08);color:var(--accent)}
+/* leaderboard */
+.lb-stats-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.lb-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;text-align:center;flex:1;min-width:120px}
+.lb-stat-val{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--accent);display:block;margin-bottom:4px}
+.lb-stat-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.lb-row{display:flex;align-items:center;gap:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;margin-bottom:.5rem}
+.lb-rank{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);min-width:28px}
+.lb-date{font-size:12px;color:var(--muted);flex:1}
+.lb-score{font-family:'Press Start 2P',monospace;font-size:11px;color:#fff}
+.lb-perfect{font-size:11px;color:#56d364;margin-left:4px}
+.shiny-card{border-color:rgba(192,160,255,.5)!important;box-shadow:0 0 14px rgba(192,160,255,.2)}
+.shiny-card-badge{position:absolute;top:7px;right:34px;font-size:13px;z-index:3;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+.shiny-all-btn.active{background:rgba(160,120,255,.2)!important;border-color:#c0a0ff!important;color:#fff!important;box-shadow:0 0 12px rgba(160,120,255,.4)}
+.reset-timer-label{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted)}
+.reset-timer-count{font-family:'Press Start 2P',monospace;font-size:16px;color:var(--accent);letter-spacing:2px;min-width:90px}
+.reset-timer-count.urgent{color:#ff5555;animation:blink .5s ease-in-out infinite}
+.party-builder-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:.5rem}
+@media(max-width:600px){.party-builder-grid{grid-template-columns:repeat(3,1fr)}}
+.party-slot{background:var(--surface2);border:2px dashed var(--border);border-radius:12px;padding:.6rem .4rem;text-align:center;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:all .2s}
+.party-slot.filled{border-style:solid;border-color:var(--accent);background:var(--surface)}
+.party-slot.empty-slot{color:var(--muted);font-size:22px;cursor:default}
+.party-slot img{width:58px;height:58px;object-fit:contain;image-rendering:auto}
+.party-slot-name{font-family:'Press Start 2P',monospace;font-size:5.5px;color:var(--muted);text-transform:uppercase;margin-top:3px;line-height:1.4;text-align:center}
+.party-slot-num{font-family:'Press Start 2P',monospace;font-size:5px;color:rgba(255,255,255,.3);margin-bottom:2px}
+.party-slot-remove{position:absolute;top:4px;right:4px;background:rgba(255,85,85,.2);border:none;color:#ff5555;cursor:pointer;width:18px;height:18px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.party-slot-remove:hover{background:rgba(255,85,85,.5)}
+.party-slot-label{font-family:'Press Start 2P',monospace;font-size:6px;color:var(--border);text-align:center}
+footer{text-align:center;padding:1.2rem;font-family:'Press Start 2P',monospace;font-size:6px;color:#333;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<header>
+  <img class="mascot" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/387.png" alt="Turtwig"/>
+  <div class="logo">Turt<span>Dex</span></div>
+  <div class="lights"><div class="light b"></div><div class="light y"></div><div class="light g"></div></div>
+  <div class="search-box" id="search-box">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search" placeholder="Name or number…" autocomplete="off"/>
+  </div>
+  <select class="gen-select" id="gen-select">
+    <option value="all">All Gens</option>
+    <option value="1">Gen I (1-151)</option><option value="2">Gen II (152-251)</option><option value="3">Gen III (252-386)</option>
+    <option value="4">Gen IV (387-493)</option><option value="5">Gen V (494-649)</option><option value="6">Gen VI (650-721)</option>
+    <option value="7">Gen VII (722-809)</option><option value="8">Gen VIII (810-905)</option><option value="9">Gen IX (906-1025)</option>
+    <option value="10">Gen X (Wind/Wave)</option>
+  </select>
+  <button class="hbtn" id="music-btn"><div class="bar"><span style="height:4px"></span><span style="height:10px"></span><span style="height:6px"></span></div>Music</button>
+  <button class="hbtn" id="random-btn" style="background:rgba(120,80,240,.25);border-color:rgba(160,120,255,.5);color:#c0a0ff">🎲 Random</button>
+  <button class="hbtn" id="theme-btn" title="Toggle light/dark mode">🌙</button>
+</header>
+<nav class="navbar">
+  <button class="navbtn active" data-nav="home">🏠 Home</button>
+  <button class="navbtn" data-nav="games">🎮 Games</button>
+  <button class="navbtn" data-nav="achievements">🏅 Achievements</button>
+  <button class="navbtn" data-nav="news">📰 News</button>
+  <button class="navbtn" data-nav="gyms">🏋️ Gyms</button>
+  <button class="navbtn" data-nav="online">🌐 Online Play</button>
+  <button class="navbtn" data-nav="faq">❓ FAQ</button>
+</nav>
+
+<!-- HOME SECTION -->
+<div id="section-home" class="section active">
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-section"><span class="filter-title">Type</span><div id="type-filters" style="display:flex;gap:5px;flex-wrap:wrap"></div></div>
+    <div class="divider"></div>
+    <div class="filter-section"><span class="filter-title">Stage</span>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="fchip active" data-stage="all">All</button>
+        <button class="fchip" data-stage="0">Basic</button>
+        <button class="fchip" data-stage="1">Stage 1</button>
+        <button class="fchip" data-stage="2">Stage 2</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="clear-btn" id="clear-btn">X Clear</button>
+    <div class="divider"></div>
+    <button class="fchip" id="fav-filter-btn" style="background:#2a2a1a;color:#c8a800;border-color:#c8a80055">⭐ Fav</button>
+    <div class="divider"></div>
+    <button class="fchip" id="shiny-all-btn" style="background:#1a1228;color:#c0a0ff;border-color:rgba(160,120,255,.4)">✨ All Shiny</button>
+    <div class="divider"></div>
+    <div class="filter-section" style="gap:6px"><span class="filter-title">Team</span>
+      <select id="team-count-select" class="gen-select" style="font-size:11px;padding:3px 7px">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+        <option value="5">5</option><option value="6" selected>6</option><option value="7">7</option>
+        <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="12">12</option>
+      </select>
+      <button class="fchip" id="random-team-btn" style="background:rgba(120,80,240,.2);color:#c0a0ff;border-color:rgba(160,120,255,.4)">Team</button>
+    </div>
+  </div>
+  <div class="count-bar" id="count-bar">Loading...</div>
+  <div id="potd-banner" style="display:none">
+    <div class="potd-wrap" id="potd-wrap">
+      <div class="potd-label">POKEMON OF THE DAY</div>
+      <div class="potd-date" id="potd-date"></div>
+      <div class="potd-content">
+        <img id="potd-img" src="" alt="" class="potd-img"/>
+        <div class="potd-info">
+          <div class="potd-num" id="potd-num"></div>
+          <div class="potd-name" id="potd-name"></div>
+          <div class="potd-types" id="potd-types"></div>
+          <div class="potd-desc" id="potd-desc"></div>
+          <button class="potd-btn" id="potd-view-btn">View Full Info</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="compare-bar-wrap">
+    <div class="compare-bar">
+      <span>Compare:</span>
+      <div id="compare-slot-1" class="compare-slot" style="color:var(--muted);font-size:12px;font-weight:700">Slot 1 - click a card</div>
+      <div id="compare-slot-2" class="compare-slot" style="color:var(--muted);font-size:12px;font-weight:700">Slot 2 - click a card</div>
+      <button class="compare-btn-go" id="compare-go-btn" disabled>Compare!</button>
+      <button class="clear-btn" id="compare-clear-btn">Clear</button>
+    </div>
+  </div>
+  <main><div class="grid" id="grid"><div class="loader"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div></div></main>
+</div>
+
+<!-- GAMES SECTION -->
+<div id="section-games" class="section">
+  <div class="section-wrap">
+    <div class="section-title">GAMES</div>
+    <div class="section-sub">Games reset every 6 hours (Sydney time). You have 3 lives per game!</div>
+    <div class="reset-timer-wrap">
+      <div class="reset-timer-label">⏱️ Next reset in</div>
+      <div class="reset-timer-count" id="reset-timer">--:--:--</div>
+    </div>
+    <div class="games-grid">
+      <div class="game-card" id="open-riddle-btn" style="border-left:4px solid #f08030">
+        <div class="game-icon">🔍</div>
+        <div class="game-title">GUESS THE POKEMON</div>
+        <div class="game-desc">A mystery Pokemon is described. Can you guess its name in 3 tries?</div>
+        <span class="game-status pending" id="riddle-card-status">Play Today's Riddle</span>
+      </div>
+      <div class="game-card" id="open-quiz-btn" style="border-left:4px solid #6090f0">
+        <div class="game-icon">❓</div>
+        <div class="game-title">DAILY QUIZ</div>
+        <div class="game-desc">10 hard Pokemon questions. 3 lives total. Are you a true Pokemon Master?</div>
+        <span class="game-status pending" id="quiz-card-status">Play Today's Quiz</span>
+      </div>
+      <div class="game-card" id="open-vote-btn" style="border-left:4px solid #58b030">
+        <div class="game-icon">🗳️</div>
+        <div class="game-title">WOULD YOU USE THIS TEAM?</div>
+        <div class="game-desc">A random team of 6 Pokemon. Would you take them into battle?</div>
+        <span class="game-status pending" id="vote-card-status">Vote Today's Team</span>
+      </div>
+    </div>
+    <div class="game-panel" id="riddle-panel">
+      <div class="game-panel-title">GUESS THE POKEMON</div>
+      <div class="lives-row" id="riddle-lives"></div>
+      <img id="riddle-silhouette" class="riddle-silhouette" src="" alt="mystery"/>
+      <div class="riddle-desc" id="riddle-desc"></div>
+      <div class="riddle-hint" id="riddle-hint"></div>
+      <div class="game-feedback" id="riddle-feedback"></div>
+      <div class="game-input-row" id="riddle-input-row">
+        <input class="game-input" id="riddle-input" placeholder="Type the Pokemon name..." autocomplete="off"/>
+        <button class="game-submit" id="riddle-submit">Guess!</button>
+      </div>
+      <div id="riddle-result" style="display:none;text-align:center;padding:1rem">
+        <img id="riddle-reveal-img" style="width:120px;height:120px;object-fit:contain" src="" alt=""/>
+        <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:#fff;margin-top:.5rem" id="riddle-reveal-name"></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.3rem" id="riddle-reveal-msg"></div>
+      </div>
+    </div>
+    <div class="game-panel" id="quiz-panel">
+      <div class="game-panel-title">DAILY QUIZ</div>
+      <div class="lives-row" id="quiz-lives"></div>
+      <div class="quiz-progress" id="quiz-progress"></div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="game-feedback" id="quiz-feedback"></div>
+      <div id="quiz-result"></div>
+    </div>
+    <div class="game-panel" id="vote-panel">
+      <div class="game-panel-title">WOULD YOU USE THIS TEAM?</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">Today's random team - would you use them?</div>
+      <div class="vote-team" id="vote-team-grid"></div>
+      <div class="vote-btns" id="vote-btns">
+        <button class="vote-yes" id="vote-yes-btn">YES!</button>
+        <button class="vote-no" id="vote-no-btn">NO WAY</button>
+      </div>
+      <div class="vote-result" id="vote-result">
+        <div class="vote-pct" id="vote-pct-text"></div>
+        <div class="vote-bar-wrap"><div class="vote-bar-yes" id="vote-bar-yes"></div><div class="vote-bar-no" id="vote-bar-no"></div></div>
+        <div class="vote-labels"><span id="vote-yes-lbl"></span><span id="vote-no-lbl"></span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.5rem" id="vote-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACHIEVEMENTS SECTION -->
+<div id="section-achievements" class="section">
+  <div class="section-wrap">
+    <div class="section-title">ACHIEVEMENTS</div>
+    <div class="section-sub">Collect pins by playing games and exploring the Pokedex!</div>
+    <div id="ach-content"></div>
+  </div>
+</div>
+
+<!-- NEWS SECTION -->
+<div id="section-news" class="section">
+  <div class="section-wrap">
+    <div class="section-title">NEWS</div>
+    <div class="section-sub">Latest from the Pokemon world.</div>
+    <div id="news-content"><div style="color:var(--muted);padding:2rem;text-align:center">Loading news...</div></div>
+  </div>
+</div>
+
+<!-- GYMS SECTION -->
+<div id="section-gyms" class="section">
+  <div class="section-wrap">
+    <div class="section-title">GYMS AND LEADERS</div>
+    <div class="section-sub">Every Gym, Leader and Badge from Gen 1 to 5.</div>
+    <div class="region-tabs" id="region-tabs"></div>
+    <div class="gym-grid" id="gym-grid"></div>
+  </div>
+</div>
+
+<!-- ONLINE PLAY SECTION -->
+<div id="section-online" class="section">
+  <div class="section-wrap">
+    <div class="section-title">🌐 Online Play</div>
+    <div class="section-sub">Your trainer profile, battle arena and personal records.</div>
+
+    <!-- SUB TABS -->
+    <div class="online-tabs">
+      <button class="otab active" data-otab="trainer">🎴 Trainer Card</button>
+      <button class="otab" data-otab="battle">⚔️ BST Battle</button>
+      <button class="otab" data-otab="leaderboard">🏆 Leaderboard</button>
+    </div>
+
+    <!-- TRAINER CARD TAB -->
+    <div id="otab-trainer" class="otab-panel">
+      <div class="trainer-layout">
+        <!-- FORM -->
+        <div class="trainer-form-wrap">
+          <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);margin-bottom:1rem">Edit Your Trainer</div>
+          <div class="tform-row">
+            <label class="tform-label">First Name</label>
+            <input class="tform-input" id="t-first" placeholder="Ash" maxlength="20"/>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">Middle Name <span style="color:var(--muted);font-size:10px">(optional)</span></label>
+            <input class="tform-input" id="t-middle" placeholder="Ketchum" maxlength="20"/>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">Last Name</label>
+            <input class="tform-input" id="t-last" placeholder="Trainer" maxlength="20"/>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">Date of Birth</label>
+            <input class="tform-input" id="t-dob" type="date"/>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">Gender</label>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button class="gender-btn active" data-gender="boy" id="gender-boy">👦 Boy</button>
+              <button class="gender-btn" data-gender="girl" id="gender-girl">👧 Girl</button>
+            </div>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">Favourite Pokémon</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap">
+              <input class="tform-input" id="t-favpoke" placeholder="e.g. Turtwig" maxlength="30" style="flex:1;min-width:120px"/>
+              <button class="game-submit" id="t-favpoke-search" style="padding:8px 12px">Find</button>
+            </div>
+            <div id="t-favpoke-result" style="margin-top:8px;display:flex;align-items:center;gap:8px;display:none">
+              <img id="t-favpoke-img" style="width:48px;height:48px;object-fit:contain" src="" alt=""/>
+              <span id="t-favpoke-name" style="font-weight:800;font-size:13px;text-transform:capitalize"></span>
+            </div>
+          </div>
+          <div class="tform-row">
+            <label class="tform-label">🎂 Birthday Pokémon <span style="color:var(--muted);font-size:10px">(choose your own!)</span></label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap">
+              <input class="tform-input" id="t-bdaypoke" placeholder="e.g. Pikachu" maxlength="30" style="flex:1;min-width:120px"/>
+              <button class="game-submit" id="t-bdaypoke-search" style="padding:8px 12px">Find</button>
+            </div>
+            <div id="t-bdaypoke-result" style="margin-top:8px;display:none;align-items:center;gap:8px">
+              <img id="t-bdaypoke-img" style="width:48px;height:48px;object-fit:contain" src="" alt=""/>
+              <div>
+                <span id="t-bdaypoke-name" style="font-weight:800;font-size:13px;text-transform:capitalize;display:block"></span>
+                <span style="font-size:10px;color:var(--muted)">Your Birthday Pokémon!</span>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">Leave blank to auto-assign from your date of birth</div>
+          </div>
+          <button class="auth-submit" id="save-trainer-btn" style="margin-top:1rem">💾 Save Trainer Card</button>
+          <div style="font-size:11px;color:#56d364;margin-top:.5rem;min-height:16px" id="trainer-save-msg"></div>
+        </div>
+
+        <!-- CARD PREVIEW -->
+        <div class="trainer-card-preview" id="trainer-card-preview">
+          <div class="tc-header">
+            <div class="tc-logo">TRAINER CARD</div>
+            <div class="tc-id" id="tc-id">#000000</div>
+          </div>
+          <div class="tc-body">
+            <div class="tc-avatar" id="tc-avatar">?</div>
+            <div class="tc-info">
+              <div class="tc-name" id="tc-name">Your Name</div>
+              <div class="tc-dob" id="tc-dob">DOB: --/--/----</div>
+              <div class="tc-gender" id="tc-gender">Trainer</div>
+            </div>
+          </div>
+          <div class="tc-section">
+            <div class="tc-section-label">Favourite Pokémon</div>
+            <div class="tc-fav-row" id="tc-fav-row">
+              <div style="color:var(--muted);font-size:12px">Not set</div>
+            </div>
+          </div>
+          <div class="tc-section">
+            <div class="tc-section-label">🎂 Birthday Pokémon</div>
+            <div class="tc-bday-row" id="tc-bday-row">
+              <div style="color:var(--muted);font-size:12px">Set your date of birth to reveal!</div>
+            </div>
+          </div>
+          <div class="tc-section">
+            <div class="tc-section-label">⚔️ Ideal Party</div>
+            <div id="tc-party-row" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">
+              <div style="color:var(--muted);font-size:12px">Not set</div>
+            </div>
+          </div>
+          <div class="tc-footer">
+            <div class="tc-badges" id="tc-badges"></div>
+            <div class="tc-score" id="tc-score">Quiz Best: —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IDEAL PARTY BUILDER (below the two-column layout) -->
+      <div style="margin-top:2rem">
+        <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);margin-bottom:.5rem">⚔️ Build Your Ideal Party</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6">Choose up to 6 Pokémon for your dream team. They'll show on your Trainer Card!</div>
+        <div class="party-builder-grid" id="party-builder-grid">
+          <!-- slots 1-6 rendered by JS -->
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:1rem;flex-wrap:wrap">
+          <input class="tform-input" id="party-search-input" placeholder="Search Pokémon to add..." maxlength="30" style="flex:1;min-width:160px"/>
+          <button class="game-submit" id="party-search-btn" style="padding:9px 14px">Find & Add</button>
+          <button class="clear-btn" id="party-clear-btn">🗑️ Clear Party</button>
+        </div>
+        <div id="party-search-result" style="margin-top:.75rem;display:none;align-items:center;gap:10px;background:var(--surface2);border-radius:10px;padding:.65rem 1rem">
+          <img id="party-found-img" style="width:48px;height:48px;object-fit:contain" src="" alt=""/>
+          <div style="flex:1">
+            <div id="party-found-name" style="font-weight:800;font-size:13px;text-transform:capitalize"></div>
+            <div id="party-found-types" style="margin-top:3px"></div>
+          </div>
+          <button class="game-submit" id="party-add-btn" style="padding:8px 14px">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BST BATTLE TAB -->
+    <div id="otab-battle" class="otab-panel" style="display:none">
+      <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);margin-bottom:.5rem">⚔️ BST Battle Arena</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.7">You and your opponent each get 6 random Pokémon. Pick one without knowing what the opponent picked. Highest BST wins the round! First to 3 points wins the match!</div>
+      <div id="battle-area">
+        <button class="auth-submit" id="start-battle-btn" style="width:auto;padding:12px 28px;font-size:9px">⚔️ Start New Battle!</button>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="otab-leaderboard" class="otab-panel" style="display:none">
+      <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);margin-bottom:1rem">🏆 Your Quiz Records</div>
+      <div class="lb-stats-row" id="lb-stats-row"></div>
+      <div id="lb-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ SECTION -->
+<div id="section-faq" class="section">
+  <div class="section-wrap">
+    <div class="section-title">FAQ</div>
+    <div class="section-sub">Everything you need to know about using this Pokedex.</div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-hero" id="modal-hero">
+      <button class="close-btn" id="close-btn">X</button>
+      <button class="modal-star" id="modal-star-btn"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+      <button class="modal-nav modal-prev" id="prev-btn">&#9664;</button>
+      <button class="modal-nav modal-next" id="next-btn">&#9654;</button>
+      <span class="modal-num" id="m-num"></span>
+      <img id="m-img" src="" alt="" class="modal-img"/>
+      <div class="modal-name" id="m-name"></div>
+      <div class="modal-types" id="m-types"></div>
+      <button class="cry-btn" id="cry-btn" title="Play cry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <button class="shiny-btn" id="shiny-btn" title="Toggle shiny">✨</button>
+    </div>
+    <div class="mbody">
+      <div class="info-row" id="m-info">
+        <div class="info-cell"><span>Height</span><strong id="m-height">-</strong></div>
+        <div class="info-cell"><span>Weight</span><strong id="m-weight">-</strong></div>
+        <div class="info-cell"><span>XP</span><strong id="m-xp">-</strong></div>
+        <div class="info-cell"><span>Gen</span><strong id="m-gen">-</strong></div>
+        <div class="info-cell"><span>Catch</span><strong id="m-catch">-</strong></div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="stats">Stats</button>
+        <button class="tab" data-tab="dex">Pokedex</button>
+        <button class="tab" data-tab="abilities">Abilities</button>
+        <button class="tab" data-tab="locations">Locations</button>
+        <button class="tab" data-tab="evolution">Evolution</button>
+      </div>
+      <div id="tab-stats" class="tab-panel"></div>
+      <div id="tab-dex" class="tab-panel" style="display:none"></div>
+      <div id="tab-abilities" class="tab-panel" style="display:none"></div>
+      <div id="tab-locations" class="tab-panel" style="display:none"></div>
+      <div id="tab-evolution" class="tab-panel" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="overlay" id="compare-overlay">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-hero" style="background:linear-gradient(135deg,#1a0a3a,#2a1a5a);border-radius:24px 24px 0 0;padding:1.2rem">
+      <button class="close-btn" id="compare-close-btn">X</button>
+      <div class="modal-name" style="font-size:11px">BATTLE COMPARISON</div>
+    </div>
+    <div class="mbody" id="compare-body"></div>
+  </div>
+</div>
+
+<!-- TEAM MODAL -->
+<div class="overlay" id="team-overlay">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-hero" style="background:linear-gradient(135deg,#2a1a4a,#4a2a8a);border-radius:24px 24px 0 0;padding:1.2rem 1.5rem">
+      <button class="close-btn" id="team-close-btn">X</button>
+      <div class="modal-name" style="font-size:10px">RANDOM TEAM</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;margin-top:3px" id="team-subtitle"></div>
+    </div>
+    <div class="mbody">
+      <div id="team-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:1rem"></div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="auth-submit" id="team-reroll-btn" style="width:auto;padding:9px 20px">Reroll</button>
+        <button class="auth-submit" id="team-fav-all-btn" style="width:auto;padding:9px 20px;background:linear-gradient(90deg,#b02a0a,#c8a800)">Fav All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>TurtDex · Data from PokeAPI · Gen 1-10 · Music by Eric Matyas — soundimage.org · Made with 🌿 by a Pokemon fan</footer>
+<script>
+const API='https://pokeapi.co/api/v2/';
+const TOTAL=1025;
+const GEN_RANGES={1:[1,151],2:[152,251],3:[252,386],4:[387,493],5:[494,649],6:[650,721],7:[722,809],8:[810,905],9:[906,1025],10:[10001,19999]};
+const TYPES=['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'];
+const TYPE_COLORS={normal:'#9a9a7a',fire:'#e07028',water:'#5878e0',electric:'#c8a800',grass:'#58b030',ice:'#78c8c8',fighting:'#a02820',poison:'#883888',ground:'#b89828',flying:'#8878d0',psychic:'#d84870',bug:'#88a000',rock:'#908028',ghost:'#584880',dragon:'#5020d0',dark:'#584038',steel:'#888890',fairy:'#c07890'};
+const STAT_MAP={hp:{l:'HP',c:'s-hp'},attack:{l:'ATK',c:'s-atk'},defense:{l:'DEF',c:'s-def'},'special-attack':{l:'SpATK',c:'s-spa'},'special-defense':{l:'SpDEF',c:'s-spd'},speed:{l:'SPD',c:'s-spe'}};
+const GEN10=[
+  {id:10001,name:'browt',types:['grass'],stage:0,stats:[{stat:{name:'hp'},base_stat:55},{stat:{name:'attack'},base_stat:65},{stat:{name:'defense'},base_stat:50},{stat:{name:'special-attack'},base_stat:45},{stat:{name:'special-defense'},base_stat:50},{stat:{name:'speed'},base_stat:60}],height:5,weight:65,base_experience:62,gen10:true},
+  {id:10002,name:'pombon',types:['fairy','flying'],stage:0,stats:[{stat:{name:'hp'},base_stat:50},{stat:{name:'attack'},base_stat:40},{stat:{name:'defense'},base_stat:45},{stat:{name:'special-attack'},base_stat:70},{stat:{name:'special-defense'},base_stat:55},{stat:{name:'speed'},base_stat:75}],height:3,weight:22,base_experience:58,gen10:true},
+  {id:10003,name:'jecqua',types:['water','psychic'],stage:0,stats:[{stat:{name:'hp'},base_stat:60},{stat:{name:'attack'},base_stat:50},{stat:{name:'defense'},base_stat:55},{stat:{name:'special-attack'},base_stat:80},{stat:{name:'special-defense'},base_stat:65},{stat:{name:'speed'},base_stat:55}],height:6,weight:88,base_experience:66,gen10:true},
+];
+let allPokemon=[...GEN10],filteredPokemon=[],compareSlots=[null,null],currentTeam=[];
+let activeType='all',activeStage='all',activeGen='all',searchTerm='',favOnly=false,currentModalIdx=-1;
+let globalShiny=false;
+const apiCache={};
+let favourites=new Set(JSON.parse(localStorage.getItem('pkdx-favs')||'[]'));
+function saveFavs(){try{localStorage.setItem('pkdx-favs',JSON.stringify([...favourites]));}catch(e){}}
+function starSVG(){return'<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';}
+function shinyUrl(id){return'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/'+id+'.png';}
+function cardImgUrl(p){if(p.gen10)return artUrl(387);return globalShiny?shinyUrl(p.id):artUrl(p.id);}
+function pad(n){return String(n).padStart(3,'0');}
+function artUrl(id){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png';}
+function spriteUrl(id){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1).replace(/-/g,' '):'';} 
+function genOf(id){for(const[g,[lo,hi]]of Object.entries(GEN_RANGES)){if(id>=lo&&id<=hi)return g;}return '?';}
+async function get(url){if(apiCache[url])return apiCache[url];const r=await fetch(url);if(!r.ok)throw new Error('API '+r.status);const d=await r.json();apiCache[url]=d;return d;}
+
+// NAV
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('section-'+this.dataset.nav).classList.add('active');
+    if(this.dataset.nav==='news')loadNews();
+    if(this.dataset.nav==='achievements')renderAchievements();
+    if(this.dataset.nav==='gyms')renderGyms();
+    if(this.dataset.nav==='faq')renderFAQ();
+  });
+});
+
+// MUSIC
+const TRACKS=['https://soundimage.org/wp-content/uploads/2017/03/Arcade-Heroes.mp3','https://soundimage.org/wp-content/uploads/2017/05/Funky-Chiptune.mp3','https://soundimage.org/wp-content/uploads/2017/06/Bonkers-for-Arcades.mp3','https://soundimage.org/wp-content/uploads/2017/07/Arcade-Puzzler.mp3'];
+let trackIdx=0,bgAudio=null,musicPlaying=false;
+function startMusic(){if(bgAudio){bgAudio.pause();bgAudio=null;}bgAudio=new Audio(TRACKS[trackIdx]);bgAudio.volume=0.55;bgAudio.play().then(()=>{musicPlaying=true;document.getElementById('music-btn').classList.add('playing');}).catch(()=>{});bgAudio.addEventListener('ended',()=>{trackIdx=(trackIdx+1)%TRACKS.length;startMusic();});}
+function stopMusic(){if(bgAudio){bgAudio.pause();bgAudio=null;}musicPlaying=false;document.getElementById('music-btn').classList.remove('playing');}
+document.getElementById('music-btn').addEventListener('click',()=>{if(musicPlaying)stopMusic();else startMusic();});
+
+// AUTH
+let currentUser=null,resetCode=null,resetEmail=null;
+function loadUser(){try{const u=localStorage.getItem('pkdx-user');if(u)currentUser=JSON.parse(u);}catch(e){}}
+function saveUser(u){currentUser=u;try{localStorage.setItem('pkdx-user',JSON.stringify(u));}catch(e){}}
+function clearUser(){currentUser=null;try{localStorage.removeItem('pkdx-user');}catch(e){}}
+function getAccounts(){return JSON.parse(localStorage.getItem('pkdx-accounts')||'{}');}
+function saveAccounts(a){localStorage.setItem('pkdx-accounts',JSON.stringify(a));}
+function showAuthWall(){document.getElementById('auth-wall').classList.remove('hidden');showPanel('login');}
+function hideAuthWall(){document.getElementById('auth-wall').classList.add('hidden');}
+function showPanel(name){['login','signup','reset'].forEach(p=>document.getElementById('panel-'+p).style.display=p===name?'block':'none');if(name==='reset'){['reset-step1','reset-step2','reset-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');document.getElementById('reset-err').textContent='';}}
+document.querySelectorAll('.auth-tab').forEach(t=>t.addEventListener('click',function(){showPanel(this.dataset.atab);}));
+document.getElementById('forgot-link').addEventListener('click',()=>showPanel('reset'));
+document.getElementById('reset-back').addEventListener('click',()=>showPanel('login'));
+document.getElementById('auth-submit').addEventListener('click',()=>{
+  const email=document.getElementById('auth-email').value.trim().toLowerCase(),pass=document.getElementById('auth-pass').value,err=document.getElementById('auth-err');err.textContent='';
+  if(!email.includes('@')){err.textContent='Valid email required.';return;}if(!pass){err.textContent='Password required.';return;}
+  const acc=getAccounts()[email];if(!acc||acc.pass!==pass){err.textContent='Incorrect email or password.';return;}
+  saveUser({name:acc.name,email});hideAuthWall();updateHeaderAuth();updateLockedUI();renderFiltered();
+});
+document.getElementById('su-submit').addEventListener('click',()=>{
+  const name=document.getElementById('su-name').value.trim(),email=document.getElementById('su-email').value.trim().toLowerCase(),pass=document.getElementById('su-pass').value,pass2=document.getElementById('su-pass2').value,err=document.getElementById('su-err');err.textContent='';
+  if(!name){err.textContent='Display name required.';return;}if(!email.includes('@')){err.textContent='Valid email required.';return;}if(pass.length<6){err.textContent='Password min 6 chars.';return;}if(pass!==pass2){err.textContent='Passwords do not match.';return;}
+  const accounts=getAccounts();if(accounts[email]){err.textContent='Account already exists.';return;}
+  accounts[email]={pass,name};saveAccounts(accounts);saveUser({name,email});hideAuthWall();updateHeaderAuth();updateLockedUI();renderFiltered();
+});
+document.getElementById('reset-send').addEventListener('click',()=>{
+  const email=document.getElementById('reset-email').value.trim().toLowerCase(),err=document.getElementById('reset-err');err.textContent='';
+  if(!email.includes('@')){err.textContent='Valid email required.';return;}if(!getAccounts()[email]){err.textContent='No account with that email.';return;}
+  resetCode=String(Math.floor(100000+Math.random()*900000));resetEmail=email;
+  document.getElementById('reset-step1').style.display='none';document.getElementById('reset-step2').style.display='block';
+  document.getElementById('reset-sub').textContent='Your code (shown here since local app):';document.getElementById('reset-code-display').textContent=resetCode;
+});
+document.getElementById('reset-confirm').addEventListener('click',()=>{
+  const code=document.getElementById('reset-code-input').value.trim(),newpass=document.getElementById('reset-newpass').value,newpass2=document.getElementById('reset-newpass2').value,err=document.getElementById('reset-err2');err.textContent='';
+  if(code!==resetCode){err.textContent='Incorrect code.';return;}if(newpass.length<6){err.textContent='Min 6 chars.';return;}if(newpass!==newpass2){err.textContent='Passwords do not match.';return;}
+  const accounts=getAccounts();accounts[resetEmail].pass=newpass;saveAccounts(accounts);
+  document.getElementById('reset-step2').style.display='none';document.getElementById('reset-step3').style.display='block';
+});
+document.getElementById('reset-done').addEventListener('click',()=>showPanel('login'));
+function updateHeaderAuth(){
+  const wrap=document.getElementById('header-auth');
+  if(currentUser){const initials=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();wrap.innerHTML='<div class="user-badge"><div class="user-avatar">'+initials+'</div><span class="user-name">'+currentUser.name+'</span></div><button class="logout-btn" onclick="logout()">Log out</button>';}
+  else{wrap.innerHTML='<button class="hbtn" onclick="showAuthWall()" style="background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.5);color:var(--accent)">Sign In</button>';}
+}
+function updateLockedUI(){
+  const li=!currentUser;
+  document.getElementById('filter-bar').classList.toggle('locked-ui',li);document.getElementById('search-box').classList.toggle('locked-ui',li);
+  if(li){document.getElementById('filter-bar').onclick=()=>showAuthWall();document.getElementById('search-box').onclick=()=>showAuthWall();}
+  else{document.getElementById('filter-bar').onclick=null;document.getElementById('search-box').onclick=null;}
+}
+function logout(){clearUser();updateHeaderAuth();updateLockedUI();renderFiltered();}
+
+// FILTERS
+function buildTypeFilters(){
+  const wrap=document.getElementById('type-filters');
+  const ab=document.createElement('button');ab.className='fchip active';ab.dataset.type='all';ab.textContent='All';ab.style.cssText='background:#333;color:#aaa';
+  ab.addEventListener('click',()=>{activeType='all';setActive(wrap,'type','all');renderFiltered();});wrap.appendChild(ab);
+  TYPES.forEach(t=>{const b=document.createElement('button');b.className='fchip t-'+t;b.dataset.type=t;b.textContent=t;b.style.background=TYPE_COLORS[t];b.style.color=['electric','ice','ground','steel','fairy'].includes(t)?'#333':'#fff';
+    b.addEventListener('click',()=>{activeType=t;setActive(wrap,'type',t);renderFiltered();});wrap.appendChild(b);});
+}
+function setActive(p,k,v){p.querySelectorAll('[data-'+k+']').forEach(c=>c.classList.remove('active'));const el=p.querySelector('[data-'+k+'="'+v+'"]');if(el)el.classList.add('active');}
+document.querySelectorAll('[data-stage]').forEach(b=>b.addEventListener('click',function(){activeStage=this.dataset.stage;document.querySelectorAll('[data-stage]').forEach(c=>c.classList.remove('active'));this.classList.add('active');renderFiltered();}));
+document.getElementById('gen-select').addEventListener('change',function(){activeGen=this.value;renderFiltered();});
+document.getElementById('search').addEventListener('input',function(){searchTerm=this.value.toLowerCase().trim();renderFiltered();});
+document.getElementById('fav-filter-btn').addEventListener('click',function(){favOnly=!favOnly;this.classList.toggle('active',favOnly);this.style.background=favOnly?'#2a2500':'#2a2a1a';renderFiltered();});
+document.getElementById('shiny-all-btn').addEventListener('click',function(){globalShiny=!globalShiny;this.classList.toggle('active',globalShiny);renderFiltered();});
+document.getElementById('clear-btn').addEventListener('click',()=>{
+  activeType='all';activeStage='all';activeGen='all';searchTerm='';favOnly=false;globalShiny=false;
+  document.getElementById('search').value='';document.getElementById('gen-select').value='all';
+  setActive(document.getElementById('type-filters'),'type','all');
+  document.querySelectorAll('[data-stage]').forEach(c=>c.classList.remove('active'));document.querySelector('[data-stage="all"]').classList.add('active');
+  const fb=document.getElementById('fav-filter-btn');fb.classList.remove('active');fb.style.background='#2a2a1a';
+  const sb=document.getElementById('shiny-all-btn');if(sb)sb.classList.remove('active');
+  renderFiltered();
+});
+document.getElementById('random-btn').addEventListener('click',()=>{if(!filteredPokemon.length)return;openModal(Math.floor(Math.random()*filteredPokemon.length));});
+document.getElementById('random-team-btn').addEventListener('click',()=>{buildRandomTeam(parseInt(document.getElementById('team-count-select').value)||6);document.getElementById('team-overlay').classList.add('open');document.body.style.overflow='hidden';});
+
+function renderFiltered(){
+  let list=allPokemon;
+  if(activeGen==='10')list=list.filter(p=>p.gen10);
+  else if(activeGen!=='all'){const[lo,hi]=GEN_RANGES[parseInt(activeGen)];list=list.filter(p=>!p.gen10&&p.id>=lo&&p.id<=hi);}
+  else list=list.filter(p=>!p.gen10);
+  if(activeType!=='all')list=list.filter(p=>p.types.includes(activeType));
+  if(activeStage!=='all')list=list.filter(p=>String(p.stage)===activeStage);
+  if(favOnly)list=list.filter(p=>favourites.has(p.id));
+  if(searchTerm)list=list.filter(p=>p.name.toLowerCase().includes(searchTerm)||String(p.id).includes(searchTerm));
+  filteredPokemon=list;
+  document.getElementById('count-bar').textContent='Showing '+list.length+' Pokemon';
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  if(!list.length){
+    const msg=favOnly?'No favourites yet — star some Pokemon!':'No Pokemon match your filters!';
+    grid.innerHTML='<div class="empty-turtwig"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/387.png" alt="Turtwig"/><p>'+msg+'</p><p style="font-size:11px;font-family:Nunito;margin-top:.5rem;color:#555">Turtwig is watching over your Pokedex!</p></div>';return;
+  }
+  list.forEach((p,i)=>{
+    const pt=p.types[0];
+    const d=document.createElement('div');
+    d.className='card'+(favourites.has(p.id)?' fav-card':'')+(globalShiny?' shiny-card':'');
+    const imgSrc=cardImgUrl(p);
+    d.innerHTML='<div class="card-img-wrap card-bg-'+pt+'" style="position:relative"><span class="card-num">#'+(p.gen10?'G10':pad(p.id))+'</span>'
+      +(globalShiny&&!p.gen10?'<span class="shiny-card-badge">✨</span>':'')
+      +'<img src="'+imgSrc+'" alt="'+p.name+'" loading="lazy" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src=\''+artUrl(p.gen10?387:p.id)+'\'}"/>'
+      +'<button class="star-btn'+(favourites.has(p.id)?' fav':'')+'" data-id="'+p.id+'">'+starSVG()+'</button>'
+      +'</div><div class="card-body"><div class="pname">'+p.name+'</div><div class="types">'+p.types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('')+'</div></div>';
+    d.querySelector('.star-btn').addEventListener('click',e=>{
+      e.stopPropagation();
+      if(favourites.has(p.id))favourites.delete(p.id);else favourites.add(p.id);
+      saveFavs();checkPins();renderFiltered();
+    });
+    d.addEventListener('click',()=>{
+      if(compareSlots[0]&&!compareSlots[1]&&compareSlots[0].id!==p.id){setCompareSlot(1,p);return;}
+      openModal(i);
+    });
+    grid.appendChild(d);
+  });
+  checkPins();
+}
+
+// MODAL
+async function openModal(fidx){
+  currentModalIdx=fidx;const p=filteredPokemon[fidx];if(!p)return;
+  const pt=p.types[0],color=TYPE_COLORS[pt]||'#555';
+  document.getElementById('modal-hero').style.background='linear-gradient(135deg,'+color+'44,'+color+'99)';
+  document.getElementById('m-num').textContent='#'+(p.gen10?'G10':pad(p.id));
+  document.getElementById('m-img').src=p.gen10?artUrl(387):artUrl(p.id);
+  document.getElementById('m-name').textContent=p.name.toUpperCase();
+  document.getElementById('m-types').innerHTML=p.types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('');
+  document.getElementById('m-gen').textContent=p.gen10?'Gen 10':'Gen '+genOf(p.id);
+  document.getElementById('modal-star-btn').className='modal-star'+(favourites.has(p.id)?' fav':'');
+  document.getElementById('overlay').classList.add('open');document.body.style.overflow='hidden';
+  document.getElementById('prev-btn').style.display=fidx>0?'flex':'none';
+  document.getElementById('next-btn').style.display=fidx<filteredPokemon.length-1?'flex':'none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelector('[data-tab="stats"]').classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(t=>t.style.display='none');document.getElementById('tab-stats').style.display='block';
+  if(p.stats)renderStats(p);else document.getElementById('tab-stats').innerHTML='<div class="loading-line">Loading...</div>';
+  ['dex','abilities','locations','evolution'].forEach(t=>document.getElementById('tab-'+t).innerHTML='<div class="loading-line">Loading...</div>');
+  playCry(p.id);
+  if(!p.gen10)loadModalData(p);
+  else{document.getElementById('m-height').textContent=(p.height/10).toFixed(1)+'m';document.getElementById('m-weight').textContent=(p.weight/10).toFixed(1)+'kg';document.getElementById('m-xp').textContent=p.base_experience||'-';document.getElementById('m-catch').textContent='-';['dex','abilities','locations','evolution'].forEach(t=>document.getElementById('tab-'+t).innerHTML='<p class="no-data">Gen 10 data coming soon!</p>');}
+}
+async function loadModalData(p){
+  try{
+    const[full,species]=await Promise.all([get(API+'pokemon/'+p.id).catch(()=>null),get(API+'pokemon-species/'+p.id).catch(()=>null)]);
+    if(full){p.stats=full.stats;document.getElementById('m-height').textContent=(full.height/10).toFixed(1)+'m';document.getElementById('m-weight').textContent=(full.weight/10).toFixed(1)+'kg';document.getElementById('m-xp').textContent=full.base_experience||'-';renderStats(p);renderAbilities(full);renderLocations(p.id);}
+    if(species){document.getElementById('m-catch').textContent=species.capture_rate??'-';renderDex(species);if(species.evolution_chain?.url){const evo=await get(species.evolution_chain.url).catch(()=>null);if(evo)renderEvolution(evo.chain);else document.getElementById('tab-evolution').innerHTML='<p class="no-data">No data.</p>';}else document.getElementById('tab-evolution').innerHTML='<p class="no-data">Does not evolve.</p>';}
+  }catch(e){}
+}
+function renderStats(p){
+  const bst=p.stats.reduce((a,s)=>a+s.base_stat,0);
+  document.getElementById('tab-stats').innerHTML=p.stats.map(s=>{const k=s.stat.name,v=s.base_stat,pct=Math.min(100,(v/255)*100),m=STAT_MAP[k]||{l:k,c:'s-hp'};return '<div class="stat-row"><span class="stat-label">'+m.l+'</span><div class="sbar-bg"><div class="sbar '+m.c+'" style="width:'+pct+'%"></div></div><span class="stat-val">'+v+'</span></div>';}).join('')+'<div class="bst-row"><span class="bst-label">BST</span><span class="bst-val">'+bst+'</span></div>';
+}
+function renderDex(species){
+  const entries=(species.flavor_text_entries||[]).filter(e=>e.language.name==='en');
+  const seen=new Set(),uniq=[];entries.forEach(e=>{if(!seen.has(e.version.name)){seen.add(e.version.name);uniq.push(e);}});
+  const recent=uniq.slice(-5).reverse();
+  document.getElementById('tab-dex').innerHTML=recent.length?recent.map(e=>'<div class="dex-entry"><span class="game-label">'+cap(e.version.name)+'</span><span class="dex-text">'+e.flavor_text.replace(/\f|\n/g,' ')+'</span></div>').join(''):'<p class="no-data">No entries.</p>';
+}
+async function renderAbilities(full){
+  const wrap=document.getElementById('tab-abilities');
+  const cards=await Promise.all((full.abilities||[]).map(async a=>{let desc='';try{const d=await get(a.ability.url);const e=(d?.flavor_text_entries||[]).find(x=>x.language.name==='en');desc=e?e.flavor_text.replace(/\n/g,' '):'No description.';}catch(e){desc='No description.';}return '<div class="ability-card"><div class="ability-name">'+cap(a.ability.name)+(a.is_hidden?'<span class="hidden-tag">Hidden</span>':'')+'</div><div class="ability-desc">'+desc+'</div></div>';}));
+  wrap.innerHTML=cards.length?'<div class="ability-list">'+cards.join('')+'</div>':'<p class="no-data">No abilities.</p>';
+}
+async function renderLocations(id){
+  const wrap=document.getElementById('tab-locations');
+  try{const data=await get(API+'pokemon/'+id+'/encounters');if(!data?.length){wrap.innerHTML='<p class="no-data">Not found in the wild.</p>';return;}wrap.innerHTML='<div class="location-list">'+data.slice(0,20).map(e=>'<div class="loc-card"><span class="loc-name">'+cap(e.location_area.name.replace(/-/g,' '))+'</span><span class="loc-details">'+e.version_details.map(v=>cap(v.version.name)+': '+v.max_chance+'%').join(' - ')+'</span></div>').join('')+'</div>';}catch(e){wrap.innerHTML='<p class="no-data">Location data unavailable.</p>';}
+}
+async function renderEvolution(chain){
+  const wrap=document.getElementById('tab-evolution');
+  try{const stages=[];function walk(node,d){const parts=node.species.url.split('/');const id=parseInt(parts[parts.length-2]);stages.push({id,name:node.species.name,d,details:node.evolution_details});node.evolves_to.forEach(n=>walk(n,d+1));}walk(chain,0);
+    if(stages.length<=1){wrap.innerHTML='<p class="no-data">Does not evolve.</p>';return;}
+    let html='<div class="evo-chain">';
+    stages.forEach((s,i)=>{if(i>0){const det=s.details[0];let trig='Lvl up';if(det){if(det.min_level)trig='Lv.'+det.min_level;else if(det.item?.name)trig=cap(det.item.name);else if(det.trigger?.name==='trade')trig='Trade';else if(det.min_happiness)trig='Friendship';else if(det.trigger?.name)trig=cap(det.trigger.name);}html+='<div class="evo-arr"><span style="font-size:14px">></span><span class="evo-trig">'+trig+'</span></div>';}html+='<div class="evo-mon" onclick="jumpToId('+s.id+')"><img src="'+spriteUrl(s.id)+'" alt="'+s.name+'" onerror="this.src=\''+artUrl(s.id)+'\'"/><span class="enum">#'+pad(s.id)+'</span><span class="emon">'+s.name+'</span></div>';});
+    html+='</div>';wrap.innerHTML=html;}catch(e){wrap.innerHTML='<p class="no-data">Evolution data unavailable.</p>';}
+}
+window.jumpToId=function(id){const idx=filteredPokemon.findIndex(p=>p.id===id);if(idx>=0)openModal(idx);};
+document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');document.getElementById('tab-'+this.dataset.tab).style.display='block';}));
+document.getElementById('close-btn').addEventListener('click',closeModal);
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeModal();});
+document.getElementById('prev-btn').addEventListener('click',()=>{if(currentModalIdx>0)openModal(currentModalIdx-1);});
+document.getElementById('next-btn').addEventListener('click',()=>{if(currentModalIdx<filteredPokemon.length-1)openModal(currentModalIdx+1);});
+document.getElementById('modal-star-btn').addEventListener('click',()=>{const p=filteredPokemon[currentModalIdx];if(!p)return;if(favourites.has(p.id))favourites.delete(p.id);else favourites.add(p.id);saveFavs();document.getElementById('modal-star-btn').className='modal-star'+(favourites.has(p.id)?' fav':'');checkPins();renderFiltered();});
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';currentModalIdx=-1;stopCry();}
+
+// CRY
+let currentAudio=null;
+function playCry(id){stopCry();currentAudio=new Audio('https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/'+id+'.ogg');const btn=document.getElementById('cry-btn');btn.classList.add('playing');currentAudio.play().catch(()=>{});currentAudio.onended=()=>btn.classList.remove('playing');currentAudio.onerror=()=>btn.classList.remove('playing');}
+function stopCry(){if(currentAudio){currentAudio.pause();currentAudio=null;}const btn=document.getElementById('cry-btn');if(btn)btn.classList.remove('playing');}
+document.getElementById('cry-btn').addEventListener('click',()=>{const p=filteredPokemon[currentModalIdx];if(!p)return;if(currentAudio&&!currentAudio.paused)stopCry();else playCry(p.id);});
+
+// COMPARE
+function setCompareSlot(slot,p){
+  compareSlots[slot]=p;const el=document.getElementById('compare-slot-'+(slot+1));const imgSrc=p.gen10?artUrl(387):artUrl(p.id);
+  el.innerHTML='<img src="'+imgSrc+'"/><span class="compare-slot-name">'+p.name+'</span><button class="compare-slot-remove" onclick="clearSlot('+slot+')">x</button>';
+  document.getElementById('compare-go-btn').disabled=!(compareSlots[0]&&compareSlots[1]);
+}
+window.clearSlot=function(slot){compareSlots[slot]=null;document.getElementById('compare-slot-'+(slot+1)).innerHTML='<span style="color:var(--muted);font-size:12px;font-weight:700">Slot '+(slot+1)+' - click a card</span>';document.getElementById('compare-go-btn').disabled=true;};
+document.getElementById('compare-go-btn').addEventListener('click',()=>{if(!compareSlots[0]||!compareSlots[1])return;openCompare(compareSlots[0],compareSlots[1]);});
+document.getElementById('compare-clear-btn').addEventListener('click',()=>{clearSlot(0);clearSlot(1);});
+
+function typeEff(atk,def){const chart={normal:{rock:.5,ghost:0,steel:.5},fire:{fire:.5,water:.5,grass:2,ice:2,bug:2,rock:.5,dragon:.5,steel:2},water:{fire:2,water:.5,grass:.5,ground:2,rock:2,dragon:.5},electric:{water:2,electric:.5,grass:.5,ground:0,flying:2,dragon:.5},grass:{fire:.5,water:2,grass:.5,poison:.5,ground:2,flying:.5,bug:.5,rock:2,dragon:.5,steel:.5},ice:{fire:.5,water:.5,grass:2,ice:.5,ground:2,flying:2,dragon:2,steel:.5},fighting:{normal:2,ice:2,poison:.5,flying:.5,psychic:.5,bug:.5,rock:2,ghost:0,dark:2,steel:2,fairy:.5},poison:{grass:2,poison:.5,ground:.5,rock:.5,ghost:.5,steel:0,fairy:2},ground:{fire:2,electric:2,grass:.5,poison:2,flying:0,bug:.5,rock:2,steel:2},flying:{electric:.5,grass:2,fighting:2,bug:2,rock:.5,steel:.5},psychic:{fighting:2,poison:2,psychic:.5,dark:0,steel:.5},bug:{fire:.5,grass:2,fighting:.5,flying:.5,psychic:2,ghost:.5,dark:2,steel:.5,fairy:.5},rock:{fire:2,ice:2,fighting:.5,ground:.5,flying:2,bug:2,steel:.5},ghost:{normal:0,psychic:2,ghost:2,dark:.5},dragon:{dragon:2,steel:.5,fairy:0},dark:{fighting:.5,psychic:2,ghost:2,dark:.5,fairy:.5},steel:{fire:.5,water:.5,electric:.5,ice:2,rock:2,steel:.5,fairy:2},fairy:{fire:.5,fighting:2,poison:.5,dragon:2,dark:2,steel:.5}};
+  let m=1;atk.forEach(a=>{def.forEach(d=>{if(chart[a]&&chart[a][d]!==undefined)m*=chart[a][d];});});return m;}
+
+function calcWin(a,b){
+  const aBST=a.stats?a.stats.reduce((s,x)=>s+x.base_stat,0):300,bBST=b.stats?b.stats.reduce((s,x)=>s+x.base_stat,0):300;
+  const aAtk=a.stats?a.stats.find(s=>s.stat.name==='attack')?.base_stat||50:50,bAtk=b.stats?b.stats.find(s=>s.stat.name==='attack')?.base_stat||50:50;
+  const aSpd=a.stats?a.stats.find(s=>s.stat.name==='speed')?.base_stat||50:50,bSpd=b.stats?b.stats.find(s=>s.stat.name==='speed')?.base_stat||50:50;
+  const tAdv=typeEff(a.types,b.types),tDis=typeEff(b.types,a.types);
+  const aScore=aBST*.5+aAtk*.2+aSpd*.1+tAdv*100-tDis*80,bScore=bBST*.5+bAtk*.2+bSpd*.1+tDis*100-tAdv*80;
+  return Math.round((aScore/(aScore+bScore))*100);
+}
+function openCompare(a,b){
+  const aWin=calcWin(a,b),bWin=100-aWin,winner=aWin>=bWin?a:b,winPct=Math.max(aWin,bWin);
+  const aImg=a.gen10?artUrl(387):artUrl(a.id),bImg=b.gen10?artUrl(387):artUrl(b.id);
+  const aBST=a.stats?a.stats.reduce((s,x)=>s+x.base_stat,0):0,bBST=b.stats?b.stats.reduce((s,x)=>s+x.base_stat,0):0;
+  const aC=TYPE_COLORS[a.types[0]]||'#555',bC=TYPE_COLORS[b.types[0]]||'#555';
+  let sHtml='';
+  if(a.stats&&b.stats){a.stats.forEach(as=>{const bs=b.stats.find(s=>s.stat.name===as.stat.name);if(!bs)return;const av=as.base_stat,bv=bs.base_stat,m=STAT_MAP[as.stat.name]||{l:as.stat.name,c:'s-hp'};sHtml+='<div class="cstat-row"><div style="display:flex;justify-content:flex-end;gap:6px;align-items:center"><span class="cstat-val '+(av>=bv?'winner':'loser')+'">'+av+'</span><div class="cstat-bar-l"><div class="cstat-fill" style="width:'+(av/255*100)+'%;background:'+aC+'"></div></div></div><span class="cstat-label">'+m.l+'</span><div style="display:flex;gap:6px;align-items:center"><div class="cstat-bar-r"><div class="cstat-fill" style="width:'+(bv/255*100)+'%;background:'+bC+'"></div></div><span class="cstat-val '+(bv>=av?'winner':'loser')+'">'+bv+'</span></div></div>';});}
+  const wImg=winner.gen10?artUrl(387):artUrl(winner.id);
+  document.getElementById('compare-body').innerHTML='<div class="compare-grid"><div class="cmon-hero" style="background:'+aC+'22;border-radius:12px"><img class="cmon-img" src="'+aImg+'" alt="'+a.name+'"/><div class="cmon-num">#'+(a.gen10?'G10':pad(a.id))+'</div><div class="cmon-name">'+a.name+'</div><div class="types" style="justify-content:center;margin-top:4px">'+a.types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('')+'</div></div><div class="vs-label">VS</div><div class="cmon-hero" style="background:'+bC+'22;border-radius:12px"><img class="cmon-img" src="'+bImg+'" alt="'+b.name+'"/><div class="cmon-num">#'+(b.gen10?'G10':pad(b.id))+'</div><div class="cmon-name">'+b.name+'</div><div class="types" style="justify-content:center;margin-top:4px">'+b.types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('')+'</div></div></div><div class="win-banner"><img src="'+wImg+'" style="width:60px;height:60px;object-fit:contain"/><span class="win-pct">'+winner.name.toUpperCase()+' WINS</span><div class="win-name">'+winPct+'% chance of winning</div><div class="win-sub">Based on BST, Attack, Speed and type matchup</div></div><div class="cstat-row" style="margin:1rem 0"><div style="display:flex;justify-content:flex-end"><span class="cstat-val '+(aBST>=bBST?'winner':'loser')+'">'+aBST+'</span></div><span class="cstat-label">BST</span><div><span class="cstat-val '+(bBST>=aBST?'winner':'loser')+'">'+bBST+'</span></div></div>'+sHtml;
+  document.getElementById('compare-overlay').classList.add('open');document.body.style.overflow='hidden';
+}
+document.getElementById('compare-close-btn').addEventListener('click',()=>{document.getElementById('compare-overlay').classList.remove('open');document.body.style.overflow='';});
+document.getElementById('compare-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('compare-overlay')){document.getElementById('compare-overlay').classList.remove('open');document.body.style.overflow='';}});
+
+// RANDOM
+document.getElementById('random-btn').addEventListener('click',()=>{if(!currentUser){showAuthWall();return;}if(!filteredPokemon.length)return;openModal(Math.floor(Math.random()*filteredPokemon.length));});
+document.getElementById('random-team-btn').addEventListener('click',()=>{if(!currentUser){showAuthWall();return;}buildRandomTeam(parseInt(document.getElementById('team-count-select').value)||6);document.getElementById('team-overlay').classList.add('open');document.body.style.overflow='hidden';});
+function buildRandomTeam(count){
+  const pool=[...allPokemon],picked=[],used=new Set();
+  while(picked.length<count&&pool.length>0){const idx=Math.floor(Math.random()*pool.length);const p=pool.splice(idx,1)[0];if(!used.has(p.id)){used.add(p.id);picked.push(p);}}
+  currentTeam=picked;document.getElementById('team-subtitle').textContent=picked.length+' random Pokemon - click to view';
+  const grid=document.getElementById('team-grid');grid.innerHTML='';
+  picked.forEach(p=>{const pt=p.types[0];const card=document.createElement('div');card.className='team-card';const img=p.gen10?artUrl(387):artUrl(p.id);card.innerHTML='<div class="team-card-img card-bg-'+pt+'"><img src="'+img+'" alt="'+p.name+'" loading="lazy"/></div><div class="team-card-num">#'+(p.gen10?'G10':pad(p.id))+'</div><div class="team-card-name">'+p.name+'</div><div class="team-card-types">'+p.types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('')+'</div>';card.addEventListener('click',()=>{closeTeamModal();const fidx=filteredPokemon.findIndex(x=>x.id===p.id);if(fidx>=0)openModal(fidx);});grid.appendChild(card);});
+}
+function closeTeamModal(){document.getElementById('team-overlay').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('team-close-btn').addEventListener('click',closeTeamModal);
+document.getElementById('team-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('team-overlay'))closeTeamModal();});
+document.getElementById('team-reroll-btn').addEventListener('click',()=>buildRandomTeam(parseInt(document.getElementById('team-count-select').value)||6));
+document.getElementById('team-fav-all-btn').addEventListener('click',()=>{if(!currentUser){showAuthWall();return;}currentTeam.forEach(p=>favourites.add(p.id));saveFavs();renderFiltered();const btn=document.getElementById('team-fav-all-btn');btn.textContent='Favourited!';setTimeout(()=>{btn.textContent='Fav All';},1500);});
+
+// POTD
+async function loadPotd(){
+  const today=new Date(),seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate(),potdId=((seed*9301+49297)%233280)%TOTAL+1;
+  const dateStr=today.toLocaleDateString('en-AU',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('potd-date').textContent=dateStr;
+  try{
+    const[poke,species]=await Promise.all([get(API+'pokemon/'+potdId),get(API+'pokemon-species/'+potdId).catch(()=>null)]);
+    const types=poke.types.map(t=>t.type.name),pt=types[0];
+    document.getElementById('potd-img').src=artUrl(potdId);document.getElementById('potd-num').textContent='#'+pad(potdId);document.getElementById('potd-name').textContent=poke.name.toUpperCase();
+    document.getElementById('potd-types').innerHTML=types.map(t=>'<span class="tbadge t-'+t+'">'+t+'</span>').join('');
+    document.getElementById('potd-wrap').style.background='linear-gradient(135deg,'+TYPE_COLORS[pt]+'22,var(--surface2))';
+    if(species){const e=(species.flavor_text_entries||[]).filter(x=>x.language.name==='en').slice(-1)[0];if(e)document.getElementById('potd-desc').textContent='"'+e.flavor_text.replace(/\f|\n/g,' ')+'"';}
+    const openPotd=()=>{if(!currentUser){showAuthWall();return;}const idx=filteredPokemon.findIndex(p=>p.id===potdId);if(idx>=0)openModal(idx);};
+    document.getElementById('potd-img').addEventListener('click',openPotd);document.getElementById('potd-view-btn').addEventListener('click',openPotd);
+    document.getElementById('potd-banner').style.display='block';
+  }catch(e){}
+}
+
+// GAMES
+// 6-hour window key — resets at 00:00, 06:00, 12:00, 18:00 Sydney time
+function getGameWindowKey(){
+  const d=new Date(new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
+  const window6h=Math.floor(d.getHours()/6); // 0,1,2,3
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'-'+window6h;
+}
+function getTodayStr(){return getGameWindowKey();}
+
+// Countdown timer
+function getNextResetMs(){
+  const now=new Date(new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
+  const nextHour=Math.ceil(now.getHours()/6)*6; // next multiple of 6
+  const next=new Date(now);
+  next.setHours(nextHour,0,0,0);
+  if(next<=now)next.setHours(next.getHours()+6);
+  return next-now;
+}
+
+function updateResetTimer(){
+  const el=document.getElementById('reset-timer');
+  if(!el)return;
+  const ms=getNextResetMs();
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  el.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  el.classList.toggle('urgent',ms<300000); // red when <5 min
+  // auto-reset games if window changed
+  const current=getGameWindowKey();
+  try{
+    const saved=JSON.parse(localStorage.getItem('pkdx-games')||'{}');
+    if(saved.date&&saved.date!==current){riddleState={};quizState={};voteState={};saveGameStates();updateGameCards();}
+  }catch(e){}
+}
+setInterval(updateResetTimer,1000);
+updateResetTimer();
+
+function todaySeed(){const d=new Date(new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()*10+Math.floor(d.getHours()/6);}
+function seededRand(seed,n){return((seed*1664525+1013904223)&0x7fffffff)%n;}
+let riddleState={},quizState={},voteState={};
+function loadGameStates(){try{const saved=JSON.parse(localStorage.getItem('pkdx-games')||'{}');const today=getTodayStr();if(saved.date===today){riddleState=saved.riddle||{};quizState=saved.quiz||{};voteState=saved.vote||{};}else{riddleState={};quizState={};voteState={};saveGameStates();}}catch(e){}}
+function saveGameStates(){try{localStorage.setItem('pkdx-games',JSON.stringify({date:getTodayStr(),riddle:riddleState,quiz:quizState,vote:voteState}));}catch(e){}}
+function updateGameCards(){
+  if(riddleState.done){const rs=document.getElementById('riddle-card-status');rs.className='game-status '+(riddleState.won?'done':'failed');rs.textContent=riddleState.won?'Solved!':'Defeated';}
+  if(quizState.done){const qs=document.getElementById('quiz-card-status');qs.className='game-status '+(quizState.score>=8?'done':'failed');qs.textContent=(quizState.score||0)+'/10 Correct';}
+  if(voteState.voted){const vs=document.getElementById('vote-card-status');vs.className='game-status done';vs.textContent='Voted!';}
+}
+const RIDDLES=[
+  {name:'shedinja',desc:'This Pokemon has only 1 HP and can never be damaged by moves that are not super effective against it. It is formed when a certain Bug-type evolves and leaves its old shell behind. It floats silently and is said to steal the soul of anyone who peers into the hole in its back.',hint:'It has the ability Wonder Guard and evolves from Nincada alongside another Pokemon.',id:292},
+  {name:'ditto',desc:'This Pokemon has no real battle moves of its own. Instead it transforms into a perfect copy of whatever it faces. Scientists believe it may be a failed attempt at cloning a legendary Pokemon.',hint:'It is purple and blob-shaped and its name is also a word meaning the same thing again.',id:132},
+  {name:'garchomp',desc:'This Dragon and Ground type can dig through the earth at jet speed rivalling aircraft. It is the signature ace of the Sinnoh Champion and its body shape resembles a fighter plane when it tucks in its fins.',hint:'It is the final form of Gible and its Mega Evolution has one of the highest Attack stats in the game.',id:445},
+  {name:'spiritomb',desc:'This Pokemon is bound to a keystone after committing 108 misdeeds over 500 years. It has no weaknesses in Generation 4 because of its typing combination. It can only be obtained by putting a Hallowed Tower into the Solaceon Ruins after talking to 32 people underground.',hint:'It is Ghost and Dark type with exactly 108 as a recurring number in its lore.',id:442},
+  {name:'magikarp',desc:'This Pokemon is widely considered the most useless in battle. It can only splash around and do nothing meaningful until it reaches level 20. Yet it is one of the most beloved Pokemon ever and its evolution is one of the most dramatic in the entire franchise.',hint:'It is a fish that does nothing — but evolves into a fearsome serpent.',id:129},
+  {name:'zoroark',desc:'This Pokemon creates illusions so perfect that entire cities can be deceived. It is fiercely protective of its pack and will sacrifice itself to protect its young. It is the master illusion Pokemon of Unova.',hint:'It is Dark type from Gen 5 and can disguise itself as other Pokemon in battle.',id:571},
+  {name:'aegislash',desc:'This Pokemon changes form in battle — from Shield Forme to Blade Forme depending on whether it is attacking or defending. It is said that in ancient times kings who possessed this Pokemon were destined to rule the world.',hint:'It is a Ghost and Steel type sword that floats using spectral power from Gen 6.',id:681},
+  {name:'urshifu',desc:'This legendary Kung Fu Pokemon was introduced in the Isle of Armor DLC. Depending on which scroll you choose it will specialise in either rapid multi-hit strikes or a single powerful unstoppable blow. Both forms can Gigantamax.',hint:'It is a Fighting type bear-like Pokemon with two distinct styles: Single Strike and Rapid Strike.',id:892},
+  {name:'turtwig',desc:'This small Grass type tortoise has a twig growing from its head that sprouts into a larger plant as it grows stronger. Its shell is made of soil and hardens when it drinks water. It is the starter Pokemon of the Sinnoh region.',hint:'It is the favourite Pokemon of the creator of this very Pokedex. It is also #387.',id:387},
+  {name:'rotom',desc:'This Electric and Ghost type can possess different household appliances to change its form and type. It can become a microwave, washing machine, mow a lawn, spin a fan or freeze things. In later games it lives inside your Pokedex.',hint:'It has 6 different forms and lives inside the Rotom Dex in Sun and Moon.',id:479},
+];
+
+const QUESTIONS=[
+  {q:'Which ability makes Shedinja only take damage from super effective moves?',opts:['Battle Armor','Wonder Guard','Magic Bounce','Sturdy'],a:1},
+  {q:'What is the only Pokemon that can learn the move Sketch, copying any move permanently?',opts:['Mew','Ditto','Smeargle','Spinda'],a:2},
+  {q:'In Generation 4, which type combination had absolutely zero weaknesses?',opts:['Ghost/Dark','Steel/Ghost','Normal/Ghost','Poison/Dark'],a:0},
+  {q:'Which Pokemon has a base stat total of exactly 600 and is NOT a pseudo-legendary?',opts:['Dragonite','Goodra','Slaking','Tyranitar'],a:2},
+  {q:'What move has 120 base power, 100% accuracy, and forces the user to rest next turn?',opts:['Hyper Beam','Giga Impact','Frenzy Plant','Blast Burn'],a:0},
+  {q:'Which held item doubles a Pokemon\'s Speed when its HP drops below one third?',opts:['Salac Berry','Liechi Berry','Custap Berry','Salac Berry'],a:0},
+  {q:'Garchomp\'s Mega Evolution has 170 base Attack. What is its biggest drawback?',opts:['Lower Speed','Lower Defense','Loses its Ground type','Takes recoil damage'],a:0},
+  {q:'Which move bypasses accuracy checks entirely and always hits?',opts:['Fissure','Aura Sphere','Swift','Aerial Ace'],a:1},
+  {q:'What is the signature ability of Huge Power and what does it do?',opts:['Doubles Sp.Atk','Doubles Attack','Doubles Speed','Doubles HP'],a:1},
+  {q:'In competitive play, which mechanic allows a Pokemon to avoid a one-hit KO once per battle?',opts:['Sturdy','Focus Sash','Multiscale','Endure'],a:0},
+  {q:'Which Pokemon is the only one that changes its primary type based on held item?',opts:['Silvally','Arceus','Genesect','Oricorio'],a:1},
+  {q:'What is Spiritomb\'s National Pokedex number, which matches the number of misdeeds it committed?',opts:['108','442','108','333'],a:1},
+  {q:'Which move has the highest base power of any non-Z non-Max move in the game?',opts:['Explosion','V-create','Eruption at full HP','Sheer Cold'],a:0},
+  {q:'Zoroark\'s ability Illusion works by disguising it as which Pokemon in your party?',opts:['The first Pokemon','The last Pokemon','A random Pokemon','The Pokemon with most HP'],a:1},
+  {q:'Which generation introduced the Physical/Special split, changing how moves work based on type?',opts:['Gen 3','Gen 4','Gen 5','Gen 2'],a:1},
+  {q:'What causes Aegislash to switch between Shield Forme and Blade Forme?',opts:['Time of day','Using attacking vs status moves','Its HP level','Its held item'],a:1},
+  {q:'Which Pokemon has the highest base Speed stat of all time as of Gen 9?',opts:['Regieleki','Deoxys Speed','Ninjask','Electrode'],a:0},
+  {q:'What is the maximum number of times Rollout\'s power can double if used consecutively?',opts:['4 times','5 times','3 times','6 times'],a:1},
+  {q:'Which ability prevents a Pokemon from being afflicted by status conditions on sunny days?',opts:['Leaf Guard','Natural Cure','Immunity','Hydration'],a:0},
+  {q:'In a Triple Battle, which position can be attacked by ALL opponent positions?',opts:['Left only','Right only','Centre','All equally'],a:2},
+];
+const ROASTS=['Did you even watch the show?','A Magikarp could do better.','Turtwig is very disappointed in you.','Please give your Pokemon cards to someone who deserves them.','Have you tried asking a Bidoof? They would do better.'];
+const GREATS=['PERFECT! You are a true Pokemon Master!','Incredible! Even Ash is jealous!','Outstanding! You belong in the Hall of Fame!','Turtwig is incredibly proud of you!'];
+
+let quizQ=0,quizAnswered=false,dailyQuizOrder=[];
+
+function getDailyQuizOrder(){
+  // Seeded shuffle — pick 10 unique questions for today
+  const seed=todaySeed();const indices=[...Array(QUESTIONS.length).keys()];
+  for(let i=indices.length-1;i>0;i--){const j=seededRand(seed+i,i+1);[indices[i],indices[j]]=[indices[j],indices[i]];}
+  return indices.slice(0,10);
+}
+
+document.getElementById('open-riddle-btn').addEventListener('click',()=>openRiddle());
+function openRiddle(){
+  const panel=document.getElementById('riddle-panel');
+  const isOpen=panel.classList.contains('active');
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  if(isOpen)return;
+  panel.classList.add('active');
+  const seed=todaySeed(),riddle=RIDDLES[seededRand(seed,RIDDLES.length)];
+  const lives=riddleState.lives!==undefined?riddleState.lives:3;
+  renderLives('riddle-lives',lives);
+  document.getElementById('riddle-silhouette').src=artUrl(riddle.id);
+  document.getElementById('riddle-desc').textContent=riddle.desc;
+  document.getElementById('riddle-hint').textContent=riddleState.lives!==undefined&&riddleState.lives<3?'Hint: '+riddle.hint:'';
+  document.getElementById('riddle-feedback').className='game-feedback';
+  if(riddleState.done){showRiddleResult(riddle,riddleState.won);}else{document.getElementById('riddle-input-row').style.display='flex';document.getElementById('riddle-result').style.display='none';}
+}
+function renderLives(id,n){document.getElementById(id).innerHTML=Array.from({length:3},(_,i)=>'<span class="life'+(i>=n?' lost':'')+'">❤️</span>').join('');}
+document.getElementById('riddle-submit').addEventListener('click',submitRiddle);
+document.getElementById('riddle-input').addEventListener('keydown',e=>{if(e.key==='Enter')submitRiddle();});
+function submitRiddle(){
+  const seed=todaySeed(),riddle=RIDDLES[seededRand(seed,RIDDLES.length)];
+  const guess=document.getElementById('riddle-input').value.trim().toLowerCase(),fb=document.getElementById('riddle-feedback');
+  if(!guess)return;
+  if(guess===riddle.name.toLowerCase()||guess.replace(/ /g,'')===riddle.name.replace(/-/g,'')){
+    fb.className='game-feedback correct';fb.textContent='Correct! It was '+cap(riddle.name)+'!';
+    riddleState={done:true,won:true,lives:riddleState.lives||3};saveGameStates();updateGameCards();
+    const ach=getAch();ach.riddleWins=(ach.riddleWins||0)+1;saveAch(ach);
+    setTimeout(()=>showRiddleResult(riddle,true),800);
+  }else{
+    const lives=(riddleState.lives||3)-1;riddleState.lives=lives;saveGameStates();renderLives('riddle-lives',lives);
+    if(lives<=0){fb.className='game-feedback wrong';fb.textContent='Out of lives! It was '+cap(riddle.name)+'.';riddleState={done:true,won:false,lives:0};saveGameStates();updateGameCards();setTimeout(()=>showRiddleResult(riddle,false),800);}
+    else{fb.className='game-feedback wrong';fb.textContent='Wrong! '+lives+' life'+(lives===1?'':'s')+' left.';if(lives===2)document.getElementById('riddle-hint').textContent='Hint: '+riddle.hint;}
+  }
+  document.getElementById('riddle-input').value='';
+}
+function showRiddleResult(riddle,won){
+  document.getElementById('riddle-input-row').style.display='none';document.getElementById('riddle-result').style.display='block';
+  document.getElementById('riddle-reveal-img').src=artUrl(riddle.id);document.getElementById('riddle-silhouette').style.filter='none';
+  document.getElementById('riddle-reveal-name').textContent=cap(riddle.name);
+  document.getElementById('riddle-reveal-msg').textContent=won?'Amazing job, Pokemon Master!':'Better luck tomorrow!';
+}
+
+document.getElementById('open-quiz-btn').addEventListener('click',()=>openQuiz());
+function openQuiz(){
+  const panel=document.getElementById('quiz-panel');
+  const isOpen=panel.classList.contains('active');
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  if(isOpen)return;
+  panel.classList.add('active');
+  if(quizState.done){showQuizResult();return;}
+  quizQ=0;quizState={};dailyQuizOrder=getDailyQuizOrder();renderQuizQ();
+}
+function renderQuizQ(){
+  const qIdx=dailyQuizOrder[quizQ],q=QUESTIONS[qIdx],lives=quizState.lives!==undefined?quizState.lives:3;
+  renderLives('quiz-lives',lives);
+  document.getElementById('quiz-progress').textContent='Question '+(quizQ+1)+'/10';
+  document.getElementById('quiz-question').textContent=q.q;
+  document.getElementById('quiz-feedback').className='game-feedback';
+  document.getElementById('quiz-result').innerHTML='';
+  const opts=document.getElementById('quiz-options');
+  opts.innerHTML=q.opts.map((o,i)=>'<button class="quiz-opt" data-i="'+i+'">'+o+'</button>').join('');
+  opts.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',function(){answerQuiz(q,parseInt(this.dataset.i));}));
+  quizAnswered=false;
+}
+function answerQuiz(q,chosen){
+  if(quizAnswered)return;quizAnswered=true;
+  const opts=document.querySelectorAll('.quiz-opt');opts.forEach(b=>b.disabled=true);opts[q.a].classList.add('correct');
+  const fb=document.getElementById('quiz-feedback');
+  if(chosen===q.a){opts[chosen].classList.add('correct');fb.className='game-feedback correct';fb.textContent='Correct!';quizState.score=(quizState.score||0)+1;}
+  else{opts[chosen].classList.add('wrong');fb.className='game-feedback wrong';fb.textContent='Wrong! Answer: '+q.opts[q.a];const lives=(quizState.lives||3)-1;quizState.lives=lives;renderLives('quiz-lives',lives);if(lives<=0){quizState.done=true;saveGameStates();updateGameCards();setTimeout(showQuizResult,1000);return;}}
+  quizQ++;saveGameStates();
+  if(quizQ>=10){quizState.done=true;const ach=getAch();if(quizState.score>=10){ach.quizPerfect=(ach.quizPerfect||0)+1;saveAch(ach);}saveGameStates();updateGameCards();setTimeout(showQuizResult,1200);}
+  else setTimeout(renderQuizQ,1200);
+}
+function showQuizResult(){
+  document.getElementById('quiz-question').textContent='';document.getElementById('quiz-options').innerHTML='';document.getElementById('quiz-feedback').className='game-feedback';
+  const score=quizState.score||0,great=score>=8,msg=great?GREATS[score%GREATS.length]:ROASTS[Math.floor(Math.random()*ROASTS.length)];
+  document.getElementById('quiz-result').innerHTML='<div class="quiz-score-msg '+(great?'great':'bad')+'"><span class="score-emoji">'+(great?'🏆':'💀')+'</span><div class="score-title">'+score+'/10 Correct</div><div class="score-sub">'+msg+'</div></div>';
+}
+
+document.getElementById('open-vote-btn').addEventListener('click',()=>openVote());
+function openVote(){
+  const panel=document.getElementById('vote-panel');
+  const isOpen=panel.classList.contains('active');
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  if(isOpen)return;
+  panel.classList.add('active');
+  const seed=todaySeed();const team=[];const used=new Set();let s=seed;
+  while(team.length<6){s=seededRand(s,allPokemon.length);const p=allPokemon[s%allPokemon.length];if(p&&!used.has(p.id)){used.add(p.id);team.push(p);}}
+  document.getElementById('vote-team-grid').innerHTML=team.map(p=>{const img=p.gen10?artUrl(387):artUrl(p.id);return '<div class="vote-card"><img src="'+img+'" alt="'+p.name+'"/><div class="vote-card-name">'+p.name+'</div></div>';}).join('');
+  if(voteState.voted){showVoteResult(voteState.vote);}else{document.getElementById('vote-btns').style.display='flex';document.getElementById('vote-result').style.display='none';}
+}
+document.getElementById('vote-yes-btn').addEventListener('click',()=>castVote('yes'));
+document.getElementById('vote-no-btn').addEventListener('click',()=>castVote('no'));
+function castVote(v){voteState={voted:true,vote:v};saveGameStates();updateGameCards();showVoteResult(v);}
+function showVoteResult(v){
+  document.getElementById('vote-btns').style.display='none';const res=document.getElementById('vote-result');res.style.display='block';
+  const yp=v==='yes'?62:38,np=100-yp;
+  document.getElementById('vote-pct-text').textContent='You voted: '+(v==='yes'?'YES!':'NO!');
+  document.getElementById('vote-bar-yes').style.width=yp+'%';document.getElementById('vote-bar-no').style.width=np+'%';
+  document.getElementById('vote-yes-lbl').textContent='Yes '+yp+'%';document.getElementById('vote-no-lbl').textContent='No '+np+'%';
+  document.getElementById('vote-msg').textContent=yp>50?'Most trainers would use this team!':'Most trainers would skip this team!';
+}
+
+// ACHIEVEMENTS
+const TYPE_PINS={fire:{name:'Flame Watcher',icon:'🔥',desc:'Favourite 5 Fire-type Pokemon'},water:{name:'Deep Diver',icon:'🌊',desc:'Favourite 5 Water-type Pokemon'},grass:{name:'Leaf Ranger',icon:'🌿',desc:'Favourite 5 Grass-type Pokemon'},electric:{name:'Bolt Chaser',icon:'⚡',desc:'Favourite 5 Electric-type Pokemon'},psychic:{name:'Mind Bender',icon:'🔮',desc:'Favourite 5 Psychic-type Pokemon'},ghost:{name:'Shadow Hunter',icon:'👻',desc:'Favourite 5 Ghost-type Pokemon'},dragon:{name:'Dragon Tamer',icon:'🐉',desc:'Favourite 5 Dragon-type Pokemon'},dark:{name:'Night Stalker',icon:'🌑',desc:'Favourite 5 Dark-type Pokemon'},fighting:{name:'Iron Fist',icon:'🥊',desc:'Favourite 5 Fighting-type Pokemon'},fairy:{name:'Fairy Friend',icon:'🧚',desc:'Favourite 5 Fairy-type Pokemon'},rock:{name:'Decent Digger',icon:'🪨',desc:'Favourite 5 Rock-type Pokemon'},ground:{name:'Earth Shaker',icon:'🌍',desc:'Favourite 5 Ground-type Pokemon'},ice:{name:'Frost Keeper',icon:'❄️',desc:'Favourite 5 Ice-type Pokemon'},poison:{name:'Toxic Trainer',icon:'☠️',desc:'Favourite 5 Poison-type Pokemon'},steel:{name:'Metal Master',icon:'⚙️',desc:'Favourite 5 Steel-type Pokemon'},bug:{name:'Bug Whisperer',icon:'🐛',desc:'Favourite 5 Bug-type Pokemon'},flying:{name:'Sky Watcher',icon:'🦅',desc:'Favourite 5 Flying-type Pokemon'},normal:{name:'All Rounder',icon:'⭐',desc:'Favourite 5 Normal-type Pokemon'}};
+const GEN_PINS={1:{name:'Kanto Scholar',icon:'🌱',desc:'Favourite 10 Gen 1 Pokemon'},2:{name:'Johto Journeyman',icon:'🌙',desc:'Favourite 10 Gen 2 Pokemon'},3:{name:'Hoenn Hero',icon:'🌊',desc:'Favourite 10 Gen 3 Pokemon'},4:{name:'Sinnoh Scientist',icon:'🔬',desc:'Favourite 10 Gen 4 Pokemon'},5:{name:'Unova Unlocker',icon:'⚡',desc:'Favourite 10 Gen 5 Pokemon'},6:{name:'Kalos Connoisseur',icon:'✨',desc:'Favourite 10 Gen 6 Pokemon'},7:{name:'Alola Explorer',icon:'🌺',desc:'Favourite 10 Gen 7 Pokemon'},8:{name:'Galar Guardian',icon:'👑',desc:'Favourite 10 Gen 8 Pokemon'},9:{name:'Paldea Pioneer',icon:'🌍',desc:'Favourite 10 Gen 9 Pokemon'}};
+const GAME_PINS={riddle:{name:'Riddle Master',icon:'🧩',desc:'Solve 100 daily riddles',target:100,key:'riddleWins'},quiz:{name:'Quiz Champion',icon:'🏆',desc:'Perfect score on quiz 100 times',target:100,key:'quizPerfect'}};
+function getAch(){return JSON.parse(localStorage.getItem('pkdx-ach')||'{"typePins":{},"genPins":{},"riddleWins":0,"quizPerfect":0}');}
+function saveAch(a){localStorage.setItem('pkdx-ach',JSON.stringify(a));}
+function checkPins(){
+  const ach=getAch();
+  TYPES.forEach(type=>{const mons=allPokemon.filter(p=>p.types.includes(type)&&!p.gen10);const favd=mons.filter(p=>favourites.has(p.id));if(favd.length>=5)ach.typePins[type]=true;});
+  Object.entries(GEN_RANGES).forEach(([g,[lo,hi]])=>{if(g==='10')return;const mons=allPokemon.filter(p=>p.id>=lo&&p.id<=hi);const favd=mons.filter(p=>favourites.has(p.id));if(favd.length>=10)ach.genPins[g]=true;});
+  saveAch(ach);
+}
+function renderAchievements(){
+  const ach=getAch();let html='';
+
+  function favSprites(mons,limit){
+    const favd=mons.filter(p=>favourites.has(p.id));
+    if(!favd.length)return '<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:.4rem">No favourites yet</div>';
+    const show=favd.slice(0,limit);
+    return '<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:.5rem">'+
+      show.map(p=>'<img src="'+spriteUrl(p.id)+'" title="'+p.name+'" style="width:32px;height:32px;object-fit:contain;image-rendering:auto" onerror="this.style.display=\'none\'"/>').join('')+
+      (favd.length>limit?'<span style="font-size:10px;color:var(--muted);align-self:center">+'+( favd.length-limit)+' more</span>':'')+
+    '</div>';
+  }
+
+  html+='<div class="ach-section-title">Type Explorer Pins</div><div class="pins-grid">';
+  TYPES.forEach(type=>{
+    const pin=TYPE_PINS[type],unlocked=ach.typePins?.[type];
+    const mons=allPokemon.filter(p=>p.types.includes(type)&&!p.gen10);
+    const favd=mons.filter(p=>favourites.has(p.id));
+    html+='<div class="pin-card '+(unlocked?'unlocked':'locked')+'">'
+      +'<span class="pin-icon">'+pin.icon+'</span>'
+      +'<div class="pin-name">'+pin.name+'</div>'
+      +'<div class="pin-desc">'+pin.desc+'</div>'
+      +'<div class="pin-progress">'+favd.length+'/5'+(unlocked?' ✅':'')+'</div>'
+      +favSprites(mons,8)
+      +'</div>';
+  });
+  html+='</div>';
+
+  html+='<div class="ach-section-title">Region Explorer Pins</div><div class="pins-grid">';
+  Object.entries(GEN_PINS).forEach(([g,pin])=>{
+    const[lo,hi]=GEN_RANGES[parseInt(g)],unlocked=ach.genPins?.[g];
+    const mons=allPokemon.filter(p=>p.id>=lo&&p.id<=hi);
+    const favd=mons.filter(p=>favourites.has(p.id));
+    html+='<div class="pin-card '+(unlocked?'unlocked':'locked')+'">'
+      +'<span class="pin-icon">'+pin.icon+'</span>'
+      +'<div class="pin-name">'+pin.name+'</div>'
+      +'<div class="pin-desc">'+pin.desc+'</div>'
+      +'<div class="pin-progress">'+favd.length+'/10'+(unlocked?' ✅':'')+'</div>'
+      +favSprites(mons,8)
+      +'</div>';
+  });
+  html+='</div>';
+
+  html+='<div class="ach-section-title">Game Pins</div><div class="pins-grid">';
+  Object.entries(GAME_PINS).forEach(([key,pin])=>{
+    const progress=ach[pin.key]||0,unlocked=progress>=pin.target;
+    html+='<div class="pin-card '+(unlocked?'unlocked':'locked')+'">'
+      +'<span class="pin-icon">'+pin.icon+'</span>'
+      +'<div class="pin-name">'+pin.name+'</div>'
+      +'<div class="pin-desc">'+pin.desc+'</div>'
+      +'<div class="pin-progress">'+progress+'/'+pin.target+(unlocked?' ✅':'')+'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+
+  document.getElementById('ach-content').innerHTML=html;
+}
+
+// NEWS
+let newsLoaded=false;
+async function loadNews(){
+  if(newsLoaded)return;newsLoaded=true;const wrap=document.getElementById('news-content');
+  try{
+    const res=await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.serebii.net/serebii.rss&count=15');
+    const data=await res.json();
+    if(data.status==='ok'&&data.items?.length){wrap.innerHTML=data.items.map(item=>'<a class="news-card" href="'+item.link+'" target="_blank" rel="noopener"><div class="news-source">Serebii.net</div><div class="news-title">'+item.title+'</div><div class="news-date">'+new Date(item.pubDate).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})+'</div></a>').join('');}else throw new Error('No items');
+  }catch(e){wrap.innerHTML=[{title:'Pokemon Legends: Z-A announced for Nintendo Switch 2',date:'March 2025',url:'https://www.pokemon.com'},{title:'Gen 10 Wind/Wave region teased with new Pokemon revealed',date:'April 2025',url:'https://www.serebii.net'},{title:'Browt, Pombon and Jecqua confirmed as Gen 10 starters',date:'April 2025',url:'https://www.serebii.net'},{title:'Pokemon GO new season brings Paldean Pokemon',date:'April 2025',url:'https://www.pokemon.com'},{title:'Pokemon World Championships 2025 locations announced',date:'March 2025',url:'https://www.pokemon.com'}].map(n=>'<a class="news-card" href="'+n.url+'" target="_blank"><div class="news-source">Pokemon News</div><div class="news-title">'+n.title+'</div><div class="news-date">'+n.date+'</div></a>').join('');}
+}
+
+// GYMS
+const GYM_DATA={Kanto:[
+  {leader:'Brock',city:'Pewter City',type:'rock',badge:'Boulder Badge',icon:'🪨',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/brock.png',lore:'A serious and level-headed Gym Leader. Brock dreams of being the worlds best Pokemon Breeder.'},
+  {leader:'Misty',city:'Cerulean City',type:'water',badge:'Cascade Badge',icon:'💧',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/misty.png',lore:'The tomboyish mermaid. Misty is passionate about Water-types and battles with grace and ferocity.'},
+  {leader:'Lt. Surge',city:'Vermilion City',type:'electric',badge:'Thunder Badge',icon:'⚡',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/lt-surge.png',lore:'The Lightning American. A war veteran who used Electric-types to survive in battle.'},
+  {leader:'Erika',city:'Celadon City',type:'grass',badge:'Rainbow Badge',icon:'🌸',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/erika.png',lore:'The Nature-Loving Princess. Erika loves Grass-types and is known for graceful Pokemon battles.'},
+  {leader:'Koga',city:'Fuchsia City',type:'poison',badge:'Soul Badge',icon:'☠️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/koga.png',lore:'The Poisonous Ninja Master. Koga trains in the arts of stealth and poison alongside his Pokemon.'},
+  {leader:'Sabrina',city:'Saffron City',type:'psychic',badge:'Marsh Badge',icon:'🔮',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/sabrina.png',lore:'The Mistress of Psychic Pokemon. Sabrina gained psychic powers as a child and trained them relentlessly.'},
+  {leader:'Blaine',city:'Cinnabar Island',type:'fire',badge:'Volcano Badge',icon:'🔥',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/blaine.png',lore:'The Riddle-Loving Hot-Headed Quiz Master. Blaine tests trainers with riddles before battle.'},
+  {leader:'Giovanni',city:'Viridian City',type:'ground',badge:'Earth Badge',icon:'🌍',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/giovanni.png',lore:'Leader of Team Rocket and the final Gym Leader. Giovanni is a criminal mastermind who hides in plain sight.'}
+],
+Johto:[
+  {leader:'Falkner',city:'Violet City',type:'flying',badge:'Zephyr Badge',icon:'🦅',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/falkner.png',lore:'Inherited his fathers Gym and dreams of perfecting flying battles with his elegant Flying-types.'},
+  {leader:'Bugsy',city:'Azalea Town',type:'bug',badge:'Hive Badge',icon:'🐛',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/bugsy.png',lore:'The Walking Pokemon Encyclopedia. Bugsy researches Bug-types thoroughly and knows everything about them.'},
+  {leader:'Whitney',city:'Goldenrod City',type:'normal',badge:'Plain Badge',icon:'🎀',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/whitney.png',lore:'The Incredibly Pretty Girl. Known for her frustrating Miltank that stops many trainers in their tracks.'},
+  {leader:'Morty',city:'Ecruteak City',type:'ghost',badge:'Fog Badge',icon:'👻',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/morty.png',lore:'The Mystic Seer of the Future. Morty trains Ghost-types hoping to see the legendary Ho-Oh.'},
+  {leader:'Chuck',city:'Cianwood City',type:'fighting',badge:'Storm Badge',icon:'🥊',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/chuck.png',lore:'Trains under a waterfall and uses Fighting-types with explosive unstoppable power.'},
+  {leader:'Jasmine',city:'Olivine City',type:'steel',badge:'Mineral Badge',icon:'⚙️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/jasmine.png',lore:'The Steel-Clad Defense Girl. Shy and caring - she spent time nursing a sick Ampharos before battles.'},
+  {leader:'Pryce',city:'Mahogany Town',type:'ice',badge:'Glacier Badge',icon:'❄️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/pryce.png',lore:'The Iceman. The eldest Gym Leader with over 50 years of training Ice-types in cold conditions.'},
+  {leader:'Clair',city:'Blackthorn City',type:'dragon',badge:'Rising Badge',icon:'🐉',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/clair.png',lore:'The Blessed User of Dragon Pokemon. Cousin to Lance and a proud member of the Dragon User Clan.'}
+],
+Hoenn:[
+  {leader:'Roxanne',city:'Rustboro City',type:'rock',badge:'Stone Badge',icon:'🪨',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/roxanne.png',lore:'A student of Pokemon and the first Gym Leader in Hoenn. She uses Rock-types and loves Pokemon study.'},
+  {leader:'Brawly',city:'Dewford Town',type:'fighting',badge:'Knuckle Badge',icon:'🥊',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/brawly.png',lore:'A big wave surfer who trains Fighting-types on Dewford Island. Laid-back but powerful.'},
+  {leader:'Wattson',city:'Mauville City',type:'electric',badge:'Dynamo Badge',icon:'⚡',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/wattson.png',lore:'The fun-loving Electric master. Wattson built much of Mauville Citys electricity infrastructure.'},
+  {leader:'Flannery',city:'Lavaridge Town',type:'fire',badge:'Heat Badge',icon:'🔥',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/flannery.png',lore:'A newly appointed Gym Leader finding her confidence. Her Fire-types burn with passion.'},
+  {leader:'Norman',city:'Petalburg City',type:'normal',badge:'Balance Badge',icon:'⚖️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/norman.png',lore:'The heroes father. Norman is strict but fair and moved to Hoenn to lead the Petalburg Gym.'},
+  {leader:'Winona',city:'Fortree City',type:'flying',badge:'Feather Badge',icon:'🦅',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/winona.png',lore:'The Bird User Who Soars the Sky. Winona is elegant and battles with the grace of soaring Pokemon.'},
+  {leader:'Tate and Liza',city:'Mossdeep City',type:'psychic',badge:'Mind Badge',icon:'🔮',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/tate.png',lore:'Twin siblings who battle in perfect unison using a unique double battle format with Psychic-types.'},
+  {leader:'Wallace',city:'Sootopolis City',type:'water',badge:'Rain Badge',icon:'🌊',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/wallace.png',lore:'An artist who expresses himself through Water-type Pokemon. He later becomes the Champion.'}
+],
+Sinnoh:[
+  {leader:'Roark',city:'Oreburgh City',type:'rock',badge:'Coal Badge',icon:'🪨',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/roark.png',lore:'A young miner and Gym Leader. Son of Byron. He respects fossils and the history of Pokemon.'},
+  {leader:'Gardenia',city:'Eterna City',type:'grass',badge:'Forest Badge',icon:'🌿',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/gardenia.png',lore:'An outdoor lover with a secret fear of Ghost Pokemon. Her Grass-types are raised with great care.'},
+  {leader:'Maylene',city:'Veilstone City',type:'fighting',badge:'Cobble Badge',icon:'🥊',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/maylene.png',lore:'A young girl who fights barefoot. Despite her age she is a master of Fighting-type moves.'},
+  {leader:'Crasher Wake',city:'Pastoria City',type:'water',badge:'Fen Badge',icon:'💧',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/crasher-wake.png',lore:'A large masked wrestler who loves Water-types. His personality is as big as his Pokemon.'},
+  {leader:'Fantina',city:'Hearthome City',type:'ghost',badge:'Relic Badge',icon:'👻',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/fantina.png',lore:'Came from a faraway land to Hearthome City. She battles with Ghost-types using dance-like movements.'},
+  {leader:'Byron',city:'Canalave City',type:'steel',badge:'Mine Badge',icon:'⚙️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/byron.png',lore:'Father of Roark and a lover of ruins. Byron digs for ancient artifacts and uses tough Steel-types.'},
+  {leader:'Candice',city:'Snowpoint City',type:'ice',badge:'Icicle Badge',icon:'❄️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/candice.png',lore:'A passionate and energetic Gym Leader who loves Ice-types and claims they are the strongest.'},
+  {leader:'Volkner',city:'Sunyshore City',type:'electric',badge:'Beacon Badge',icon:'⚡',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/volkner.png',lore:'The strongest Gym Leader in Sinnoh. Bored of easy battles but finds purpose when facing strong trainers.'}
+],
+Unova:[
+  {leader:'Cilan',city:'Striaton City',type:'grass',badge:'Trio Badge',icon:'🌿',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/cilan.png',lore:'One of three brothers specialising in Grass, Fire or Water - chosen based on your starter Pokemon.'},
+  {leader:'Lenora',city:'Nacrene City',type:'normal',badge:'Basic Badge',icon:'📚',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/lenora.png',lore:'A museum curator and Normal-type specialist. Lenora is knowledgeable and battles with clever strategy.'},
+  {leader:'Burgh',city:'Castelia City',type:'bug',badge:'Insect Badge',icon:'🐛',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/burgh.png',lore:'A Bug-type artist who creates beautiful art inspired by his Pokemon. He is deeply passionate.'},
+  {leader:'Elesa',city:'Nimbasa City',type:'electric',badge:'Bolt Badge',icon:'⚡',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/elesa.png',lore:'A model and fashion icon who uses Electric-types. She is stylish in both fashion and battle.'},
+  {leader:'Clay',city:'Driftveil City',type:'ground',badge:'Quake Badge',icon:'🌍',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/clay.png',lore:'A mining magnate and no-nonsense Gym Leader. Clay digs for truth and battles with Ground-types.'},
+  {leader:'Skyla',city:'Mistralton City',type:'flying',badge:'Jet Badge',icon:'🦅',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/skyla.png',lore:'A cargo pilot who delivers goods by air. Her Flying-types soar like the planes she flies.'},
+  {leader:'Brycen',city:'Icirrus City',type:'ice',badge:'Freeze Badge',icon:'❄️',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/brycen.png',lore:'A former movie star turned Gym Leader. Brycen trains in icy conditions with his Ice-types.'},
+  {leader:'Drayden',city:'Opelucid City',type:'dragon',badge:'Legend Badge',icon:'🐉',img:'https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/drayden.png',lore:'An elder who treasures Dragon lore. He believes that you must conquer your inner dragon to win.'}
+]};
+let activeRegion='Kanto';
+function renderGyms(){
+  const tabWrap=document.getElementById('region-tabs');
+  if(!tabWrap.children.length){Object.keys(GYM_DATA).forEach(r=>{const btn=document.createElement('button');btn.className='rtab'+(r==='Kanto'?' active':'');btn.textContent=r;btn.addEventListener('click',()=>{activeRegion=r;document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderGymGrid();});tabWrap.appendChild(btn);});}
+  renderGymGrid();
+}
+function renderGymGrid(){
+  document.getElementById('gym-grid').innerHTML=(GYM_DATA[activeRegion]||[]).map(g=>`
+    <div class="gym-card">
+      <div class="gym-img-wrap card-bg-${g.type}" style="border-radius:14px 14px 0 0">
+        <img class="gym-leader-img" src="${g.img}" alt="${g.leader}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+        />
+        <div style="display:none;font-size:48px;align-items:center;justify-content:center;width:90px;height:90px">${g.icon}</div>
+      </div>
+      <div class="gym-body" style="padding:.75rem 1rem 1rem">
+        <div class="gym-leader-name">${g.leader}</div>
+        <div class="gym-city" style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:.5rem">📍 ${g.city}</div>
+        <div class="gym-type-row"><span class="tbadge t-${g.type}">${g.type}</span></div>
+        <div class="gym-badge-name" style="margin:.5rem 0;font-size:10px;font-weight:800;color:var(--accent)">🏅 ${g.badge}</div>
+        <div class="gym-lore" style="font-size:11px;color:var(--muted);line-height:1.6">${g.lore}</div>
+      </div>
+    </div>`).join('');
+}
+
+// FAQ
+const FAQ=[
+  {q:'How do I search for a Pokemon?',a:'Use the search bar in the header. Search by name like pikachu or by number like 25. Results update as you type.'},
+  {q:'How do I filter Pokemon by type or generation?',a:'Use the filter bar below the navbar. Click a coloured type chip to show only that type. Use the Stage buttons for evolution stage. Use the Gen dropdown in the header for a specific generation.'},
+  {q:'How do I favourite a Pokemon?',a:'Click the star icon on any Pokemon card or in the top left of the detail window. Favourites save to your browser automatically. Click the Fav button in the filter bar to see only your favourited Pokemon.'},
+  {q:'What is BST?',a:'BST stands for Base Stat Total. It is the sum of all 6 base stats: HP, Attack, Defense, Special Attack, Special Defense and Speed. Higher BST generally means a stronger Pokemon.'},
+  {q:'How does the Compare feature work?',a:'Click any Pokemon card to put it in Slot 1 of the compare bar at the top of the home screen. Then click another Pokemon card to fill Slot 2. Click Compare to see a side by side stat comparison and battle win percentage based on stats and type matchups.'},
+  {q:'What is the Pokemon of the Day?',a:'Every day a different Pokemon is featured at the top of the Home section. The same Pokemon shows for everyone on the same day. It changes every 6 hours at midnight, 6am, noon and 6pm Sydney time.'},
+  {q:'How do the daily games work?',a:'Go to the Games section for three daily games: Guess the Pokemon, Daily Quiz and Would You Use This Team. All games reset every 6 hours Sydney time. You have 3 lives for both the riddle and the quiz.'},
+  {q:'What are Pins?',a:'Pins are achievements you earn by playing games and exploring the Pokedex. Earn type pins by favouriting 5 Pokemon of a type. Earn region pins by favouriting 10 Pokemon from a generation. Earn game pins by solving riddles and acing the quiz. View all pins in the Achievements section.'},
+  {q:'What are the Gen 10 Pokemon?',a:'Gen 10 is set in the Wind/Wave region. Currently confirmed: Browt (Grass), Pombon (Fairy/Flying) and Jecqua (Water/Psychic). More will be added as they are officially revealed by Nintendo.'},
+  {q:'How does the Gym section work?',a:'Go to the Gyms section and click the region tabs to switch between Kanto, Johto, Hoenn, Sinnoh and Unova. Each card shows the Gym Leader, city, type, badge name and lore.'},
+  {q:'Can I use this on my iPad or phone?',a:'Yes! Open the HTML file in Safari on iPad or any mobile browser. Your favourites save to your browser so they stay between visits.'},
+  {q:'Why cant I hear the music?',a:'Click the Music button in the header. Browsers require a click before playing audio. Make sure your volume is up. The button turns gold when music is playing.'},
+  {q:'What does the Random button do?',a:'The Random button opens a random Pokemon detail page from your current filtered list. The Random Team picker lets you pick a number and generates a random team you can browse or favourite all at once.'},
+  {q:'What is the BST Battle in Online Play?',a:'Go to Online Play and click the BST Battle tab. You get 6 Pokemon and so does the AI opponent. Pick one without seeing its BST or name - only the type is shown! Highest effective BST wins the round. The AI gets a 10% boost and type matchups affect your score too. 6 rounds total with a bonus round on a draw.'},
+  {q:'How does the Trainer Card work?',a:'Go to Online Play and fill in your name, date of birth, gender and favourite Pokemon. Your Birthday Pokemon is assigned from your DOB or you can choose your own. Your earned pins and quiz best score show on the card too.'},
+];
+function renderFAQ(){
+  if(document.getElementById('faq-list').children.length)return;
+  document.getElementById('faq-list').innerHTML=FAQ.map((item,i)=>'<div class="faq-item" id="faq-'+i+'"><div class="faq-q" onclick="toggleFAQ('+i+')">'+item.q+'<span class="arrow">▼</span></div><div class="faq-a">'+item.a+'</div></div>').join('');
+}
+window.toggleFAQ=function(i){document.getElementById('faq-'+i).classList.toggle('open');};
+
+// ── LIGHT/DARK MODE ──
+let isDark=true;
+function applyTheme(){document.body.classList.toggle('light',!isDark);document.getElementById('theme-btn').textContent=isDark?'🌙':'☀️';try{localStorage.setItem('pkdx-theme',isDark?'dark':'light');}catch(e){}}
+document.getElementById('theme-btn').addEventListener('click',()=>{isDark=!isDark;applyTheme();});
+try{const saved=localStorage.getItem('pkdx-theme');if(saved){isDark=saved==='dark';applyTheme();}}catch(e){}
+
+// ── SHINY TOGGLE ──
+let isShiny=false,currentPokemonId=null;
+document.getElementById('shiny-btn').addEventListener('click',()=>{
+  if(!currentPokemonId)return;
+  isShiny=!isShiny;
+  const btn=document.getElementById('shiny-btn');
+  btn.classList.toggle('active',isShiny);
+  const img=document.getElementById('m-img');
+  if(isShiny){
+    img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${currentPokemonId}.png`;
+    img.classList.add('shiny');
+    img.onerror=()=>{img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${currentPokemonId}.png`;};
+  }else{
+    img.src=artUrl(currentPokemonId);img.classList.remove('shiny');img.onerror=null;
+  }
+});
+
+// patch openModal to track current pokemon id and reset shiny
+const _origOpenModal=openModal;
+openModal=async function(fidx){
+  isShiny=globalShiny; // sync with global shiny state
+  const shinyBtn=document.getElementById('shiny-btn');
+  shinyBtn.classList.toggle('active',isShiny);
+  const p=filteredPokemon[fidx];if(p&&!p.gen10)currentPokemonId=p.id;else currentPokemonId=null;
+  document.getElementById('shiny-btn').style.display=currentPokemonId?'flex':'none';
+  await _origOpenModal(fidx);
+  const img=document.getElementById('m-img');
+  if(isShiny&&currentPokemonId){
+    img.src=shinyUrl(currentPokemonId);
+    img.classList.add('shiny');
+    img.onerror=()=>{img.src=artUrl(currentPokemonId);img.classList.remove('shiny');};
+  }else{
+    img.classList.remove('shiny');
+  }
+};
+
+// ── ONLINE PLAY TABS ──
+document.querySelectorAll('.otab').forEach(t=>t.addEventListener('click',function(){
+  document.querySelectorAll('.otab').forEach(x=>x.classList.remove('active'));this.classList.add('active');
+  document.querySelectorAll('.otab-panel').forEach(p=>{p.style.display='none';p.classList.remove('active');});
+  const panel=document.getElementById('otab-'+this.dataset.otab);panel.style.display='block';panel.classList.add('active');
+  if(this.dataset.otab==='leaderboard')renderLeaderboard();
+  if(this.dataset.otab==='trainer')renderTrainerCard();
+}));
+
+// ── TRAINER CARD ──
+function getTrainer(){return JSON.parse(localStorage.getItem('pkdx-trainer')||'{}');}
+function saveTrainer(t){localStorage.setItem('pkdx-trainer',JSON.stringify(t));}
+
+function getBirthdayPokemon(dob){
+  if(!dob)return null;
+  const d=new Date(dob);const seed=(d.getMonth()+1)*100+d.getDate();
+  const id=((seed*9301+49297)%233280)%TOTAL+1;return id;
+}
+
+document.querySelectorAll('.gender-btn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.gender-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active');
+}));
+
+document.getElementById('t-favpoke-search').addEventListener('click',async()=>{
+  const name=document.getElementById('t-favpoke').value.trim().toLowerCase().replace(/ /g,'-');
+  if(!name)return;
+  try{
+    const d=await get(API+'pokemon/'+name);
+    document.getElementById('t-favpoke-img').src=artUrl(d.id);
+    document.getElementById('t-favpoke-name').textContent=d.name;
+    document.getElementById('t-favpoke-result').style.display='flex';
+    document.getElementById('t-favpoke-result').dataset.id=d.id;
+  }catch(e){document.getElementById('t-favpoke-result').style.display='none';alert('Pokemon not found! Check the spelling.');}
+});
+
+document.getElementById('t-bdaypoke-search').addEventListener('click',async()=>{
+  const name=document.getElementById('t-bdaypoke').value.trim().toLowerCase().replace(/ /g,'-');
+  if(!name)return;
+  try{
+    const d=await get(API+'pokemon/'+name);
+    document.getElementById('t-bdaypoke-img').src=artUrl(d.id);
+    document.getElementById('t-bdaypoke-name').textContent=d.name;
+    document.getElementById('t-bdaypoke-result').style.display='flex';
+    document.getElementById('t-bdaypoke-result').dataset.id=d.id;
+  }catch(e){document.getElementById('t-bdaypoke-result').style.display='none';alert('Pokemon not found! Check the spelling.');}
+});
+document.getElementById('t-bdaypoke').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('t-bdaypoke-search').click();});
+
+document.getElementById('save-trainer-btn').addEventListener('click',()=>{
+  const first=document.getElementById('t-first').value.trim();
+  const middle=document.getElementById('t-middle').value.trim();
+  const last=document.getElementById('t-last').value.trim();
+  const dob=document.getElementById('t-dob').value;
+  const gender=document.querySelector('.gender-btn.active')?.dataset.gender||'boy';
+  const favPokeResult=document.getElementById('t-favpoke-result');
+  const favPokeId=favPokeResult.dataset.id?parseInt(favPokeResult.dataset.id):null;
+  const favPokeName=document.getElementById('t-favpoke-name').textContent||'';
+  const bdayPokeResult=document.getElementById('t-bdaypoke-result');
+  const bdayPokeId=bdayPokeResult.dataset.id?parseInt(bdayPokeResult.dataset.id):null;
+  const bdayPokeName=document.getElementById('t-bdaypoke-name').textContent||'';
+  if(!first||!last){alert('Please enter at least a first and last name!');return;}
+  const trainer={first,middle,last,dob,gender,favPokeId,favPokeName,bdayPokeId,bdayPokeName};
+  saveTrainer(trainer);renderTrainerCard();
+  const msg=document.getElementById('trainer-save-msg');msg.textContent='Saved!';setTimeout(()=>msg.textContent='',2000);
+});
+
+function renderTrainerCard(){
+  const t=getTrainer();
+  // pre-fill form
+  if(t.first)document.getElementById('t-first').value=t.first;
+  if(t.middle)document.getElementById('t-middle').value=t.middle;
+  if(t.last)document.getElementById('t-last').value=t.last;
+  if(t.dob)document.getElementById('t-dob').value=t.dob;
+  if(t.gender){document.querySelectorAll('.gender-btn').forEach(b=>{b.classList.toggle('active',b.dataset.gender===t.gender);});}
+  if(t.favPokeName){document.getElementById('t-favpoke').value=t.favPokeName;document.getElementById('t-favpoke-name').textContent=t.favPokeName;if(t.favPokeId){document.getElementById('t-favpoke-img').src=artUrl(t.favPokeId);document.getElementById('t-favpoke-result').dataset.id=t.favPokeId;document.getElementById('t-favpoke-result').style.display='flex';}}
+  // pre-fill birthday pokemon if custom set
+  if(t.bdayPokeName){document.getElementById('t-bdaypoke').value=t.bdayPokeName;document.getElementById('t-bdaypoke-name').textContent=t.bdayPokeName;if(t.bdayPokeId){document.getElementById('t-bdaypoke-img').src=artUrl(t.bdayPokeId);document.getElementById('t-bdaypoke-result').dataset.id=t.bdayPokeId;document.getElementById('t-bdaypoke-result').style.display='flex';}}
+
+  // render card preview
+  const name=[t.first,t.middle,t.last].filter(Boolean).join(' ')||'Your Name';
+  document.getElementById('tc-name').textContent=name;
+  document.getElementById('tc-avatar').textContent=t.gender==='girl'?'👧':'👦';
+
+  // DOB
+  if(t.dob){const d=new Date(t.dob);document.getElementById('tc-dob').textContent='DOB: '+d.toLocaleDateString('en-AU');}
+  document.getElementById('tc-gender').textContent=t.gender==='girl'?'Girl Trainer':'Boy Trainer';
+
+  // generate trainer ID from name
+  const idNum=String([...( t.first||'A')].reduce((a,c)=>a+c.charCodeAt(0),0)*9301%999999).padStart(6,'0');
+  document.getElementById('tc-id').textContent='#'+idNum;
+
+  // fav pokemon
+  if(t.favPokeId){
+    document.getElementById('tc-fav-row').innerHTML=`<img class="tc-fav-img" src="${artUrl(t.favPokeId)}" alt="${t.favPokeName}"/><span class="tc-fav-name">${t.favPokeName}</span>`;
+  }else{document.getElementById('tc-fav-row').innerHTML='<div style="color:var(--muted);font-size:12px">Not set</div>';}
+
+  // birthday pokemon — use custom if set, otherwise auto from DOB
+  const bdayId=t.bdayPokeId||getBirthdayPokemon(t.dob);
+  const bdayName=t.bdayPokeName||(bdayId?(allPokemon.find(p=>p.id===bdayId)?.name||'#'+pad(bdayId)):'');
+  if(bdayId){
+    document.getElementById('tc-bday-row').innerHTML=`<img class="tc-fav-img" src="${artUrl(bdayId)}" alt="${bdayName}" style="width:44px;height:44px;object-fit:contain"/><div><span class="tc-fav-name">${bdayName}</span><div style="font-size:10px;color:var(--muted);margin-top:2px">${t.bdayPokeId?'Your chosen Pokémon!':'Auto from your birthday!'}</div></div>`;
+  }else{
+    document.getElementById('tc-bday-row').innerHTML='<div style="color:var(--muted);font-size:12px">Set your DOB or choose one above!</div>';
+  }
+
+  // quiz best
+  const history=getQuizHistory();
+  const best=history.length?Math.max(...history.map(h=>h.score)):null;
+  document.getElementById('tc-score').textContent=best!==null?'Quiz Best: '+best+'/10':'Quiz Best: —';
+
+  // show earned pins as badge dots
+  const ach=getAch();
+  const allPins=[...Object.keys(ach.typePins||{}).filter(k=>ach.typePins[k]),...Object.keys(ach.genPins||{}).filter(k=>ach.genPins[k])];
+  const typeColors=Object.fromEntries(Object.entries(TYPE_COLORS));
+  const genColors={1:'#58b030',2:'#d84870',3:'#5878e0',4:'#5020d0',5:'#e07028',6:'#c07890',7:'#78c8c8',8:'#888890',9:'#883888'};
+  const dotsHtml=allPins.slice(0,12).map(k=>`<div class="tc-badge-dot" style="background:${typeColors[k]||genColors[k]||'#888'}" title="${k}"></div>`).join('');
+  document.getElementById('tc-badges').innerHTML=dotsHtml||(allPins.length===0?'<span style="font-size:10px;color:var(--muted)">No pins yet</span>':'');
+}
+
+// ── IDEAL PARTY ──
+let idealParty=JSON.parse(localStorage.getItem('pkdx-party')||'[]'); // [{id,name,types}]
+function saveParty(){localStorage.setItem('pkdx-party',JSON.stringify(idealParty));}
+
+function renderPartyBuilder(){
+  const grid=document.getElementById('party-builder-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  for(let i=0;i<6;i++){
+    const slot=document.createElement('div');
+    if(idealParty[i]){
+      const p=idealParty[i];
+      slot.className='party-slot filled';
+      slot.innerHTML=`
+        <button class="party-slot-remove" onclick="removePartySlot(${i})" title="Remove">✕</button>
+        <div class="party-slot-num">#${pad(p.id)}</div>
+        <img src="${artUrl(p.id)}" alt="${p.name}" onerror="this.src='${artUrl(387)}'"/>
+        <div class="party-slot-name">${p.name}</div>
+        <div style="display:flex;gap:2px;justify-content:center;margin-top:3px;flex-wrap:wrap">
+          ${(p.types||[]).map(t=>`<span class="tbadge t-${t}" style="font-size:6px;padding:1px 5px">${t}</span>`).join('')}
+        </div>`;
+    }else{
+      slot.className='party-slot empty-slot';
+      slot.innerHTML=`<div class="party-slot-label">Slot ${i+1}</div><div style="font-size:24px;margin-top:4px">➕</div>`;
+    }
+    grid.appendChild(slot);
+  }
+  // update trainer card party display
+  renderPartyOnCard();
+}
+
+function renderPartyOnCard(){
+  const row=document.getElementById('tc-party-row');
+  if(!row)return;
+  if(!idealParty.length){row.innerHTML='<div style="color:var(--muted);font-size:12px">Not set</div>';return;}
+  row.innerHTML=idealParty.map(p=>`
+    <div style="text-align:center">
+      <img src="${artUrl(p.id)}" title="${p.name}" style="width:38px;height:38px;object-fit:contain" onerror="this.src='${artUrl(387)}'"/>
+      <div style="font-family:'Press Start 2P',monospace;font-size:5px;color:var(--muted);text-transform:uppercase;margin-top:2px">${p.name.slice(0,8)}</div>
+    </div>`).join('');
+}
+
+window.removePartySlot=function(i){
+  idealParty.splice(i,1);
+  saveParty();
+  renderPartyBuilder();
+};
+
+let partyFoundPokemon=null;
+document.getElementById('party-search-btn').addEventListener('click',searchPartyPokemon);
+document.getElementById('party-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')searchPartyPokemon();});
+
+async function searchPartyPokemon(){
+  const name=document.getElementById('party-search-input').value.trim().toLowerCase().replace(/ /g,'-');
+  if(!name)return;
+  const res=document.getElementById('party-search-result');
+  try{
+    const d=await get(API+'pokemon/'+name);
+    partyFoundPokemon={id:d.id,name:d.name,types:d.types.map(t=>t.type.name)};
+    document.getElementById('party-found-img').src=artUrl(d.id);
+    document.getElementById('party-found-name').textContent=d.name;
+    document.getElementById('party-found-types').innerHTML=d.types.map(t=>`<span class="tbadge t-${t.type.name}" style="font-size:8px;padding:2px 7px">${t.type.name}</span>`).join(' ');
+    res.style.display='flex';
+  }catch(e){res.style.display='none';partyFoundPokemon=null;alert('Pokemon not found! Check the spelling.');}
+}
+
+document.getElementById('party-add-btn').addEventListener('click',()=>{
+  if(!partyFoundPokemon)return;
+  if(idealParty.length>=6){alert('Your party is full! Remove one first.');return;}
+  if(idealParty.find(p=>p.id===partyFoundPokemon.id)){alert('That Pokemon is already in your party!');return;}
+  idealParty.push(partyFoundPokemon);
+  saveParty();
+  renderPartyBuilder();
+  document.getElementById('party-search-input').value='';
+  document.getElementById('party-search-result').style.display='none';
+  partyFoundPokemon=null;
+});
+
+document.getElementById('party-clear-btn').addEventListener('click',()=>{
+  if(!idealParty.length)return;
+  if(confirm('Clear your entire party?')){idealParty=[];saveParty();renderPartyBuilder();}
+});
+
+// hook renderPartyBuilder into renderTrainerCard
+const _origRenderTrainerCard=renderTrainerCard;
+renderTrainerCard=function(){
+  _origRenderTrainerCard();
+  renderPartyBuilder();
+};
+let battleState={playerScore:0,opponentScore:0,round:0,maxRounds:6,playerTeam:[],opponentTeam:[],usedPlayer:new Set(),usedOpponent:new Set(),picked:false,bonusRound:false};
+
+document.getElementById('start-battle-btn').addEventListener('click',startBattle);
+
+function pickRandom6(){
+  const pool=allPokemon.filter(p=>!p.gen10&&p.stats);
+  const picked=[];const used=new Set();
+  while(picked.length<6&&pool.length>picked.length){
+    const idx=Math.floor(Math.random()*pool.length);
+    const p=pool[idx];
+    if(!used.has(p.id)){used.add(p.id);picked.push(p);}
+  }
+  return picked;
+}
+
+function getBST(p){return p.stats?p.stats.reduce((a,s)=>a+s.base_stat,0):300;}
+
+// type effectiveness for bonus BST
+function getTypeBonus(attackerTypes,defenderTypes){
+  const chart={normal:{rock:.5,ghost:0,steel:.5},fire:{fire:.5,water:.5,grass:2,ice:2,bug:2,rock:.5,dragon:.5,steel:2},water:{fire:2,water:.5,grass:.5,ground:2,rock:2,dragon:.5},electric:{water:2,electric:.5,grass:.5,ground:0,flying:2,dragon:.5},grass:{fire:.5,water:2,grass:.5,poison:.5,ground:2,flying:.5,bug:.5,rock:2,dragon:.5,steel:.5},ice:{fire:.5,water:.5,grass:2,ice:.5,ground:2,flying:2,dragon:2,steel:.5},fighting:{normal:2,ice:2,poison:.5,flying:.5,psychic:.5,bug:.5,rock:2,ghost:0,dark:2,steel:2,fairy:.5},poison:{grass:2,poison:.5,ground:.5,rock:.5,ghost:.5,steel:0,fairy:2},ground:{fire:2,electric:2,grass:.5,poison:2,flying:0,bug:.5,rock:2,steel:2},flying:{electric:.5,grass:2,fighting:2,bug:2,rock:.5,steel:.5},psychic:{fighting:2,poison:2,psychic:.5,dark:0,steel:.5},bug:{fire:.5,grass:2,fighting:.5,flying:.5,psychic:2,ghost:.5,dark:2,steel:.5,fairy:.5},rock:{fire:2,ice:2,fighting:.5,ground:.5,flying:2,bug:2,steel:.5},ghost:{normal:0,psychic:2,ghost:2,dark:.5},dragon:{dragon:2,steel:.5,fairy:0},dark:{fighting:.5,psychic:2,ghost:2,dark:.5,fairy:.5},steel:{fire:.5,water:.5,electric:.5,ice:2,rock:2,steel:.5,fairy:2},fairy:{fire:.5,fighting:2,poison:.5,dragon:2,dark:2,steel:.5}};
+  let mult=1;
+  attackerTypes.forEach(a=>{defenderTypes.forEach(d=>{if(chart[a]&&chart[a][d]!==undefined)mult*=chart[a][d];});});
+  return mult;
+}
+
+function getEffectiveBST(attacker,defender,isOpponent){
+  let bst=getBST(attacker);
+  // type matchup bonus: x2 effectiveness = +15% BST, x0.5 = -10%
+  const mult=getTypeBonus(attacker.types,defender.types);
+  if(mult>=2)bst=Math.round(bst*1.15);
+  else if(mult<=0.5)bst=Math.round(bst*0.9);
+  else if(mult===0)bst=Math.round(bst*0.75);
+  // opponent gets 10% BST boost (harder AI)
+  if(isOpponent)bst=Math.round(bst*1.1);
+  return bst;
+}
+
+function startBattle(){
+  if(allPokemon.filter(p=>!p.gen10&&p.stats).length<6){document.getElementById('battle-area').innerHTML='<p class="no-data">Please wait for Pokemon to finish loading!</p>';return;}
+  const pTeam=pickRandom6(),oTeam=pickRandom6();
+  battleState={
+    playerScore:0,opponentScore:0,round:0,maxRounds:6,
+    playerTeam:pTeam,opponentTeam:oTeam,
+    usedPlayer:new Set(),usedOpponent:new Set(),
+    picked:false,bonusRound:false,
+    playerPick:null,opponentPick:null
+  };
+  renderBattle();
+}
+
+// smarter AI: picks the Pokémon with highest effective BST against your remaining options
+function aiPick(opponentTeam,usedOpponent,playerTeam,usedPlayer){
+  const available=opponentTeam.map((p,i)=>({p,i})).filter(x=>!usedOpponent.has(x.i));
+  if(!available.length)return 0;
+  // AI checks each available Pokémon's effective BST against the player's average type
+  let bestIdx=available[0].i,bestScore=-1;
+  available.forEach(({p,i})=>{
+    // score = own effective BST average against player's unused Pokemon
+    const playerAvail=playerTeam.filter((_,pi)=>!usedPlayer.has(pi));
+    const avgScore=playerAvail.reduce((sum,pp)=>sum+getEffectiveBST(p,pp,true),0)/(playerAvail.length||1);
+    if(avgScore>bestScore){bestScore=avgScore;bestIdx=i;}
+  });
+  return bestIdx;
+}
+
+function renderBattle(){
+  const area=document.getElementById('battle-area');
+  const{playerScore,opponentScore,round,maxRounds,playerTeam,usedPlayer,picked,bonusRound}=battleState;
+  if(round>=maxRounds&&!bonusRound){renderBattleEnd();return;}
+
+  const usedCount=usedPlayer.size;
+  const isBonusLabel=bonusRound?'<span style="color:var(--accent);font-size:8px;font-family:\'Press Start 2P\',monospace"> ⚡ BONUS</span>':'';
+
+  let html=`
+    <div class="battle-score">
+      <div class="battle-score-side"><div class="battle-score-name">You</div><div class="battle-score-num">${playerScore}</div></div>
+      <div class="battle-score-vs">VS</div>
+      <div class="battle-score-side"><div class="battle-score-name">Opponent</div><div class="battle-score-num">${opponentScore}</div></div>
+    </div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);margin-bottom:.25rem;text-align:center">Round ${round+1}/${maxRounds}${isBonusLabel}</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:.75rem">Pick your Pokémon! Only type shown — names revealed after you pick. Each Pokémon can only be used once!</div>
+    <div class="battle-grid">`;
+
+  playerTeam.forEach((p,i)=>{
+    const used=usedPlayer.has(i);
+    const isSelected=battleState.playerPick===i;
+    const bst=getBST(p);
+    html+=`<div class="battle-card${used?' disabled':''}${isSelected?' selected':''}" onclick="pickBattle(${i})" title="${used?'Already used!':'Pick this Pokémon'}">
+      ${used?`<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2">✅</div>`:''}
+      <img src="${artUrl(p.id)}" alt="???" style="filter:${picked||used?'none':'brightness(0)'}"/>
+      <div class="battle-card-name">${picked||used?p.name:'???'}</div>
+      <div style="display:flex;gap:3px;justify-content:center;margin:.2rem 0;flex-wrap:wrap">
+        ${p.types.map(t=>`<span class="tbadge t-${t}" style="font-size:7px;padding:1px 6px">${t}</span>`).join('')}
+      </div>
+      <div class="battle-bst">${picked||used?bst+' BST':'--- BST'}</div>
+    </div>`;
+  });
+
+  html+='</div>';
+  if(picked){html+=renderBattleResult();}
+  else{html+=`<div style="text-align:center;font-size:12px;color:var(--muted);margin-top:.5rem">⚠️ You can see the <b>type</b> but not the name or BST until you pick! Opponent has a <b>+10% BST boost</b>. Type advantages matter!</div>`;}
+  area.innerHTML=html;
+}
+
+window.pickBattle=function(idx){
+  if(battleState.picked||battleState.usedPlayer.has(idx))return;
+  battleState.playerPick=idx;
+  battleState.picked=true;
+  battleState.usedPlayer.add(idx);
+  // smart AI pick
+  battleState.opponentPick=aiPick(battleState.opponentTeam,battleState.usedOpponent,battleState.playerTeam,battleState.usedPlayer);
+  battleState.usedOpponent.add(battleState.opponentPick);
+  const p=battleState.playerTeam[idx],o=battleState.opponentTeam[battleState.opponentPick];
+  const pBST=getEffectiveBST(p,o,false);
+  const oBST=getEffectiveBST(o,p,true);
+  battleState.lastPBST=pBST;battleState.lastOBST=oBST;
+  battleState.lastRawPBST=getBST(p);battleState.lastRawOBST=getBST(o);
+  if(pBST>oBST)battleState.playerScore++;
+  else if(oBST>pBST)battleState.opponentScore++;
+  else battleState.bonusRound=true;
+  renderBattle();
+};
+
+function renderBattleResult(){
+  const{playerTeam,opponentTeam,playerPick,opponentPick,lastPBST,lastOBST,lastRawPBST,lastRawOBST,bonusRound}=battleState;
+  const p=playerTeam[playerPick],o=opponentTeam[opponentPick];
+  const win=lastPBST>lastOBST,draw=lastPBST===lastOBST;
+  const typeAdv=getTypeBonus(p.types,o.types);
+  const typeAdvMsg=typeAdv>=2?'🔥 Type advantage! +15% BST bonus for you!':typeAdv<=0.5?'⚠️ Type disadvantage! -10% BST penalty for you!':typeAdv===0?'🚫 Immune! -25% BST penalty!':'';
+  const roundOver=battleState.round+1>=battleState.maxRounds;
+
+  return `<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--accent);margin-bottom:.75rem;text-align:center">Opponent revealed!</div>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-bottom:.75rem;flex-wrap:wrap">
+    <div style="text-align:center">
+      <img src="${artUrl(p.id)}" style="width:72px;height:72px;object-fit:contain"/>
+      <div style="font-size:11px;font-weight:800;text-transform:capitalize;margin:.3rem 0">${p.name}</div>
+      <div style="font-size:9px;color:var(--muted)">Raw: ${lastRawPBST}</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:10px;color:${win?'#56d364':draw?'var(--accent)':'#ff5555'}">${lastPBST} eff.BST</div>
+    </div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:14px;color:var(--muted)">VS</div>
+    <div style="text-align:center">
+      <img src="${artUrl(o.id)}" style="width:72px;height:72px;object-fit:contain"/>
+      <div style="font-size:11px;font-weight:800;text-transform:capitalize;margin:.3rem 0">${o.name}</div>
+      <div style="font-size:9px;color:var(--muted)">Raw: ${lastRawOBST} (+10% AI)</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:10px;color:${!win&&!draw?'#56d364':draw?'var(--accent)':'#ff5555'}">${lastOBST} eff.BST</div>
+    </div>
+  </div>
+  ${typeAdvMsg?`<div style="text-align:center;font-size:11px;color:var(--accent);margin-bottom:.5rem">${typeAdvMsg}</div>`:''}
+  <div class="battle-result-msg ${win?'win':draw?'draw':'lose'}">${win?'🏆 You win this round!':draw?'🤝 Draw! Bonus round — fresh teams!':'💀 Opponent wins this round! (AI had +10% BST boost)'}</div>
+  <div style="text-align:center"><button class="auth-submit" onclick="nextBattleRound()" style="width:auto;padding:10px 24px">${roundOver||battleState.playerScore>=4||battleState.opponentScore>=4?'See Final Result':draw?'⚡ Bonus Round!':'Next Round ▶'}</button></div>`;
+}
+
+window.nextBattleRound=function(){
+  battleState.round++;battleState.picked=false;battleState.playerPick=null;battleState.opponentPick=null;
+  if(battleState.bonusRound){
+    battleState.playerTeam=pickRandom6();battleState.opponentTeam=pickRandom6();
+    battleState.usedPlayer=new Set();battleState.usedOpponent=new Set();
+    battleState.bonusRound=false;
+  }
+  if(battleState.round>=battleState.maxRounds&&!battleState.bonusRound){renderBattleEnd();return;}
+  renderBattle();
+};
+
+function renderBattleEnd(){
+  const{playerScore,opponentScore}=battleState;
+  const won=playerScore>opponentScore,tied=playerScore===opponentScore;
+  const msgs={win:['🏆 YOU WIN! The AI never stood a chance!','🌟 Outstanding! You outplayed the AI every time!','⚡ CHAMPION! You mastered type matchups!'],lose:['💀 The AI beat you... it had that +10% advantage!','😤 So close! Type matchups were brutal huh?','🤖 The AI trainer was just too smart this time...'],draw:['🤝 A perfect tie! You matched the AI exactly!','⚖️ Perfectly balanced — try again to break the tie!']};
+  const arr=won?msgs.win:tied?msgs.draw:msgs.lose;
+  const msg=arr[Math.floor(Math.random()*arr.length)];
+  document.getElementById('battle-area').innerHTML=`
+    <div class="battle-score">
+      <div class="battle-score-side"><div class="battle-score-name">You</div><div class="battle-score-num">${playerScore}</div></div>
+      <div class="battle-score-vs">FINAL</div>
+      <div class="battle-score-side"><div class="battle-score-name">Opponent</div><div class="battle-score-num">${opponentScore}</div></div>
+    </div>
+    <div class="battle-result-msg ${won?'win':tied?'draw':'lose'}" style="font-size:11px">${msg}</div>
+    <div style="text-align:center"><button class="auth-submit" onclick="startBattle()" style="width:auto;padding:12px 28px;font-size:9px">⚔️ Play Again!</button></div>`;
+}
+
+// ── LEADERBOARD ──
+function getQuizHistory(){return JSON.parse(localStorage.getItem('pkdx-quiz-history')||'[]');}
+function saveQuizHistory(h){localStorage.setItem('pkdx-quiz-history',JSON.stringify(h.slice(0,50)));}
+
+// hook into quiz completion to save score
+const _origShowQuizResult=showQuizResult;
+showQuizResult=function(){
+  _origShowQuizResult();
+  if(quizState.done){
+    const history=getQuizHistory();
+    history.unshift({date:getTodayStr(),score:quizState.score||0,perfect:(quizState.score||0)>=10});
+    saveQuizHistory(history);
+    renderTrainerCard(); // update best score on card
+  }
+};
+
+function renderLeaderboard(){
+  const history=getQuizHistory();
+  const best=history.length?Math.max(...history.map(h=>h.score)):0;
+  const streak=calcStreak(history);
+  const perfects=history.filter(h=>h.perfect).length;
+  const total=history.length;
+
+  document.getElementById('lb-stats-row').innerHTML=`
+    <div class="lb-stat"><span class="lb-stat-val">${best}/10</span><span class="lb-stat-label">Best Score</span></div>
+    <div class="lb-stat"><span class="lb-stat-val">${streak}</span><span class="lb-stat-label">Current Streak</span></div>
+    <div class="lb-stat"><span class="lb-stat-val">${perfects}</span><span class="lb-stat-label">Perfect Scores</span></div>
+    <div class="lb-stat"><span class="lb-stat-val">${total}</span><span class="lb-stat-label">Quizzes Played</span></div>`;
+
+  if(!history.length){document.getElementById('lb-history').innerHTML='<p class="no-data">No quiz history yet — go play the Daily Quiz!</p>';return;}
+  document.getElementById('lb-history').innerHTML=`
+    <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);margin-bottom:.75rem">Recent Games</div>`+
+    history.slice(0,20).map((h,i)=>`<div class="lb-row"><span class="lb-rank">#${i+1}</span><span class="lb-date">${h.date}</span><span class="lb-score">${h.score}/10${h.perfect?'<span class="lb-perfect">✅ Perfect!</span>':''}</span></div>`).join('');
+}
+
+function calcStreak(history){
+  if(!history.length)return 0;
+  // check consecutive days
+  let streak=0;
+  const today=getTodayStr();
+  for(let i=0;i<history.length;i++){if(i===0&&history[i].date!==today)break;if(i>0){const prev=history[i-1].date.split('-'),curr=history[i].date.split('-');const prevD=new Date(parseInt(prev[0]),parseInt(prev[1]),parseInt(prev[2]));const currD=new Date(parseInt(curr[0]),parseInt(curr[1]),parseInt(curr[2]));if((prevD-currD)/(1000*60*60*24)>1)break;}streak++;}
+  return streak;
+}
+
+// load trainer card when online section opens
+document.querySelector('[data-nav="online"]').addEventListener('click',()=>{setTimeout(renderTrainerCard,100);});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeTeamModal();document.getElementById('compare-overlay').classList.remove('open');document.body.style.overflow='';}
+  if(document.getElementById('overlay').classList.contains('open')){if(e.key==='ArrowLeft'&&currentModalIdx>0)openModal(currentModalIdx-1);if(e.key==='ArrowRight'&&currentModalIdx<filteredPokemon.length-1)openModal(currentModalIdx+1);}
+});
+
+// INIT
+async function init(){
+  loadGameStates();buildTypeFilters();
+  const BATCH=100;
+  for(let offset=0;offset<TOTAL;offset+=BATCH){
+    const limit=Math.min(BATCH,TOTAL-offset);let listData;
+    try{listData=await get(API+'pokemon?limit='+limit+'&offset='+offset);}catch(e){continue;}
+    const results=await Promise.allSettled(listData.results.map(async p=>{try{const d=await get(p.url);return{id:d.id,name:d.name,types:d.types.map(t=>t.type.name),stats:d.stats,height:d.height,weight:d.weight,base_experience:d.base_experience,stage:0};}catch(e){return null;}}));
+    results.forEach(r=>{if(r.status==='fulfilled'&&r.value&&!allPokemon.find(p=>p.id===r.value.id))allPokemon.push(r.value);});
+    allPokemon.sort((a,b)=>(a.gen10?99999:a.id)-(b.gen10?99999:b.id));
+    document.getElementById('count-bar').textContent='Loaded '+(Math.min(offset+BATCH,TOTAL))+' / '+TOTAL+' Pokemon...';
+    renderFiltered();
+  }
+  document.getElementById('count-bar').textContent=allPokemon.length+' Pokemon loaded including Gen 10!';
+  loadPotd();updateGameCards();loadStages();
+}
+async function loadStages(){
+  for(let i=0;i<allPokemon.length;i+=50){
+    await Promise.allSettled(allPokemon.slice(i,i+50).filter(p=>!p.gen10).map(async p=>{try{const s=await get(API+'pokemon-species/'+p.id);if(!s.evolves_from_species){p.stage=0;}else{const pid=s.evolves_from_species.url.split('/').slice(-2,-1)[0];const parent=await get(API+'pokemon-species/'+pid);p.stage=parent.evolves_from_species?2:1;}}catch(e){p.stage=0;}}));
+  }
+}
+init();
+</script>
+</body>
+</html>
