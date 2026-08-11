@@ -852,6 +852,7 @@ const GEN10=[
 let allPokemon=[...GEN10],filteredPokemon=[],compareSlots=[null,null],currentTeam=[];
 let activeType='all',activeStage='all',activeGen='all',searchTerm='',favOnly=false,currentModalIdx=-1;
 let globalShiny=false;
+let newsLoaded=false;
 const apiCache={};
 let favourites=new Set(JSON.parse(localStorage.getItem('pkdx-favs')||'[]'));
 function saveFavs(){try{localStorage.setItem('pkdx-favs',JSON.stringify([...favourites]));}catch(e){}}
@@ -884,58 +885,6 @@ let trackIdx=0,bgAudio=null,musicPlaying=false;
 function startMusic(){if(bgAudio){bgAudio.pause();bgAudio=null;}bgAudio=new Audio(TRACKS[trackIdx]);bgAudio.volume=0.55;bgAudio.play().then(()=>{musicPlaying=true;document.getElementById('music-btn').classList.add('playing');}).catch(()=>{});bgAudio.addEventListener('ended',()=>{trackIdx=(trackIdx+1)%TRACKS.length;startMusic();});}
 function stopMusic(){if(bgAudio){bgAudio.pause();bgAudio=null;}musicPlaying=false;document.getElementById('music-btn').classList.remove('playing');}
 document.getElementById('music-btn').addEventListener('click',()=>{if(musicPlaying)stopMusic();else startMusic();});
-
-// AUTH
-let currentUser=null,resetCode=null,resetEmail=null;
-function loadUser(){try{const u=localStorage.getItem('pkdx-user');if(u)currentUser=JSON.parse(u);}catch(e){}}
-function saveUser(u){currentUser=u;try{localStorage.setItem('pkdx-user',JSON.stringify(u));}catch(e){}}
-function clearUser(){currentUser=null;try{localStorage.removeItem('pkdx-user');}catch(e){}}
-function getAccounts(){return JSON.parse(localStorage.getItem('pkdx-accounts')||'{}');}
-function saveAccounts(a){localStorage.setItem('pkdx-accounts',JSON.stringify(a));}
-function showAuthWall(){document.getElementById('auth-wall').classList.remove('hidden');showPanel('login');}
-function hideAuthWall(){document.getElementById('auth-wall').classList.add('hidden');}
-function showPanel(name){['login','signup','reset'].forEach(p=>document.getElementById('panel-'+p).style.display=p===name?'block':'none');if(name==='reset'){['reset-step1','reset-step2','reset-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');document.getElementById('reset-err').textContent='';}}
-document.querySelectorAll('.auth-tab').forEach(t=>t.addEventListener('click',function(){showPanel(this.dataset.atab);}));
-document.getElementById('forgot-link').addEventListener('click',()=>showPanel('reset'));
-document.getElementById('reset-back').addEventListener('click',()=>showPanel('login'));
-document.getElementById('auth-submit').addEventListener('click',()=>{
-  const email=document.getElementById('auth-email').value.trim().toLowerCase(),pass=document.getElementById('auth-pass').value,err=document.getElementById('auth-err');err.textContent='';
-  if(!email.includes('@')){err.textContent='Valid email required.';return;}if(!pass){err.textContent='Password required.';return;}
-  const acc=getAccounts()[email];if(!acc||acc.pass!==pass){err.textContent='Incorrect email or password.';return;}
-  saveUser({name:acc.name,email});hideAuthWall();updateHeaderAuth();updateLockedUI();renderFiltered();
-});
-document.getElementById('su-submit').addEventListener('click',()=>{
-  const name=document.getElementById('su-name').value.trim(),email=document.getElementById('su-email').value.trim().toLowerCase(),pass=document.getElementById('su-pass').value,pass2=document.getElementById('su-pass2').value,err=document.getElementById('su-err');err.textContent='';
-  if(!name){err.textContent='Display name required.';return;}if(!email.includes('@')){err.textContent='Valid email required.';return;}if(pass.length<6){err.textContent='Password min 6 chars.';return;}if(pass!==pass2){err.textContent='Passwords do not match.';return;}
-  const accounts=getAccounts();if(accounts[email]){err.textContent='Account already exists.';return;}
-  accounts[email]={pass,name};saveAccounts(accounts);saveUser({name,email});hideAuthWall();updateHeaderAuth();updateLockedUI();renderFiltered();
-});
-document.getElementById('reset-send').addEventListener('click',()=>{
-  const email=document.getElementById('reset-email').value.trim().toLowerCase(),err=document.getElementById('reset-err');err.textContent='';
-  if(!email.includes('@')){err.textContent='Valid email required.';return;}if(!getAccounts()[email]){err.textContent='No account with that email.';return;}
-  resetCode=String(Math.floor(100000+Math.random()*900000));resetEmail=email;
-  document.getElementById('reset-step1').style.display='none';document.getElementById('reset-step2').style.display='block';
-  document.getElementById('reset-sub').textContent='Your code (shown here since local app):';document.getElementById('reset-code-display').textContent=resetCode;
-});
-document.getElementById('reset-confirm').addEventListener('click',()=>{
-  const code=document.getElementById('reset-code-input').value.trim(),newpass=document.getElementById('reset-newpass').value,newpass2=document.getElementById('reset-newpass2').value,err=document.getElementById('reset-err2');err.textContent='';
-  if(code!==resetCode){err.textContent='Incorrect code.';return;}if(newpass.length<6){err.textContent='Min 6 chars.';return;}if(newpass!==newpass2){err.textContent='Passwords do not match.';return;}
-  const accounts=getAccounts();accounts[resetEmail].pass=newpass;saveAccounts(accounts);
-  document.getElementById('reset-step2').style.display='none';document.getElementById('reset-step3').style.display='block';
-});
-document.getElementById('reset-done').addEventListener('click',()=>showPanel('login'));
-function updateHeaderAuth(){
-  const wrap=document.getElementById('header-auth');
-  if(currentUser){const initials=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();wrap.innerHTML='<div class="user-badge"><div class="user-avatar">'+initials+'</div><span class="user-name">'+currentUser.name+'</span></div><button class="logout-btn" onclick="logout()">Log out</button>';}
-  else{wrap.innerHTML='<button class="hbtn" onclick="showAuthWall()" style="background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.5);color:var(--accent)">Sign In</button>';}
-}
-function updateLockedUI(){
-  const li=!currentUser;
-  document.getElementById('filter-bar').classList.toggle('locked-ui',li);document.getElementById('search-box').classList.toggle('locked-ui',li);
-  if(li){document.getElementById('filter-bar').onclick=()=>showAuthWall();document.getElementById('search-box').onclick=()=>showAuthWall();}
-  else{document.getElementById('filter-bar').onclick=null;document.getElementById('search-box').onclick=null;}
-}
-function logout(){clearUser();updateHeaderAuth();updateLockedUI();renderFiltered();}
 
 // FILTERS
 function buildTypeFilters(){
@@ -1413,7 +1362,6 @@ function renderAchievements(){
 }
 
 // NEWS
-let newsLoaded=false;
 async function loadNews(){
   if(newsLoaded)return;newsLoaded=true;const wrap=document.getElementById('news-content');
   try{
