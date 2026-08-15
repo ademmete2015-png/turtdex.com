@@ -159,11 +159,21 @@
   .tap-zone.top{ top:0; height:50%; }
   .tap-zone.bottom{ bottom:0; height:50%; }
 
-  .flash{ position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; }
-  .flash.correct{ background: var(--correct); }
-  .flash.pass{ background: var(--pass); }
-  .flash.go{ animation: flashpop .32s ease; }
-  @keyframes flashpop{ 0%{opacity:.9;} 100%{opacity:0;} }
+  /* full-screen verdict flash — readable from across the room */
+  .fx{
+    position:fixed; inset:0; z-index:60; opacity:0; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fx.correct{ background: var(--correct); }
+  .fx.pass{ background: var(--pass); }
+  .fx .glyph{
+    font-family:'Archivo Black'; font-size:38vw; line-height:1; color:#180B1F;
+    transform:scale(.6); opacity:0;
+  }
+  .fx.go{ animation: fxflash .45s ease-out forwards; }
+  .fx.go .glyph{ animation: fxglyph .45s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes fxflash{ 0%{opacity:.96;} 55%{opacity:.96;} 100%{opacity:0;} }
+  @keyframes fxglyph{ 0%{transform:scale(.6); opacity:1;} 45%{transform:scale(1); opacity:1;} 100%{transform:scale(1.05); opacity:0;} }
 
   .countdown{
     position:absolute; inset:0; z-index:20; background:var(--bg);
@@ -277,8 +287,6 @@
   <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
 
   <div class="word-zone" id="wordZone">
-    <div class="flash" id="flashPass"></div>
-    <div class="flash" id="flashCorrect"></div>
     <div class="tap-zone top" id="tapPass"></div>
     <div class="tap-zone bottom" id="tapCorrect"></div>
     <div class="word-fit" id="wordFit"><div id="word">WORD</div></div>
@@ -312,6 +320,8 @@
     <button class="btn-again" id="againBtn">Play again</button>
   </div>
 </div>
+
+<div class="fx" id="fx"><span class="glyph" id="fxGlyph">&#10003;</span></div>
 
 <script>
 /* ================= WORD DATA ================= */
@@ -380,7 +390,10 @@ let wakeLock = null;
 let ac = null;
 function initAudio(){
   if(ac){ if(ac.state === 'suspended') ac.resume(); return; }
+  // iOS: opt out of the ring/silent switch muting Web Audio (Safari 16.4+)
+  try{ if(navigator.audioSession) navigator.audioSession.type = 'playback'; }catch(e){}
   try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ ac = null; }
+  if(ac && ac.state === 'suspended') ac.resume();
 }
 function tone(freq, dur, type='square', vol=0.18, delay=0){
   if(!ac) return;
@@ -393,11 +406,20 @@ function tone(freq, dur, type='square', vol=0.18, delay=0){
   osc.start(t); osc.stop(t + dur + 0.02);
 }
 const sfx = {
-  correct(){ tone(660,0.09,'square',0.2); tone(990,0.13,'square',0.2,0.07); },
-  pass(){ tone(200,0.16,'sawtooth',0.16); },
-  tick(){ tone(880,0.04,'sine',0.12); },
-  go(){ tone(520,0.12,'square',0.2); tone(780,0.22,'square',0.2,0.1); },
-  over(){ tone(300,0.3,'sawtooth',0.2); tone(200,0.45,'sawtooth',0.2,0.25); }
+  // bright bell: fundamental plus two harmonics, long decay
+  correct(){
+    tone(1046.5, 0.55, 'sine', 0.32);
+    tone(1568.0, 0.42, 'sine', 0.16, 0.005);
+    tone(2093.0, 0.28, 'sine', 0.07, 0.01);
+  },
+  // flat descending groan
+  pass(){
+    tone(233.1, 0.20, 'sawtooth', 0.24);
+    tone(174.6, 0.34, 'sawtooth', 0.24, 0.14);
+  },
+  tick(){ tone(880, 0.05, 'sine', 0.14); },
+  go(){ tone(523.3, 0.12, 'square', 0.22); tone(784.0, 0.26, 'square', 0.22, 0.1); },
+  over(){ tone(300, 0.3, 'sawtooth', 0.22); tone(200, 0.5, 'sawtooth', 0.22, 0.25); }
 };
 function buzz(pattern){ if(navigator.vibrate) navigator.vibrate(pattern); }
 
@@ -691,19 +713,22 @@ function resolveWord(isCorrect){
   if(isCorrect){
     score++; correctWords.push(entry.word);
     $('scoreNum').textContent = score;
-    flashFx('flashCorrect'); sfx.correct(); buzz(45);
+    flashFx('correct'); sfx.correct(); buzz(45);
   } else {
     passedWords.push(entry.word);
-    flashFx('flashPass'); sfx.pass(); buzz([20,30,20]);
+    flashFx('pass'); sfx.pass(); buzz([20,30,20]);
   }
   deckIndex++;
   if(score >= 25){ endRound(); return; }
   showNextWord();
 }
 
-function flashFx(id){
-  const el = $(id);
-  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+function flashFx(kind){
+  const el = $('fx');
+  $('fxGlyph').innerHTML = (kind === 'correct') ? '&#10003;' : '&#10007;';
+  el.classList.remove('go', 'correct', 'pass');
+  void el.offsetWidth;                       // force reflow so the animation restarts
+  el.classList.add(kind, 'go');
 }
 
 /* clock-based, so backgrounding can't skew the round */
