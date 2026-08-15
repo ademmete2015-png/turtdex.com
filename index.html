@@ -29,6 +29,7 @@
     color: var(--text);
     font-family:'Space Grotesk', sans-serif;
     overflow:hidden;
+    overscroll-behavior:none;
     position:fixed;
     inset:0;
     width:100%;
@@ -39,10 +40,12 @@
     flex-direction:column;
     height:100%;
     width:100%;
+    z-index:2;
   }
   .screen.active{display:flex;}
+  /* FIX: any flex child that scrolls must be allowed to shrink below its content */
+  .scroll-area{ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
 
-  /* background texture */
   .grain{
     position:fixed; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay; z-index:1;
     background-image: radial-gradient(circle at 20% 30%, #fff 0, transparent 1px), radial-gradient(circle at 70% 60%, #fff 0, transparent 1px), radial-gradient(circle at 40% 80%, #fff 0, transparent 1px);
@@ -56,58 +59,40 @@
   }
 
   /* ---------- HOME ---------- */
-  #home{ padding: env(safe-area-inset-top,24px) 20px 24px; position:relative; z-index:2; }
-  .brand{ padding-top: 14px; margin-bottom: 18px; }
+  #home{ padding: calc(env(safe-area-inset-top,0px) + 16px) 20px 0; }
+  .brand{ padding-top: 6px; margin-bottom: 6px; flex:0 0 auto; }
   .brand .eyebrow{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.16em; color:var(--correct); text-transform:uppercase; }
-  .brand h1{
-    font-family:'Archivo Black', sans-serif;
-    font-size: 40px; line-height:0.95; margin: 6px 0 4px;
-    letter-spacing: -0.5px;
-  }
-  .brand p{ color:var(--text-muted); font-size:14px; margin:0; line-height:1.5; max-width:34ch; }
+  .brand h1{ font-family:'Archivo Black', sans-serif; font-size: 38px; line-height:0.95; margin: 6px 0 4px; letter-spacing: -0.5px; }
+  .brand p{ color:var(--text-muted); font-size:13.5px; margin:0; line-height:1.5; max-width:34ch; }
 
-  .cat-scroll{ flex:1; overflow-y:auto; padding-bottom: 12px; -webkit-overflow-scrolling:touch; }
-  .cat-grid{
-    display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top: 14px;
+  .quickrow{ display:flex; gap:8px; margin:12px 0 2px; flex:0 0 auto; }
+  .quickbtn{
+    flex:1; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    padding:9px; border-radius:12px; font-family:'Space Grotesk'; font-size:12.5px; font-weight:600;
   }
+  .cat-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:12px 0 16px; }
   .cat-tile{
-    background: var(--surface);
-    border: 1.5px solid var(--line);
-    border-radius: 16px;
-    padding: 14px 14px 12px;
-    text-align:left;
-    cursor:pointer;
+    background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px;
+    padding: 14px 14px 12px; text-align:left; cursor:pointer; position:relative;
     transition: border-color .15s ease, background .15s ease, transform .1s ease;
-    position:relative;
   }
   .cat-tile:active{ transform: scale(0.97); }
-  .cat-tile.selected{
-    border-color: var(--correct);
-    background: linear-gradient(160deg, rgba(140,255,107,0.14), var(--surface) 60%);
-  }
-  .cat-tile .name{ font-weight:700; font-size:14.5px; display:block; margin-bottom:4px; }
+  .cat-tile.selected{ border-color: var(--correct); background: linear-gradient(160deg, rgba(140,255,107,0.14), var(--surface) 60%); }
+  .cat-tile .name{ font-weight:700; font-size:14.5px; display:block; margin-bottom:4px; padding-right:20px; }
   .cat-tile .count{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-muted); }
   .cat-tile.selected .count{ color: var(--correct); }
-  .check{
-    position:absolute; top:10px; right:10px; width:18px; height:18px; border-radius:50%;
-    border:1.5px solid var(--line); background:transparent;
-  }
+  .check{ position:absolute; top:10px; right:10px; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); background:transparent; }
   .cat-tile.selected .check{ background: var(--correct); border-color: var(--correct); }
   .cat-tile.selected .check::after{
     content:''; position:absolute; left:5px; top:2px; width:5px; height:9px;
     border-right:2px solid #180B1F; border-bottom:2px solid #180B1F; transform:rotate(40deg);
   }
 
-  .quickrow{ display:flex; gap:8px; margin-top:14px; }
-  .quickbtn{
-    flex:1; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
-    padding:9px; border-radius:12px; font-family:'Space Grotesk'; font-size:12.5px; font-weight:600;
-  }
-
   .footer-bar{
-    position:relative; z-index:2;
-    padding: 14px 20px calc(env(safe-area-inset-bottom,16px) + 14px);
-    background: linear-gradient(180deg, transparent, var(--bg) 30%);
+    flex:0 0 auto;
+    padding: 14px 20px calc(env(safe-area-inset-bottom,0px) + 14px);
+    margin: 0 -20px;
+    background: var(--bg);
     border-top: 1px solid var(--line);
   }
   .settings-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
@@ -124,108 +109,97 @@
     width:100%; border:none; border-radius:16px; padding:17px;
     background: var(--correct); color:#12210B;
     font-family:'Archivo Black'; font-size:17px; letter-spacing:0.3px;
-    display:flex; align-items:center; justify-content:center; gap:8px;
   }
   .start-btn:disabled{ background: var(--surface-2); color: var(--text-muted); }
   .start-btn:active:not(:disabled){ transform: scale(0.98); }
   .start-sub{ text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px; font-family:'JetBrains Mono', monospace; }
 
   /* ---------- CALIBRATE ---------- */
-  #calibrate{ align-items:center; justify-content:center; text-align:center; padding: 32px; z-index:2; }
-  #calibrate .icon{ width:88px; height:88px; margin: 0 auto 22px; }
-  #calibrate h2{ font-family:'Archivo Black'; font-size:24px; margin: 0 0 10px; }
-  #calibrate p{ color:var(--text-muted); font-size:14.5px; line-height:1.55; max-width:32ch; margin: 0 auto 26px; }
-  .cal-btn{
-    border:none; border-radius:16px; padding:16px 30px; background:var(--correct); color:#12210B;
-    font-family:'Archivo Black'; font-size:15.5px; width:100%; max-width:320px;
-  }
-  .cal-link{ margin-top:16px; background:none; border:none; color:var(--text-muted); font-size:13px; text-decoration:underline; font-family:'Space Grotesk'; }
+  #calibrate{ align-items:center; justify-content:center; text-align:center; padding: 26px 24px calc(env(safe-area-inset-bottom,0px) + 20px); }
+  #calibrate h2{ font-family:'Archivo Black'; font-size:23px; margin: 0 0 8px; }
+  #calibrate p{ color:var(--text-muted); font-size:14px; line-height:1.5; max-width:32ch; margin: 0 auto 18px; }
+  .cal-btn{ border:none; border-radius:16px; padding:16px 30px; background:var(--correct); color:#12210B; font-family:'Archivo Black'; font-size:15.5px; width:100%; max-width:340px; }
+  .cal-link{ margin-top:14px; background:none; border:none; color:var(--text-muted); font-size:13px; text-decoration:underline; font-family:'Space Grotesk'; }
+  .cal-status{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.05em; color:var(--amber); min-height:15px; margin-bottom:10px; text-transform:uppercase;}
+  .cal-status.ok{ color:var(--correct); }
+  .cal-status.bad{ color:var(--pass); }
+  .reverse-btn{ margin-top:12px; background:var(--surface-2); border:1px solid var(--line); color:var(--text-muted); font-size:12px; padding:8px 14px; border-radius:20px; font-family:'Space Grotesk'; }
+
+  /* tilt gauge — lives on the calibration screen where it's actually visible */
+  .gauge-wrap{ width: 230px; margin: 0 auto 10px; }
+  .gauge{ width:100%; height: 118px; overflow:visible; }
+  .gauge-label-row{ display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; padding:0 2px;}
+  #gaugeArcPass.hot{ stroke: var(--pass); }
+  #gaugeArcCorrect.hot{ stroke: var(--correct); }
 
   /* ---------- GAME ---------- */
-  #game{ z-index:2; }
   .game-top{
-    padding: calc(env(safe-area-inset-top,20px) + 8px) 18px 10px;
-    display:flex; align-items:center; justify-content:space-between;
+    flex:0 0 auto;
+    padding: calc(env(safe-area-inset-top,0px) + 12px) 18px 8px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
   }
-  .score-pill{
-    font-family:'JetBrains Mono', monospace; font-weight:700; font-size:22px;
-    color: var(--correct); display:flex; align-items:baseline; gap:5px;
-  }
+  .score-pill{ font-family:'JetBrains Mono', monospace; font-weight:700; font-size:22px; color: var(--correct); display:flex; align-items:baseline; gap:5px; }
   .score-pill .lbl{ font-size:10px; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.08em; }
-  .quit-btn{
-    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
-    width:34px; height:34px; border-radius:50%; font-size:16px; line-height:1;
-  }
-  .timer-track{
-    height:6px; background: var(--surface); margin: 0 18px 6px; border-radius:4px; overflow:hidden;
-  }
-  .timer-fill{ height:100%; background: var(--amber); border-radius:4px; transition: width 1s linear, background .3s ease; width:100%; }
-  .cat-tag{ text-align:center; font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:2px;}
+  .quit-btn{ background:var(--surface); border:1px solid var(--line); color:var(--text-muted); width:34px; height:34px; border-radius:50%; font-size:16px; line-height:1; flex:0 0 auto; }
+  .timer-track{ flex:0 0 auto; height:6px; background: var(--surface); margin: 0 18px 4px; border-radius:4px; overflow:hidden; }
+  .timer-fill{ height:100%; background: var(--amber); border-radius:4px; width:100%; }
+  .cat-tag{ font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); text-align:center; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-  .word-zone{
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    position:relative; padding: 10px 26px;
-    touch-action:none;
+  /* the word gets every pixel that's left */
+  .word-zone{ flex:1 1 auto; min-height:0; position:relative; display:flex; touch-action:none; }
+  .word-fit{
+    flex:1 1 auto; min-height:0; min-width:0; margin: 6px 16px;
+    display:flex; align-items:center; justify-content:center; position:relative; z-index:1; pointer-events:none;
   }
-  .tap-zone{ position:absolute; inset:0; left:0; right:0; z-index:0; }
-  .tap-zone.top{ top:0; height:38%; }
-  .tap-zone.bottom{ bottom:0; height:38%; }
-
   #word{
-    font-family:'Archivo Black'; font-size: 15vw; line-height:1.02; text-align:center;
-    max-width: 100%; word-break: break-word; position:relative; z-index:1; pointer-events:none;
-    transition: color .15s ease, transform .12s ease;
+    font-family:'Archivo Black'; line-height:1.0; text-align:center;
+    max-width:100%; overflow-wrap:break-word; hyphens:none; font-size:64px;
   }
-  .next-preview{
-    position:relative; z-index:1; margin-top:14px; color: var(--text-muted); font-size:12px;
-    font-family:'JetBrains Mono', monospace; text-align:center; letter-spacing:.04em; pointer-events:none;
-  }
+  .tap-zone{ position:absolute; left:0; right:0; z-index:2; }
+  .tap-zone.top{ top:0; height:50%; }
+  .tap-zone.bottom{ bottom:0; height:50%; }
 
   .flash{ position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; }
   .flash.correct{ background: var(--correct); }
   .flash.pass{ background: var(--pass); }
   .flash.go{ animation: flashpop .32s ease; }
-  @keyframes flashpop{ 0%{opacity:.85;} 100%{opacity:0;} }
+  @keyframes flashpop{ 0%{opacity:.9;} 100%{opacity:0;} }
 
-  /* tilt gauge - signature element */
-  .gauge-wrap{ position:relative; z-index:1; width: 210px; margin: 4px 0 2px; }
-  .gauge{ width:100%; height: 108px; overflow:visible; }
-  .gauge-label-row{ display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; margin-top:2px; padding:0 4px;}
-
-  .mode-toggle{
-    position:relative; z-index:1; margin-top:10px;
-    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
-    font-size:11px; font-family:'Space Grotesk'; padding:7px 14px; border-radius:20px;
+  .countdown{
+    position:absolute; inset:0; z-index:20; background:var(--bg);
+    display:none; align-items:center; justify-content:center; flex-direction:column;
   }
+  .countdown.on{ display:flex; }
+  .countdown .num{ font-family:'Archivo Black'; font-size:34vw; line-height:1; color:var(--correct); }
+  .countdown .cue{ font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.14em; color:var(--text-muted); text-transform:uppercase; margin-top:14px; }
 
   .bottom-hint{
-    text-align:center; padding: 4px 20px calc(env(safe-area-inset-bottom,14px) + 14px);
-    color: var(--text-muted); font-size:12.5px; font-family:'Space Grotesk'; font-weight:500;
-    display:flex; justify-content:center; gap:18px;
+    flex:0 0 auto;
+    padding: 6px 20px calc(env(safe-area-inset-bottom,0px) + 12px);
+    color: var(--text-muted); font-size:12.5px; font-weight:500;
+    display:flex; justify-content:center; gap:18px; flex-wrap:wrap;
   }
   .bottom-hint span{ display:flex; align-items:center; gap:6px; }
-  .dot{ width:8px; height:8px; border-radius:50%; }
+  .dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
   .dot.pass{ background:var(--pass); }
   .dot.correct{ background:var(--correct); }
 
   /* ---------- RESULTS ---------- */
-  #results{ z-index:2; padding: env(safe-area-inset-top,26px) 22px calc(env(safe-area-inset-bottom,20px) + 22px); }
-  #results .over-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; text-align:center; margin-top:10px;}
-  #results h2{ font-family:'Archivo Black'; font-size:52px; text-align:center; margin: 6px 0 2px; }
-  #results .sub{ text-align:center; color:var(--text-muted); font-size:13.5px; margin-bottom: 20px; }
-  .results-scroll{ flex:1; overflow-y:auto; }
+  #results{ padding: calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 18px); }
+  #results .over-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; text-align:center; }
+  #results h2{ font-family:'Archivo Black'; font-size:52px; text-align:center; margin: 4px 0 2px; }
+  #results .sub{ text-align:center; color:var(--text-muted); font-size:13.5px; margin-bottom: 6px; }
+  #results .tip{ text-align:center; color:var(--text-muted); font-size:11px; font-family:'JetBrains Mono', monospace; margin-bottom:14px; opacity:.75; }
   .result-section{ margin-bottom:16px; }
-  .result-section h3{
-    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-    margin: 0 0 8px; display:flex; align-items:center; gap:7px;
-  }
+  .result-section h3{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; margin: 0 0 8px; display:flex; align-items:center; gap:7px; }
   .result-section.correct h3{ color: var(--correct); }
   .result-section.pass h3{ color: var(--pass); }
   .chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
   .chip{ background:var(--surface); border:1px solid var(--line); padding:6px 11px; border-radius:20px; font-size:12.5px; }
   .result-section.correct .chip{ border-color: rgba(140,255,107,0.35); }
   .result-section.pass .chip{ border-color: rgba(255,92,122,0.35); }
-  .results-actions{ display:flex; gap:10px; margin-top:16px; }
+  .chip:active{ transform:scale(0.95); }
+  .results-actions{ flex:0 0 auto; display:flex; gap:10px; margin-top:14px; }
   .results-actions button{ flex:1; border-radius:14px; padding:15px; font-family:'Archivo Black'; font-size:14px; border:none; }
   .btn-again{ background:var(--correct); color:#12210B; }
   .btn-home{ background:var(--surface-2); color:var(--text); border:1px solid var(--line) !important; }
@@ -241,9 +215,13 @@
   <div class="brand">
     <div class="eyebrow">Heads-up describing game</div>
     <h1>FOREHEADS</h1>
-    <p>Hold the phone to your forehead. Someone describes the word without saying it. Tilt down when you get it, tilt back to pass.</p>
+    <p>Hold the phone to your forehead. Your team describes the word without saying it. Tilt down when you get it, tilt up to pass.</p>
   </div>
-  <div class="cat-scroll">
+  <div class="quickrow">
+    <button class="quickbtn" id="selectAllBtn">Select all</button>
+    <button class="quickbtn" id="clearAllBtn">Clear</button>
+  </div>
+  <div class="scroll-area">
     <div class="cat-grid" id="catGrid"></div>
   </div>
   <div class="footer-bar">
@@ -257,21 +235,27 @@
       </div>
     </div>
     <button class="start-btn" id="startBtn" disabled>Start round</button>
-    <div class="start-sub">Round also ends instantly at 25 correct</div>
+    <div class="start-sub" id="startSub">Pick at least one category</div>
   </div>
 </div>
 
 <!-- CALIBRATE -->
 <div class="screen" id="calibrate">
-  <svg class="icon" viewBox="0 0 100 100" fill="none">
-    <rect x="30" y="10" width="40" height="80" rx="10" stroke="#8CFF6B" stroke-width="4"/>
-    <circle cx="50" cy="76" r="3" fill="#8CFF6B"/>
-    <path d="M50 10 L50 4" stroke="#FFD23F" stroke-width="3" stroke-linecap="round"/>
-    <path d="M38 4 Q50 -4 62 4" stroke="#FFD23F" stroke-width="3" stroke-linecap="round" fill="none"/>
-  </svg>
   <h2>Hold it to your forehead</h2>
-  <p>Face the screen outward, toward your team. When you're ready, hold the phone level against your forehead and tap below — that becomes your neutral position.</p>
-  <button class="cal-btn" id="calBtn">I'm ready — calibrate</button>
+  <p>Screen facing your team. Hold the phone level, then tap to set your neutral position — and tilt to test before you start.</p>
+  <div class="gauge-wrap">
+    <svg class="gauge" viewBox="0 0 210 108">
+      <path d="M15 98 A90 90 0 0 1 195 98" stroke="#2E1B3D" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path id="gaugeArcPass" d="M15 98 A90 90 0 0 1 105 8" stroke="#4A1F2A" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path id="gaugeArcCorrect" d="M105 8 A90 90 0 0 1 195 98" stroke="#2E4A22" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <line id="gaugeNeedle" x1="105" y1="98" x2="105" y2="26" stroke="#FBF5FF" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="105" cy="98" r="6" fill="#FBF5FF"/>
+    </svg>
+    <div class="gauge-label-row"><span>&#9650; Tilt up = Pass</span><span>Tilt down = Correct &#9660;</span></div>
+  </div>
+  <div class="cal-status" id="calStatus">Motion sensor not started</div>
+  <button class="cal-btn" id="calBtn">Set neutral &amp; start</button>
+  <button class="reverse-btn" id="reverseBtn">Reverse tilt direction</button>
   <button class="cal-link" id="skipCalBtn">Skip tilt, use tap controls instead</button>
 </div>
 
@@ -289,24 +273,12 @@
     <div class="flash" id="flashCorrect"></div>
     <div class="tap-zone top" id="tapPass"></div>
     <div class="tap-zone bottom" id="tapCorrect"></div>
-    <div id="word">WORD</div>
-    <div class="next-preview" id="nextPreview">NEXT — ····</div>
-
-    <div class="gauge-wrap">
-      <svg class="gauge" viewBox="0 0 210 108">
-        <path d="M15 98 A90 90 0 0 1 195 98" stroke="#2E1B3D" stroke-width="10" fill="none" stroke-linecap="round"/>
-        <path id="gaugeArcPass" d="M15 98 A90 90 0 0 1 105 8" stroke="#4A1F2A" stroke-width="10" fill="none" stroke-linecap="round"/>
-        <path id="gaugeArcCorrect" d="M105 8 A90 90 0 0 1 195 98" stroke="#2E4A22" stroke-width="10" fill="none" stroke-linecap="round"/>
-        <line id="gaugeNeedle" x1="105" y1="98" x2="105" y2="26" stroke="#FBF5FF" stroke-width="4" stroke-linecap="round"/>
-        <circle cx="105" cy="98" r="6" fill="#FBF5FF"/>
-      </svg>
-      <div class="gauge-label-row"><span>PASS</span><span>CORRECT</span></div>
-    </div>
-    <button class="mode-toggle" id="modeToggle">Switch to tap controls</button>
+    <div class="word-fit" id="wordFit"><div id="word">WORD</div></div>
+    <div class="countdown" id="countdown"><div class="num" id="countNum">3</div><div class="cue">Get it on your forehead</div></div>
   </div>
 
-  <div class="bottom-hint">
-    <span><span class="dot pass"></span>Tilt back / tap top = Pass</span>
+  <div class="bottom-hint" id="bottomHint">
+    <span><span class="dot pass"></span>Tilt up / tap top = Pass</span>
     <span><span class="dot correct"></span>Tilt down / tap bottom = Correct</span>
   </div>
 </div>
@@ -316,7 +288,8 @@
   <div class="over-label">Round over</div>
   <h2 id="finalScore">0</h2>
   <div class="sub" id="finalSub">correct out of 0 words</div>
-  <div class="results-scroll">
+  <div class="tip">Tap any word to move it to the other list</div>
+  <div class="scroll-area">
     <div class="result-section correct">
       <h3><span class="dot correct" style="display:inline-block"></span>Got it (<span id="correctCount">0</span>)</h3>
       <div class="chip-list" id="correctList"></div>
@@ -376,42 +349,85 @@ const CATEGORIES = {
 };
 
 /* ================= STATE ================= */
+const $ = id => document.getElementById(id);
+const TRIGGER = 25;   // degrees from neutral before a word resolves
+const REARM   = 8;    // must come back inside this before the next trigger
+
 let selectedCats = new Set();
 let roundLength = 60;
-let deck = [];
-let deckIndex = 0;
-let score = 0;
-let correctWords = [];
-let passedWords = [];
-let timeLeft = 0;
-let timerInterval = null;
-let tiltEnabled = false;
-let baselineBeta = null;
-let lastTrigger = 0;
-let roundActive = false;
+let deck = [], deckIndex = 0;
+let score = 0, correctWords = [], passedWords = [];
+let roundActive = false, endAt = 0, rafId = null;
 
-const $ = id => document.getElementById(id);
+let tiltMode = false;          // true once motion events are actually arriving
+let sensorType = null;         // 'motion' | 'orientation'
+let baseline = null, tiltValue = 0, armed = true, lastTrigger = 0;
+let reverse = false;
+let motionSeen = false;
+let wakeLock = null;
 
-/* ================= HOME SCREEN ================= */
+/* ================= AUDIO (the holder can't see the screen) ================= */
+let ac = null;
+function initAudio(){
+  if(ac) { if(ac.state === 'suspended') ac.resume(); return; }
+  try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ ac = null; }
+}
+function tone(freq, dur, type='square', vol=0.18, delay=0){
+  if(!ac) return;
+  const t = ac.currentTime + delay;
+  const osc = ac.createOscillator(), gain = ac.createGain();
+  osc.type = type; osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain); gain.connect(ac.destination);
+  osc.start(t); osc.stop(t + dur + 0.02);
+}
+const sfx = {
+  correct(){ tone(660,0.09,'square',0.2); tone(990,0.13,'square',0.2,0.07); },
+  pass(){ tone(200,0.16,'sawtooth',0.16); },
+  tick(){ tone(880,0.04,'sine',0.12); },
+  go(){ tone(520,0.12,'square',0.2); tone(780,0.22,'square',0.2,0.1); },
+  over(){ tone(300,0.3,'sawtooth',0.2); tone(200,0.45,'sawtooth',0.2,0.25); }
+};
+function buzz(pattern){ if(navigator.vibrate) navigator.vibrate(pattern); }
+
+/* ================= HOME ================= */
 function buildCatGrid(){
   const grid = $('catGrid');
   grid.innerHTML = '';
   Object.keys(CATEGORIES).forEach(name => {
     const tile = document.createElement('div');
     tile.className = 'cat-tile';
-    tile.innerHTML = `<div class="check"></div><span class="name">${name}</span><span class="count">${CATEGORIES[name].length} words</span>`;
+    tile.innerHTML = '<div class="check"></div><span class="name">'+name+'</span><span class="count">'+CATEGORIES[name].length+' words</span>';
     tile.addEventListener('click', () => {
-      if (selectedCats.has(name)) { selectedCats.delete(name); tile.classList.remove('selected'); }
+      if(selectedCats.has(name)){ selectedCats.delete(name); tile.classList.remove('selected'); }
       else { selectedCats.add(name); tile.classList.add('selected'); }
       updateStartBtn();
     });
+    tile.dataset.cat = name;
     grid.appendChild(tile);
   });
 }
 function updateStartBtn(){
-  $('startBtn').disabled = selectedCats.size === 0;
+  const n = selectedCats.size;
+  $('startBtn').disabled = n === 0;
+  $('startSub').textContent = n === 0
+    ? 'Pick at least one category'
+    : n + (n===1?' category':' categories') + ' · ends at 25 correct';
 }
 buildCatGrid();
+updateStartBtn();
+
+$('selectAllBtn').addEventListener('click', () => {
+  Object.keys(CATEGORIES).forEach(n => selectedCats.add(n));
+  document.querySelectorAll('.cat-tile').forEach(t => t.classList.add('selected'));
+  updateStartBtn();
+});
+$('clearAllBtn').addEventListener('click', () => {
+  selectedCats.clear();
+  document.querySelectorAll('.cat-tile').forEach(t => t.classList.remove('selected'));
+  updateStartBtn();
+});
 
 $('timeOpts').addEventListener('click', e => {
   const btn = e.target.closest('.time-opt');
@@ -429,220 +445,286 @@ function showScreen(id){
 $('startBtn').addEventListener('click', () => {
   buildDeck();
   showScreen('calibrate');
+  $('calStatus').textContent = 'Motion sensor not started';
+  $('calStatus').className = 'cal-status';
 });
 
 function buildDeck(){
-  let words = [];
+  const seen = new Set(); const words = [];
   selectedCats.forEach(name => {
-    CATEGORIES[name].forEach(w => words.push({word:w, cat:name}));
+    CATEGORIES[name].forEach(w => {
+      const key = w.toLowerCase();
+      if(seen.has(key)) return;      // no duplicates across categories
+      seen.add(key);
+      words.push({word:w, cat:name});
+    });
   });
-  // shuffle
   for(let i=words.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [words[i],words[j]] = [words[j],words[i]];
   }
-  deck = words;
-  deckIndex = 0;
+  deck = words; deckIndex = 0;
 }
 
-/* ================= CALIBRATE / PERMISSIONS ================= */
-$('calBtn').addEventListener('click', async () => {
-  let granted = false;
-  try{
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
-      const res = await DeviceOrientationEvent.requestPermission();
-      granted = res === 'granted';
-    } else if (typeof DeviceOrientationEvent !== 'undefined'){
-      granted = true;
-    }
-  }catch(e){ granted = false; }
-
-  if(granted){
-    tiltEnabled = true;
-    let gotReading = false;
-    const testHandler = (e) => {
-      if(e.beta !== null){
-        gotReading = true;
-        baselineBeta = e.beta;
-      }
-    };
-    window.addEventListener('deviceorientation', testHandler, { once:true });
-    setTimeout(()=>{
-      if(!gotReading){ tiltEnabled = false; }
-      startRound();
-    }, 250);
-  } else {
-    tiltEnabled = false;
-    startRound();
+/* ================= MOTION ================= */
+/* Uses devicemotion gravity, not deviceorientation beta. A phone held to your
+   forehead sits near beta = 90, which is exactly where orientation readings go
+   unstable. Gravity-based pitch has no singularity there and works in portrait
+   or landscape. */
+function pitchFromGravity(g){
+  return Math.atan2(g.z, Math.hypot(g.x, g.y)) * 180 / Math.PI;
+}
+function handleReading(rawPitch){
+  motionSeen = true;
+  if(baseline === null) baseline = rawPitch;
+  // tilt the screen toward the floor -> positive -> "correct"
+  tiltValue = (baseline - rawPitch) * (reverse ? -1 : 1);
+  updateGaugeNeedle(tiltValue);
+  if(!roundActive || !tiltMode) return;
+  const now = Date.now();
+  if(!armed){
+    if(Math.abs(tiltValue) < REARM && now - lastTrigger > 250) armed = true;
+    return;
   }
-});
+  if(tiltValue >= TRIGGER){ armed = false; lastTrigger = now; resolveWord(true); }
+  else if(tiltValue <= -TRIGGER){ armed = false; lastTrigger = now; resolveWord(false); }
+}
+function onMotion(e){
+  const g = e.accelerationIncludingGravity;
+  if(!g || g.x === null || g.y === null || g.z === null) return;
+  handleReading(pitchFromGravity(g));
+}
+function onOrientation(e){
+  if(e.beta === null || e.beta === undefined) return;
+  handleReading(-e.beta);
+}
+function attachSensors(){
+  window.addEventListener('devicemotion', onMotion);
+  window.addEventListener('deviceorientation', onOrientation);
+}
+function detachSensors(){
+  window.removeEventListener('devicemotion', onMotion);
+  window.removeEventListener('deviceorientation', onOrientation);
+}
+async function requestSensors(){
+  let ok = true;
+  try{
+    if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+      ok = (await DeviceMotionEvent.requestPermission()) === 'granted';
+    }
+    if(ok && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+      await DeviceOrientationEvent.requestPermission();
+    }
+  }catch(err){ ok = false; }
+  return ok;
+}
+function updateGaugeNeedle(v){
+  const clamped = Math.max(-TRIGGER, Math.min(TRIGGER, v));
+  const rad = (clamped / TRIGGER) * 80 * Math.PI/180;
+  const cx=105, cy=98, len=72;
+  const needle = $('gaugeNeedle');
+  if(needle){
+    needle.setAttribute('x2', (cx + len*Math.sin(rad)).toFixed(1));
+    needle.setAttribute('y2', (cy - len*Math.cos(rad)).toFixed(1));
+  }
+  $('gaugeArcCorrect').classList.toggle('hot', v >= TRIGGER);
+  $('gaugeArcPass').classList.toggle('hot', v <= -TRIGGER);
+}
 
+/* live preview as soon as the calibrate screen opens, so you can test the
+   direction before a single word burns */
+$('calBtn').addEventListener('click', async () => {
+  initAudio();
+  const granted = await requestSensors();
+  motionSeen = false; baseline = null;
+  if(granted) attachSensors();
+  setTimeout(() => {
+    if(motionSeen){
+      tiltMode = true;
+      $('calStatus').textContent = 'Tilt ready';
+      $('calStatus').className = 'cal-status ok';
+    } else {
+      tiltMode = false;
+      detachSensors();
+      $('calStatus').textContent = 'Sensors blocked — using tap controls';
+      $('calStatus').className = 'cal-status bad';
+    }
+    startRound();
+  }, 700);
+});
+$('reverseBtn').addEventListener('click', () => {
+  reverse = !reverse;
+  $('reverseBtn').textContent = reverse ? 'Direction reversed \u2713' : 'Reverse tilt direction';
+});
 $('skipCalBtn').addEventListener('click', () => {
-  tiltEnabled = false;
+  initAudio();
+  tiltMode = false; detachSensors();
   startRound();
 });
 
 /* ================= GAME ================= */
+async function keepAwake(){
+  try{ if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+function releaseAwake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+
 function startRound(){
-  score = 0;
-  correctWords = [];
-  passedWords = [];
-  timeLeft = roundLength;
-  roundActive = true;
+  score = 0; correctWords = []; passedWords = [];
+  roundActive = false; armed = true;
   $('scoreNum').textContent = '0';
   $('timerFill').style.width = '100%';
   $('timerFill').style.background = 'var(--amber)';
-  $('modeToggle').textContent = tiltEnabled ? 'Switch to tap controls' : 'Tilt not available — using tap';
-  setupTiltListener();
+  $('bottomHint').style.display = tiltMode ? 'flex' : 'flex';
+  keepAwake();
   showScreen('game');
   showNextWord();
-  timerInterval = setInterval(tick, 1000);
+  runCountdown();
 }
 
-function setupTiltListener(){
-  window.removeEventListener('deviceorientation', onTilt);
-  if(tiltEnabled){
-    window.addEventListener('deviceorientation', onTilt);
-  }
+function runCountdown(){
+  const el = $('countdown'), num = $('countNum');
+  el.classList.add('on');
+  let n = 3;
+  num.textContent = n; sfx.tick(); buzz(30);
+  const iv = setInterval(() => {
+    n--;
+    if(n > 0){ num.textContent = n; sfx.tick(); buzz(30); }
+    else{
+      clearInterval(iv);
+      el.classList.remove('on');
+      sfx.go(); buzz([40,40,80]);
+      baseline = null;             // whatever angle it's at now becomes neutral
+      roundActive = true;
+      endAt = Date.now() + roundLength*1000;
+      fitWord();
+      rafId = requestAnimationFrame(tick);
+    }
+  }, 800);
 }
-
-function onTilt(e){
-  if(!roundActive || !tiltEnabled || baselineBeta === null) return;
-  const now = Date.now();
-  if(now - lastTrigger < 700) {
-    updateGaugeNeedle(e.beta - baselineBeta);
-    return;
-  }
-  const delta = e.beta - baselineBeta;
-  updateGaugeNeedle(delta);
-  if(delta > 10){
-    lastTrigger = now;
-    resolveWord(true);
-  } else if(delta < -10){
-    lastTrigger = now;
-    resolveWord(false);
-  }
-}
-
-function updateGaugeNeedle(delta){
-  const clamped = Math.max(-20, Math.min(20, delta));
-  const angleDeg = (clamped / 20) * 80; // -80 to 80 deg from vertical
-  const rad = (angleDeg) * Math.PI/180;
-  const cx=105, cy=98, len=72;
-  const x2 = cx + len*Math.sin(rad);
-  const y2 = cy - len*Math.cos(rad);
-  const needle = $('gaugeNeedle');
-  if(needle){ needle.setAttribute('x2', x2.toFixed(1)); needle.setAttribute('y2', y2.toFixed(1)); }
-}
-
-$('modeToggle').addEventListener('click', () => {
-  tiltEnabled = !tiltEnabled;
-  setupTiltListener();
-  $('modeToggle').textContent = tiltEnabled ? 'Switch to tap controls' : 'Switch to tilt controls';
-  if(tiltEnabled){
-    window.addEventListener('deviceorientation', (e)=>{ if(e.beta!==null) baselineBeta = e.beta; }, {once:true});
-  }
-});
-
-$('tapPass').addEventListener('click', () => resolveWord(false));
-$('tapCorrect').addEventListener('click', () => resolveWord(true));
 
 function showNextWord(){
-  if(deckIndex >= deck.length){
-    // reshuffle and continue if we run out
-    buildDeck();
-  }
+  if(deckIndex >= deck.length) buildDeck();
   const entry = deck[deckIndex];
   $('word').textContent = entry.word;
   $('catTag').textContent = entry.cat.toUpperCase();
-  const preview = deck[deckIndex+1] ? deck[deckIndex+1].word : deck[0].word;
-  $('nextPreview').textContent = 'NEXT — ' + preview;
+  fitWord();
 }
+
+/* shrink-to-fit: 15vw guessed at a size, this measures the real box */
+function fitWord(){
+  const el = $('word'), box = $('wordFit');
+  const maxW = box.clientWidth, maxH = box.clientHeight;
+  if(!maxW || !maxH) return;
+  let lo = 16, hi = Math.min(maxH, 260);
+  for(let i=0;i<14;i++){
+    const mid = (lo+hi)/2;
+    el.style.fontSize = mid+'px';
+    if(el.scrollWidth <= maxW && el.scrollHeight <= maxH) lo = mid; else hi = mid;
+  }
+  el.style.fontSize = Math.floor(lo)+'px';
+}
+window.addEventListener('resize', () => { if($('game').classList.contains('active')) fitWord(); });
+window.addEventListener('orientationchange', () => setTimeout(fitWord, 250));
 
 function resolveWord(isCorrect){
   if(!roundActive) return;
   const entry = deck[deckIndex];
   if(isCorrect){
-    score++;
-    correctWords.push(entry.word);
+    score++; correctWords.push(entry.word);
     $('scoreNum').textContent = score;
-    flashFx('flashCorrect');
-    if(navigator.vibrate) navigator.vibrate(40);
+    flashFx('flashCorrect'); sfx.correct(); buzz(45);
   } else {
     passedWords.push(entry.word);
-    flashFx('flashPass');
-    if(navigator.vibrate) navigator.vibrate([20,30,20]);
+    flashFx('flashPass'); sfx.pass(); buzz([20,30,20]);
   }
   deckIndex++;
-  if(score >= 25){
-    endRound();
-    return;
-  }
+  if(score >= 25){ endRound(); return; }
   showNextWord();
 }
 
 function flashFx(id){
   const el = $(id);
-  el.classList.remove('go');
-  void el.offsetWidth;
-  el.classList.add('go');
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
 }
 
+/* clock-based, so backgrounding or a throttled tab can't skew the round */
+let lastWholeSecond = -1;
 function tick(){
-  timeLeft--;
-  const pct = Math.max(0,(timeLeft/roundLength)*100);
-  $('timerFill').style.width = pct + '%';
-  if(timeLeft <= 10){ $('timerFill').style.background = 'var(--pass)'; }
-  if(timeLeft <= 0){
-    endRound();
+  if(!roundActive) return;
+  const remain = Math.max(0, endAt - Date.now());
+  $('timerFill').style.width = (remain/(roundLength*1000))*100 + '%';
+  const secs = Math.ceil(remain/1000);
+  if(secs !== lastWholeSecond){
+    lastWholeSecond = secs;
+    if(secs <= 5 && secs > 0) sfx.tick();
   }
+  if(remain <= 10000) $('timerFill').style.background = 'var(--pass)';
+  if(remain <= 0){ endRound(); return; }
+  rafId = requestAnimationFrame(tick);
 }
 
-$('quitBtn').addEventListener('click', () => {
-  endRound(true);
-});
+$('quitBtn').addEventListener('click', () => endRound());
+$('tapPass').addEventListener('click', () => resolveWord(false));
+$('tapCorrect').addEventListener('click', () => resolveWord(true));
 
 function endRound(){
+  if(!roundActive && !$('game').classList.contains('active')) return;
   roundActive = false;
-  clearInterval(timerInterval);
-  window.removeEventListener('deviceorientation', onTilt);
+  if(rafId) cancelAnimationFrame(rafId);
+  $('countdown').classList.remove('on');
+  detachSensors();
+  releaseAwake();
+  sfx.over(); buzz([80,60,180]);
   renderResults();
   showScreen('results');
 }
 
 /* ================= RESULTS ================= */
 function renderResults(){
+  score = correctWords.length;
   $('finalScore').textContent = score;
-  const total = score + passedWords.length;
-  $('finalSub').textContent = `correct out of ${total} word${total===1?'':'s'} seen`;
+  const total = correctWords.length + passedWords.length;
+  $('finalSub').textContent = 'correct out of ' + total + ' word' + (total===1?'':'s') + ' seen';
   $('correctCount').textContent = correctWords.length;
   $('passCount').textContent = passedWords.length;
-
-  const cList = $('correctList');
-  cList.innerHTML = correctWords.length ? '' : '<span class="chip" style="opacity:.5">None yet</span>';
-  correctWords.forEach(w => {
-    const c = document.createElement('div'); c.className='chip'; c.textContent = w; cList.appendChild(c);
-  });
-
-  const pList = $('passList');
-  pList.innerHTML = passedWords.length ? '' : '<span class="chip" style="opacity:.5">None</span>';
-  passedWords.forEach(w => {
-    const c = document.createElement('div'); c.className='chip'; c.textContent = w; pList.appendChild(c);
+  renderChips($('correctList'), correctWords, 'correct');
+  renderChips($('passList'), passedWords, 'pass');
+}
+function renderChips(container, list, kind){
+  container.innerHTML = '';
+  if(!list.length){
+    container.innerHTML = '<span class="chip" style="opacity:.5">' + (kind==='correct'?'None yet':'None') + '</span>';
+    return;
+  }
+  list.forEach((w, i) => {
+    const c = document.createElement('div');
+    c.className = 'chip'; c.textContent = w;
+    c.addEventListener('click', () => {
+      if(kind === 'correct'){ correctWords.splice(i,1); passedWords.push(w); }
+      else { passedWords.splice(i,1); correctWords.push(w); }
+      renderResults();
+    });
+    container.appendChild(c);
   });
 }
 
 $('againBtn').addEventListener('click', () => {
   buildDeck();
   showScreen('calibrate');
+  $('calStatus').textContent = tiltMode ? 'Tilt ready' : 'Motion sensor not started';
+  $('calStatus').className = 'cal-status' + (tiltMode ? ' ok' : '');
 });
-$('homeBtn').addEventListener('click', () => {
-  showScreen('home');
-});
+$('homeBtn').addEventListener('click', () => showScreen('home'));
 
-/* prevent accidental scroll/zoom during game */
+/* block pull-to-refresh during play only; the list screens still scroll */
 document.addEventListener('touchmove', function(e){
   if($('game').classList.contains('active')) e.preventDefault();
 }, { passive:false });
+
+/* re-acquire wake lock if the user tabs away and back */
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && roundActive) keepAwake();
+});
 </script>
 </body>
 </html>
