@@ -234,6 +234,14 @@
         <button class="time-opt" data-t="120">120s</button>
       </div>
     </div>
+    <div class="settings-row">
+      <span class="label">Tilt sensitivity</span>
+      <div class="time-opts" id="sensOpts">
+        <button class="time-opt sens-opt" data-s="24">Easy</button>
+        <button class="time-opt sens-opt active" data-s="30">Normal</button>
+        <button class="time-opt sens-opt" data-s="38">Firm</button>
+      </div>
+    </div>
     <button class="start-btn" id="startBtn" disabled>Start round</button>
     <div class="start-sub" id="startSub">Pick at least one category</div>
   </div>
@@ -350,8 +358,9 @@ const CATEGORIES = {
 
 /* ================= STATE ================= */
 const $ = id => document.getElementById(id);
-const TRIGGER = 25;   // degrees from neutral before a word resolves
-const REARM   = 8;    // must come back inside this before the next trigger
+let TRIGGER = 30;      // degrees from neutral before a word resolves
+const REARM   = 12;    // must come back inside this before the next trigger
+const LOCKOUT = 800;   // dead time after each word, swallows the return swing
 
 let selectedCats = new Set();
 let roundLength = 60;
@@ -360,8 +369,9 @@ let score = 0, correctWords = [], passedWords = [];
 let roundActive = false, endAt = 0, rafId = null;
 
 let tiltMode = false;          // true once motion events are actually arriving
-let sensorType = null;         // 'motion' | 'orientation'
-let baseline = null, tiltValue = 0, armed = true, lastTrigger = 0;
+let sensorSource = null;       // 'motion' | 'orientation' — first one wins
+let baseline = null, tiltValue = 0, armed = true, lastTrigger = 0, lockUntil = 0;
+let gx = 0, gy = 0, gz = 0, gInit = false;   // smoothed gravity vector
 let reverse = false;
 let motionSeen = false;
 let wakeLock = null;
@@ -369,7 +379,7 @@ let wakeLock = null;
 /* ================= AUDIO (the holder can't see the screen) ================= */
 let ac = null;
 function initAudio(){
-  if(ac) { if(ac.state === 'suspended') ac.resume(); return; }
+  if(ac){ if(ac.state === 'suspended') ac.resume(); return; }
   try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ ac = null; }
 }
 function tone(freq, dur, type='square', vol=0.18, delay=0){
@@ -404,7 +414,6 @@ function buildCatGrid(){
       else { selectedCats.add(name); tile.classList.add('selected'); }
       updateStartBtn();
     });
-    tile.dataset.cat = name;
     grid.appendChild(tile);
   });
 }
@@ -413,7 +422,7 @@ function updateStartBtn(){
   $('startBtn').disabled = n === 0;
   $('startSub').textContent = n === 0
     ? 'Pick at least one category'
-    : n + (n===1?' category':' categories') + ' · ends at 25 correct';
+    : n + (n===1?' category':' categories') + ' \u00B7 ends at 25 correct';
 }
 buildCatGrid();
 updateStartBtn();
@@ -432,9 +441,17 @@ $('clearAllBtn').addEventListener('click', () => {
 $('timeOpts').addEventListener('click', e => {
   const btn = e.target.closest('.time-opt');
   if(!btn) return;
-  document.querySelectorAll('.time-opt').forEach(b=>b.classList.remove('active'));
+  e.currentTarget.querySelectorAll('.time-opt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   roundLength = parseInt(btn.dataset.t,10);
+});
+
+$('sensOpts').addEventListener('click', e => {
+  const btn = e.target.closest('.sens-opt');
+  if(!btn) return;
+  e.currentTarget.querySelectorAll('.sens-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  TRIGGER = parseInt(btn.dataset.s,10);
 });
 
 function showScreen(id){
@@ -444,9 +461,8 @@ function showScreen(id){
 
 $('startBtn').addEventListener('click', () => {
   buildDeck();
+  resetCalScreen();
   showScreen('calibrate');
-  $('calStatus').textContent = 'Motion sensor not started';
-  $('calStatus').className = 'cal-status';
 });
 
 function buildDeck(){
@@ -466,37 +482,55 @@ function buildDeck(){
   deck = words; deckIndex = 0;
 }
 
-/* ================= MOTION ================= */
-/* Uses devicemotion gravity, not deviceorientation beta. A phone held to your
-   forehead sits near beta = 90, which is exactly where orientation readings go
-   unstable. Gravity-based pitch has no singularity there and works in portrait
-   or landscape. */
-function pitchFromGravity(g){
-  return Math.atan2(g.z, Math.hypot(g.x, g.y)) * 180 / Math.PI;
-}
-function handleReading(rawPitch){
+/* ================= MOTION =================
+   Gravity-based pitch, not deviceorientation beta: a phone held to your
+   forehead sits near beta 90, which is exactly where orientation readings
+   go unstable. Three guards against double-firing:
+     - reject samples where the vector isn't ~1g (that's a flick, not a tilt)
+     - low-pass filter the vector
+     - hard lockout after each word so the return swing is swallowed
+*/
+function handleReading(rawPitch, src){
+  if(sensorSource && src !== sensorSource) return;
+  if(!sensorSource){
+    sensorSource = src;
+    if(src === 'motion') window.removeEventListener('deviceorientation', onOrientation);
+  }
   motionSeen = true;
   if(baseline === null) baseline = rawPitch;
   // tilt the screen toward the floor -> positive -> "correct"
   tiltValue = (baseline - rawPitch) * (reverse ? -1 : 1);
   updateGaugeNeedle(tiltValue);
   if(!roundActive || !tiltMode) return;
+
   const now = Date.now();
+  if(now < lockUntil) return;
+
   if(!armed){
-    if(Math.abs(tiltValue) < REARM && now - lastTrigger > 250) armed = true;
+    if(Math.abs(tiltValue) < REARM){
+      armed = true;
+      baseline = rawPitch;              // re-neutralise wherever you actually settled
+    }
     return;
   }
-  if(tiltValue >= TRIGGER){ armed = false; lastTrigger = now; resolveWord(true); }
-  else if(tiltValue <= -TRIGGER){ armed = false; lastTrigger = now; resolveWord(false); }
+  // slow drift correction so a sagging arm doesn't creep into a false trigger
+  if(Math.abs(tiltValue) < 6) baseline += (rawPitch - baseline) * 0.02;
+
+  if(tiltValue >= TRIGGER){ armed = false; lastTrigger = now; lockUntil = now + LOCKOUT; resolveWord(true); }
+  else if(tiltValue <= -TRIGGER){ armed = false; lastTrigger = now; lockUntil = now + LOCKOUT; resolveWord(false); }
 }
 function onMotion(e){
   const g = e.accelerationIncludingGravity;
   if(!g || g.x === null || g.y === null || g.z === null) return;
-  handleReading(pitchFromGravity(g));
+  const mag = Math.hypot(g.x, g.y, g.z);
+  if(Math.abs(mag - 9.81) > 3.5) return;          // being shaken, not tilted
+  if(!gInit){ gx = g.x; gy = g.y; gz = g.z; gInit = true; }
+  else { const a = 0.2; gx += (g.x-gx)*a; gy += (g.y-gy)*a; gz += (g.z-gz)*a; }
+  handleReading(Math.atan2(gz, Math.hypot(gx, gy)) * 180 / Math.PI, 'motion');
 }
 function onOrientation(e){
   if(e.beta === null || e.beta === undefined) return;
-  handleReading(-e.beta);
+  handleReading(-e.beta, 'orientation');
 }
 function attachSensors(){
   window.addEventListener('devicemotion', onMotion);
@@ -505,18 +539,7 @@ function attachSensors(){
 function detachSensors(){
   window.removeEventListener('devicemotion', onMotion);
   window.removeEventListener('deviceorientation', onOrientation);
-}
-async function requestSensors(){
-  let ok = true;
-  try{
-    if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
-      ok = (await DeviceMotionEvent.requestPermission()) === 'granted';
-    }
-    if(ok && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
-      await DeviceOrientationEvent.requestPermission();
-    }
-  }catch(err){ ok = false; }
-  return ok;
+  sensorSource = null;
 }
 function updateGaugeNeedle(v){
   const clamped = Math.max(-TRIGGER, Math.min(TRIGGER, v));
@@ -531,27 +554,64 @@ function updateGaugeNeedle(v){
   $('gaugeArcPass').classList.toggle('hot', v <= -TRIGGER);
 }
 
-/* live preview as soon as the calibrate screen opens, so you can test the
-   direction before a single word burns */
-$('calBtn').addEventListener('click', async () => {
+/* ---- calibration: two taps, so you can test the needle before playing ---- */
+function resetCalScreen(){
+  if(tiltMode){
+    $('calStatus').textContent = 'Tilt live \u2014 try it, then tap start';
+    $('calStatus').className = 'cal-status ok';
+    $('calBtn').textContent = 'Start round';
+  } else {
+    $('calStatus').textContent = 'Motion sensor not started';
+    $('calStatus').className = 'cal-status';
+    $('calBtn').textContent = 'Enable tilt';
+  }
+}
+
+$('calBtn').addEventListener('click', function(){
   initAudio();
-  const granted = await requestSensors();
-  motionSeen = false; baseline = null;
-  if(granted) attachSensors();
-  setTimeout(() => {
-    if(motionSeen){
-      tiltMode = true;
-      $('calStatus').textContent = 'Tilt ready';
-      $('calStatus').className = 'cal-status ok';
-    } else {
-      tiltMode = false;
-      detachSensors();
-      $('calStatus').textContent = 'Sensors blocked — using tap controls';
+  if(tiltMode){ startRound(); return; }
+
+  // requestPermission must be called synchronously inside the tap on iOS —
+  // no await before it, or Safari drops the user activation and never prompts
+  const req = (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function')
+    ? DeviceMotionEvent.requestPermission()
+    : Promise.resolve('granted');
+
+  $('calStatus').textContent = 'Asking for motion access\u2026';
+  $('calStatus').className = 'cal-status';
+
+  req.then(function(res){
+    if(res !== 'granted'){
+      $('calStatus').textContent = 'Motion denied \u2014 tap controls only';
       $('calStatus').className = 'cal-status bad';
+      $('calBtn').textContent = 'Start with tap controls';
+      tiltMode = false;
+      return;
     }
-    startRound();
-  }, 700);
+    motionSeen = false; baseline = null; sensorSource = null; gInit = false;
+    attachSensors();
+    setTimeout(function(){
+      if(motionSeen){
+        tiltMode = true;
+        $('calStatus').textContent = 'Tilt live \u2014 try it, then tap start';
+        $('calStatus').className = 'cal-status ok';
+        $('calBtn').textContent = 'Start round';
+      } else {
+        tiltMode = false;
+        detachSensors();
+        $('calStatus').textContent = 'No sensor data \u2014 tap controls only';
+        $('calStatus').className = 'cal-status bad';
+        $('calBtn').textContent = 'Start with tap controls';
+      }
+    }, 1200);
+  }).catch(function(){
+    $('calStatus').textContent = 'Motion unavailable \u2014 tap controls only';
+    $('calStatus').className = 'cal-status bad';
+    $('calBtn').textContent = 'Start with tap controls';
+    tiltMode = false;
+  });
 });
+
 $('reverseBtn').addEventListener('click', () => {
   reverse = !reverse;
   $('reverseBtn').textContent = reverse ? 'Direction reversed \u2713' : 'Reverse tilt direction';
@@ -570,11 +630,10 @@ function releaseAwake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null;
 
 function startRound(){
   score = 0; correctWords = []; passedWords = [];
-  roundActive = false; armed = true;
+  roundActive = false; armed = true; lockUntil = 0;
   $('scoreNum').textContent = '0';
   $('timerFill').style.width = '100%';
   $('timerFill').style.background = 'var(--amber)';
-  $('bottomHint').style.display = tiltMode ? 'flex' : 'flex';
   keepAwake();
   showScreen('game');
   showNextWord();
@@ -593,7 +652,7 @@ function runCountdown(){
       clearInterval(iv);
       el.classList.remove('on');
       sfx.go(); buzz([40,40,80]);
-      baseline = null;             // whatever angle it's at now becomes neutral
+      baseline = null; gInit = false; lockUntil = 0; armed = true;  // neutral = wherever it is now
       roundActive = true;
       endAt = Date.now() + roundLength*1000;
       fitWord();
@@ -610,7 +669,7 @@ function showNextWord(){
   fitWord();
 }
 
-/* shrink-to-fit: 15vw guessed at a size, this measures the real box */
+/* shrink-to-fit: measures the real box instead of guessing with vw */
 function fitWord(){
   const el = $('word'), box = $('wordFit');
   const maxW = box.clientWidth, maxH = box.clientHeight;
@@ -647,7 +706,7 @@ function flashFx(id){
   el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
 }
 
-/* clock-based, so backgrounding or a throttled tab can't skew the round */
+/* clock-based, so backgrounding can't skew the round */
 let lastWholeSecond = -1;
 function tick(){
   if(!roundActive) return;
@@ -710,9 +769,8 @@ function renderChips(container, list, kind){
 
 $('againBtn').addEventListener('click', () => {
   buildDeck();
+  resetCalScreen();
   showScreen('calibrate');
-  $('calStatus').textContent = tiltMode ? 'Tilt ready' : 'Motion sensor not started';
-  $('calStatus').className = 'cal-status' + (tiltMode ? ' ok' : '');
 });
 $('homeBtn').addEventListener('click', () => showScreen('home'));
 
@@ -721,7 +779,6 @@ document.addEventListener('touchmove', function(e){
   if($('game').classList.contains('active')) e.preventDefault();
 }, { passive:false });
 
-/* re-acquire wake lock if the user tabs away and back */
 document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible' && roundActive) keepAwake();
 });
