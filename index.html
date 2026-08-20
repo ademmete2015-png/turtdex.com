@@ -29,7 +29,6 @@
     color: var(--text);
     font-family:'Space Grotesk', sans-serif;
     overflow:hidden;
-    overscroll-behavior:none;
     position:fixed;
     inset:0;
     width:100%;
@@ -40,12 +39,10 @@
     flex-direction:column;
     height:100%;
     width:100%;
-    z-index:2;
   }
   .screen.active{display:flex;}
-  /* FIX: any flex child that scrolls must be allowed to shrink below its content */
-  .scroll-area{ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
 
+  /* background texture */
   .grain{
     position:fixed; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay; z-index:1;
     background-image: radial-gradient(circle at 20% 30%, #fff 0, transparent 1px), radial-gradient(circle at 70% 60%, #fff 0, transparent 1px), radial-gradient(circle at 40% 80%, #fff 0, transparent 1px);
@@ -59,40 +56,58 @@
   }
 
   /* ---------- HOME ---------- */
-  #home{ padding: calc(env(safe-area-inset-top,0px) + 16px) 20px 0; }
-  .brand{ padding-top: 6px; margin-bottom: 6px; flex:0 0 auto; }
+  #home{ padding: env(safe-area-inset-top,24px) 20px 24px; position:relative; z-index:2; }
+  .brand{ padding-top: 14px; margin-bottom: 18px; }
   .brand .eyebrow{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.16em; color:var(--correct); text-transform:uppercase; }
-  .brand h1{ font-family:'Archivo Black', sans-serif; font-size: 38px; line-height:0.95; margin: 6px 0 4px; letter-spacing: -0.5px; }
-  .brand p{ color:var(--text-muted); font-size:13.5px; margin:0; line-height:1.5; max-width:34ch; }
-
-  .quickrow{ display:flex; gap:8px; margin:12px 0 2px; flex:0 0 auto; }
-  .quickbtn{
-    flex:1; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
-    padding:9px; border-radius:12px; font-family:'Space Grotesk'; font-size:12.5px; font-weight:600;
+  .brand h1{
+    font-family:'Archivo Black', sans-serif;
+    font-size: 40px; line-height:0.95; margin: 6px 0 4px;
+    letter-spacing: -0.5px;
   }
-  .cat-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:12px 0 16px; }
+  .brand p{ color:var(--text-muted); font-size:14px; margin:0; line-height:1.5; max-width:34ch; }
+
+  .cat-scroll{ flex:1; overflow-y:auto; padding-bottom: 12px; -webkit-overflow-scrolling:touch; }
+  .cat-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top: 14px;
+  }
   .cat-tile{
-    background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px;
-    padding: 14px 14px 12px; text-align:left; cursor:pointer; position:relative;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 14px 12px;
+    text-align:left;
+    cursor:pointer;
     transition: border-color .15s ease, background .15s ease, transform .1s ease;
+    position:relative;
   }
   .cat-tile:active{ transform: scale(0.97); }
-  .cat-tile.selected{ border-color: var(--correct); background: linear-gradient(160deg, rgba(140,255,107,0.14), var(--surface) 60%); }
-  .cat-tile .name{ font-weight:700; font-size:14.5px; display:block; margin-bottom:4px; padding-right:20px; }
+  .cat-tile.selected{
+    border-color: var(--correct);
+    background: linear-gradient(160deg, rgba(140,255,107,0.14), var(--surface) 60%);
+  }
+  .cat-tile .name{ font-weight:700; font-size:14.5px; display:block; margin-bottom:4px; }
   .cat-tile .count{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-muted); }
   .cat-tile.selected .count{ color: var(--correct); }
-  .check{ position:absolute; top:10px; right:10px; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); background:transparent; }
+  .check{
+    position:absolute; top:10px; right:10px; width:18px; height:18px; border-radius:50%;
+    border:1.5px solid var(--line); background:transparent;
+  }
   .cat-tile.selected .check{ background: var(--correct); border-color: var(--correct); }
   .cat-tile.selected .check::after{
     content:''; position:absolute; left:5px; top:2px; width:5px; height:9px;
     border-right:2px solid #180B1F; border-bottom:2px solid #180B1F; transform:rotate(40deg);
   }
 
+  .quickrow{ display:flex; gap:8px; margin-top:14px; }
+  .quickbtn{
+    flex:1; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    padding:9px; border-radius:12px; font-family:'Space Grotesk'; font-size:12.5px; font-weight:600;
+  }
+
   .footer-bar{
-    flex:0 0 auto;
-    padding: 14px 20px calc(env(safe-area-inset-bottom,0px) + 14px);
-    margin: 0 -20px;
-    background: var(--bg);
+    position:relative; z-index:2;
+    padding: 14px 20px calc(env(safe-area-inset-bottom,16px) + 14px);
+    background: linear-gradient(180deg, transparent, var(--bg) 30%);
     border-top: 1px solid var(--line);
   }
   .settings-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
@@ -109,110 +124,210 @@
     width:100%; border:none; border-radius:16px; padding:17px;
     background: var(--correct); color:#12210B;
     font-family:'Archivo Black'; font-size:17px; letter-spacing:0.3px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
   }
   .start-btn:disabled{ background: var(--surface-2); color: var(--text-muted); }
   .start-btn:active:not(:disabled){ transform: scale(0.98); }
   .start-sub{ text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px; font-family:'JetBrains Mono', monospace; }
 
   /* ---------- CALIBRATE ---------- */
-  #calibrate{ align-items:center; justify-content:center; text-align:center; padding: 26px 24px calc(env(safe-area-inset-bottom,0px) + 20px); }
-  #calibrate h2{ font-family:'Archivo Black'; font-size:23px; margin: 0 0 8px; }
-  #calibrate p{ color:var(--text-muted); font-size:14px; line-height:1.5; max-width:32ch; margin: 0 auto 18px; }
-  .cal-btn{ border:none; border-radius:16px; padding:16px 30px; background:var(--correct); color:#12210B; font-family:'Archivo Black'; font-size:15.5px; width:100%; max-width:340px; }
-  .cal-link{ margin-top:14px; background:none; border:none; color:var(--text-muted); font-size:13px; text-decoration:underline; font-family:'Space Grotesk'; }
-  .cal-status{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.05em; color:var(--amber); min-height:15px; margin-bottom:10px; text-transform:uppercase;}
-  .cal-status.ok{ color:var(--correct); }
-  .cal-status.bad{ color:var(--pass); }
-  .reverse-btn{ margin-top:12px; background:var(--surface-2); border:1px solid var(--line); color:var(--text-muted); font-size:12px; padding:8px 14px; border-radius:20px; font-family:'Space Grotesk'; }
-
-  /* tilt gauge — lives on the calibration screen where it's actually visible */
-  .gauge-wrap{ width: 230px; margin: 0 auto 10px; }
-  .gauge{ width:100%; height: 118px; overflow:visible; }
-  .gauge-label-row{ display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; padding:0 2px;}
-  #gaugeArcPass.hot{ stroke: var(--pass); }
-  #gaugeArcCorrect.hot{ stroke: var(--correct); }
+  #calibrate{ align-items:center; justify-content:center; text-align:center; padding: 32px; z-index:2; }
+  #calibrate .icon{ width:88px; height:88px; margin: 0 auto 22px; }
+  #calibrate h2{ font-family:'Archivo Black'; font-size:24px; margin: 0 0 10px; }
+  #calibrate p{ color:var(--text-muted); font-size:14.5px; line-height:1.55; max-width:32ch; margin: 0 auto 26px; }
+  .cal-btn{
+    border:none; border-radius:16px; padding:16px 30px; background:var(--correct); color:#12210B;
+    font-family:'Archivo Black'; font-size:15.5px; width:100%; max-width:320px;
+  }
+  .cal-link{ margin-top:16px; background:none; border:none; color:var(--text-muted); font-size:13px; text-decoration:underline; font-family:'Space Grotesk'; }
 
   /* ---------- GAME ---------- */
+  #game{ z-index:2; }
   .game-top{
-    flex:0 0 auto;
-    padding: calc(env(safe-area-inset-top,0px) + 12px) 18px 8px;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: calc(env(safe-area-inset-top,20px) + 8px) 18px 10px;
+    display:flex; align-items:center; justify-content:space-between;
   }
-  .score-pill{ font-family:'JetBrains Mono', monospace; font-weight:700; font-size:22px; color: var(--correct); display:flex; align-items:baseline; gap:5px; }
+  .score-pill{
+    font-family:'JetBrains Mono', monospace; font-weight:700; font-size:22px;
+    color: var(--correct); display:flex; align-items:baseline; gap:5px;
+  }
   .score-pill .lbl{ font-size:10px; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.08em; }
-  .quit-btn{ background:var(--surface); border:1px solid var(--line); color:var(--text-muted); width:34px; height:34px; border-radius:50%; font-size:16px; line-height:1; flex:0 0 auto; }
-  .timer-track{ flex:0 0 auto; height:6px; background: var(--surface); margin: 0 18px 4px; border-radius:4px; overflow:hidden; }
-  .timer-fill{ height:100%; background: var(--amber); border-radius:4px; width:100%; }
-  .cat-tag{ font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); text-align:center; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-  /* the word gets every pixel that's left */
-  .word-zone{ flex:1 1 auto; min-height:0; position:relative; display:flex; touch-action:none; }
-  .word-fit{
-    flex:1 1 auto; min-height:0; min-width:0; margin: 6px 16px;
-    display:flex; align-items:center; justify-content:center; position:relative; z-index:1; pointer-events:none;
+  .quit-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
+    width:34px; height:34px; border-radius:50%; font-size:16px; line-height:1;
   }
+  .timer-track{
+    height:6px; background: var(--surface); margin: 0 18px 6px; border-radius:4px; overflow:hidden;
+  }
+  .timer-fill{ height:100%; background: var(--amber); border-radius:4px; transition: width 1s linear, background .3s ease; width:100%; }
+  .cat-tag{ text-align:center; font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:2px;}
+
+  .word-zone{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; padding: 10px 26px;
+    touch-action:none;
+  }
+  .tap-zone{ position:absolute; inset:0; left:0; right:0; z-index:0; }
+  .tap-zone.top{ top:0; height:38%; }
+  .tap-zone.bottom{ bottom:0; height:38%; }
+
   #word{
-    font-family:'Archivo Black'; line-height:1.0; text-align:center;
-    max-width:100%; overflow-wrap:break-word; hyphens:none; font-size:64px;
+    font-family:'Archivo Black'; font-size: 15vw; line-height:1.02; text-align:center;
+    max-width: 100%; word-break: break-word; position:relative; z-index:1; pointer-events:none;
+    transition: color .15s ease, transform .12s ease;
   }
-  .tap-zone{ position:absolute; left:0; right:0; z-index:2; }
-  .tap-zone.top{ top:0; height:50%; }
-  .tap-zone.bottom{ bottom:0; height:50%; }
+  .next-preview{
+    position:relative; z-index:1; margin-top:14px; color: var(--text-muted); font-size:12px;
+    font-family:'JetBrains Mono', monospace; text-align:center; letter-spacing:.04em; pointer-events:none;
+  }
 
-  /* full-screen verdict flash — readable from across the room */
-  .fx{
-    position:fixed; inset:0; z-index:60; opacity:0; pointer-events:none;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .fx.correct{ background: var(--correct); }
-  .fx.pass{ background: var(--pass); }
-  .fx .glyph{
-    font-family:'Archivo Black'; font-size:38vw; line-height:1; color:#180B1F;
-    transform:scale(.6); opacity:0;
-  }
-  .fx.go{ animation: fxflash .45s ease-out forwards; }
-  .fx.go .glyph{ animation: fxglyph .45s cubic-bezier(.2,1.4,.4,1) forwards; }
-  @keyframes fxflash{ 0%{opacity:.96;} 55%{opacity:.96;} 100%{opacity:0;} }
-  @keyframes fxglyph{ 0%{transform:scale(.6); opacity:1;} 45%{transform:scale(1); opacity:1;} 100%{transform:scale(1.05); opacity:0;} }
+  .flash{ position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; }
+  .flash.correct{ background: var(--correct); }
+  .flash.pass{ background: var(--pass); }
+  .flash.go{ animation: flashpop .32s ease; }
+  @keyframes flashpop{ 0%{opacity:.85;} 100%{opacity:0;} }
 
-  .countdown{
-    position:absolute; inset:0; z-index:20; background:var(--bg);
-    display:none; align-items:center; justify-content:center; flex-direction:column;
+  /* tilt gauge - signature element */
+  .gauge-wrap{ position:relative; z-index:1; width: 210px; margin: 4px 0 2px; }
+  .gauge{ width:100%; height: 108px; overflow:visible; }
+  .gauge-label-row{ display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:9.5px; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; margin-top:2px; padding:0 4px;}
+
+  .mode-toggle{
+    position:relative; z-index:1; margin-top:10px;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-muted);
+    font-size:11px; font-family:'Space Grotesk'; padding:7px 14px; border-radius:20px;
   }
-  .countdown.on{ display:flex; }
-  .countdown .num{ font-family:'Archivo Black'; font-size:34vw; line-height:1; color:var(--correct); }
-  .countdown .cue{ font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.14em; color:var(--text-muted); text-transform:uppercase; margin-top:14px; }
 
   .bottom-hint{
-    flex:0 0 auto;
-    padding: 6px 20px calc(env(safe-area-inset-bottom,0px) + 12px);
-    color: var(--text-muted); font-size:12.5px; font-weight:500;
-    display:flex; justify-content:center; gap:18px; flex-wrap:wrap;
+    text-align:center; padding: 4px 20px calc(env(safe-area-inset-bottom,14px) + 14px);
+    color: var(--text-muted); font-size:12.5px; font-family:'Space Grotesk'; font-weight:500;
+    display:flex; justify-content:center; gap:18px;
   }
   .bottom-hint span{ display:flex; align-items:center; gap:6px; }
-  .dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+  .dot{ width:8px; height:8px; border-radius:50%; }
   .dot.pass{ background:var(--pass); }
   .dot.correct{ background:var(--correct); }
 
   /* ---------- RESULTS ---------- */
-  #results{ padding: calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 18px); }
-  #results .over-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; text-align:center; }
-  #results h2{ font-family:'Archivo Black'; font-size:52px; text-align:center; margin: 4px 0 2px; }
-  #results .sub{ text-align:center; color:var(--text-muted); font-size:13.5px; margin-bottom: 6px; }
-  #results .tip{ text-align:center; color:var(--text-muted); font-size:11px; font-family:'JetBrains Mono', monospace; margin-bottom:14px; opacity:.75; }
+  #results{ z-index:2; padding: env(safe-area-inset-top,26px) 22px calc(env(safe-area-inset-bottom,20px) + 22px); }
+  #results .over-label{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; text-align:center; margin-top:10px;}
+  #results h2{ font-family:'Archivo Black'; font-size:52px; text-align:center; margin: 6px 0 2px; }
+  #results .sub{ text-align:center; color:var(--text-muted); font-size:13.5px; margin-bottom: 20px; }
+  .results-scroll{ flex:1; overflow-y:auto; }
   .result-section{ margin-bottom:16px; }
-  .result-section h3{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; margin: 0 0 8px; display:flex; align-items:center; gap:7px; }
+  .result-section h3{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    margin: 0 0 8px; display:flex; align-items:center; gap:7px;
+  }
   .result-section.correct h3{ color: var(--correct); }
   .result-section.pass h3{ color: var(--pass); }
   .chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
   .chip{ background:var(--surface); border:1px solid var(--line); padding:6px 11px; border-radius:20px; font-size:12.5px; }
   .result-section.correct .chip{ border-color: rgba(140,255,107,0.35); }
   .result-section.pass .chip{ border-color: rgba(255,92,122,0.35); }
-  .chip:active{ transform:scale(0.95); }
-  .results-actions{ flex:0 0 auto; display:flex; gap:10px; margin-top:14px; }
+  .results-actions{ display:flex; gap:10px; margin-top:16px; }
   .results-actions button{ flex:1; border-radius:14px; padding:15px; font-family:'Archivo Black'; font-size:14px; border:none; }
   .btn-again{ background:var(--correct); color:#12210B; }
   .btn-home{ background:var(--surface-2); color:var(--text); border:1px solid var(--line) !important; }
+
+  /* ---------- MODE SELECT ---------- */
+  #modeSelect{ padding: env(safe-area-inset-top,24px) 20px calc(env(safe-area-inset-bottom,16px) + 20px); position:relative; z-index:2; }
+  .mode-list{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px; margin-top:16px; -webkit-overflow-scrolling:touch; }
+  .mode-card{
+    background: var(--surface); border:1.5px solid var(--line); border-radius:18px;
+    padding:16px; text-align:left; position:relative; overflow:hidden;
+  }
+  .mode-card:active{ transform: scale(0.98); }
+  .mode-card .tag{ font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--correct); margin-bottom:6px; display:block; }
+  .mode-card h3{ font-family:'Archivo Black'; font-size:19px; margin:0 0 5px; }
+  .mode-card p{ color:var(--text-muted); font-size:12.5px; line-height:1.4; margin:0; max-width:90%; }
+  .mode-card.pink .tag{ color:var(--pass); }
+  .mode-card.amber .tag{ color:var(--amber); }
+
+  /* ---------- BACK BUTTON ---------- */
+  .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:2px; }
+  .back-btn{ background:var(--surface); border:1px solid var(--line); color:var(--text); width:34px; height:34px; border-radius:50%; font-size:16px; }
+
+  /* ---------- PLAYER SETUP ---------- */
+  #playerSetup{ padding: env(safe-area-inset-top,24px) 20px calc(env(safe-area-inset-bottom,16px) + 20px); position:relative; z-index:2; }
+  .player-scroll{ flex:1; overflow-y:auto; margin-top:14px; -webkit-overflow-scrolling:touch; }
+  .player-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .player-row input{
+    flex:1; background:var(--surface); border:1.5px solid var(--line); color:var(--text);
+    padding:13px 14px; border-radius:12px; font-family:'Space Grotesk'; font-size:15px; font-weight:600;
+  }
+  .player-row input:focus{ outline:none; border-color:var(--correct); }
+  .player-remove{ background:var(--surface-2); border:1px solid var(--line); color:var(--pass); width:38px; height:38px; border-radius:10px; font-size:16px; flex-shrink:0; }
+  .add-player-btn{
+    width:100%; background:var(--surface-2); border:1.5px dashed var(--line); color:var(--text-muted);
+    padding:13px; border-radius:12px; font-family:'Space Grotesk'; font-weight:600; font-size:14px; margin-top:2px;
+  }
+  .impostor-settings{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+
+  /* ---------- REVEAL CARD (Impostor / Guess It) ---------- */
+  #impostorReveal, #guessReveal{ align-items:center; justify-content:center; padding:26px; text-align:center; position:relative; z-index:2; }
+  .reveal-progress{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.14em; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px; }
+  .reveal-name{ font-family:'Archivo Black'; font-size:24px; margin-bottom:22px; }
+  .reveal-card{
+    width:100%; max-width:320px; aspect-ratio: 3/4; border-radius:22px;
+    background: linear-gradient(160deg, var(--surface-2), var(--surface));
+    border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:24px;
+    position:relative; overflow:hidden;
+  }
+  .reveal-card .hidden-state{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .reveal-card .hidden-state svg{ width:52px; height:52px; opacity:.5; }
+  .reveal-card .hidden-state span{ color:var(--text-muted); font-family:'Space Grotesk'; font-weight:600; font-size:14px; }
+  .reveal-card .shown-state{ display:none; flex-direction:column; align-items:center; gap:10px; }
+  .reveal-card.shown .hidden-state{ display:none; }
+  .reveal-card.shown .shown-state{ display:flex; }
+  .reveal-card.shown{ border-color: var(--correct); }
+  .reveal-card.shown.impostor{ border-color: var(--pass); }
+  .reveal-word{ font-family:'Archivo Black'; font-size:13vw; max-font-size:40px; line-height:1.05; }
+  .reveal-role-tag{ font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--correct); }
+  .reveal-role-tag.impostor{ color:var(--pass); }
+  .reveal-hint{ color:var(--text-muted); font-size:12px; margin-top:16px; font-family:'Space Grotesk'; }
+  .reveal-actions{ width:100%; max-width:320px; margin-top:22px; display:flex; gap:10px; }
+  .reveal-actions button{ flex:1; border:none; border-radius:14px; padding:15px; font-family:'Archivo Black'; font-size:14px; }
+  .btn-next{ background:var(--correct); color:#12210B; }
+  .btn-next:disabled{ background:var(--surface-2); color:var(--text-muted); }
+
+  /* ---------- GUESS IT TIMER ---------- */
+  #guessTimer{ z-index:2; }
+  .clue-btn-wrap{ position:relative; z-index:1; width:120px; height:120px; margin: 18px auto 4px; }
+  .clue-btn{
+    width:100%; height:100%; border-radius:50%; border:none; background: var(--amber); color:#241000;
+    font-family:'Archivo Black'; font-size:13px;
+  }
+  .clue-btn:disabled{ background: var(--surface-2); color: var(--text-muted); }
+  .clue-ring{ position:absolute; inset:-6px; border-radius:50%; border:4px solid var(--surface-2); pointer-events:none; }
+  .got-it-btn{
+    width: calc(100% - 40px); margin: 10px 20px 0; border:none; border-radius:16px; padding:18px;
+    background: var(--correct); color:#12210B; font-family:'Archivo Black'; font-size:16px;
+  }
+
+  /* ---------- WOULD YOU RATHER ---------- */
+  #wyr{ z-index:2; padding: env(safe-area-inset-top,20px) 18px calc(env(safe-area-inset-bottom,16px) + 18px); }
+  .wyr-round-tag{ text-align:center; font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.14em; color:var(--text-muted); text-transform:uppercase; margin: 10px 0 16px; }
+  .wyr-vs{ flex:1; display:flex; flex-direction:column; gap:14px; justify-content:center; }
+  .wyr-option{
+    background:var(--surface); border:1.5px solid var(--line); border-radius:20px; padding:26px 18px;
+    text-align:center; position:relative;
+  }
+  .wyr-option .word{ font-family:'Archivo Black'; font-size:8vw; line-height:1.1; }
+  .wyr-option .votes{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--text-muted); margin-top:8px; }
+  .wyr-option.tapped{ border-color: var(--correct); background: linear-gradient(160deg, rgba(140,255,107,0.14), var(--surface)); }
+  .wyr-or{ text-align:center; font-family:'Archivo Black'; color:var(--text-muted); font-size:14px; }
+  .wyr-actions{ display:flex; gap:10px; margin-top:18px; }
+  .wyr-actions button{ flex:1; border:none; border-radius:14px; padding:16px; font-family:'Archivo Black'; font-size:14px; }
+  .btn-endwyr{ background:var(--surface-2); color:var(--text); border:1px solid var(--line) !important; }
+
+  #wyrResults{ z-index:2; padding: env(safe-area-inset-top,26px) 22px calc(env(safe-area-inset-bottom,20px) + 22px); align-items:center; text-align:center; justify-content:center; }
+  .wyr-final-vs{ display:flex; align-items:center; gap:14px; width:100%; margin: 20px 0; }
+  .wyr-final-card{ flex:1; background:var(--surface); border-radius:16px; padding:18px 10px; }
+  .wyr-final-card.winner{ border:2px solid var(--correct); }
+  .wyr-final-card .fword{ font-family:'Archivo Black'; font-size:5.5vw; }
+  .wyr-final-card .fcount{ font-family:'JetBrains Mono', monospace; color:var(--text-muted); font-size:12px; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -220,22 +335,52 @@
 <div class="grain"></div>
 <div class="glow"></div>
 
-<!-- HOME -->
-<div class="screen active" id="home">
+<!-- MODE SELECT -->
+<div class="screen active" id="modeSelect">
   <div class="brand">
-    <div class="eyebrow">Heads-up describing game</div>
+    <div class="eyebrow">Party game hub</div>
     <h1>FOREHEADS</h1>
-    <p>Hold the phone to your forehead. Your team describes the word without saying it. Tilt down when you get it, tilt up to pass.</p>
+    <p>Pick a game to play, then choose your categories.</p>
   </div>
-  <div class="quickrow">
-    <button class="quickbtn" id="selectAllBtn">Select all</button>
-    <button class="quickbtn" id="clearAllBtn">Clear</button>
+  <div class="mode-list">
+    <div class="mode-card" data-mode="foreheads">
+      <span class="tag">Tilt · Describe</span>
+      <h3>Foreheads</h3>
+      <p>Hold the phone to your forehead. Someone describes the word, you tilt down for correct, tilt back to pass.</p>
+    </div>
+    <div class="mode-card pink" data-mode="impostor">
+      <span class="tag">Deduction</span>
+      <h3>Impostor</h3>
+      <p>Everyone gets the same secret word — except one impostor. Pass the phone around, tap to reveal, tap again to hide.</p>
+    </div>
+    <div class="mode-card amber" data-mode="guessit">
+      <span class="tag">Timed · Describe</span>
+      <h3>Guess It!</h3>
+      <p>One person sees a secret word and has 60 seconds to get everyone else to guess it. One clue every 3 seconds.</p>
+    </div>
+    <div class="mode-card" data-mode="wyr">
+      <span class="tag">Vote</span>
+      <h3>Would You Rather</h3>
+      <p>Two words go head to head. Everyone votes out loud, then see which one wins.</p>
+    </div>
   </div>
-  <div class="scroll-area">
+</div>
+
+<!-- HOME (category picker) -->
+<div class="screen" id="home">
+  <div class="back-row" style="padding: env(safe-area-inset-top,20px) 20px 0;">
+    <button class="back-btn" id="backToModeBtn">&#8592;</button>
+  </div>
+  <div class="brand" style="padding-top:10px;">
+    <div class="eyebrow" id="homeEyebrow">Heads-up describing game</div>
+    <h1 id="homeTitle">FOREHEADS</h1>
+    <p id="homeDesc">Hold the phone to your forehead. Someone describes the word without saying it. Tilt down when you get it, tilt back to pass.</p>
+  </div>
+  <div class="cat-scroll">
     <div class="cat-grid" id="catGrid"></div>
   </div>
   <div class="footer-bar">
-    <div class="settings-row">
+    <div class="settings-row" id="timeSettingRow">
       <span class="label">Round length</span>
       <div class="time-opts" id="timeOpts">
         <button class="time-opt" data-t="45">45s</button>
@@ -244,36 +389,162 @@
         <button class="time-opt" data-t="120">120s</button>
       </div>
     </div>
-    <div class="settings-row">
-      <span class="label">Tilt sensitivity</span>
-      <div class="time-opts" id="sensOpts">
-        <button class="time-opt sens-opt" data-s="24">Easy</button>
-        <button class="time-opt sens-opt active" data-s="30">Normal</button>
-        <button class="time-opt sens-opt" data-s="38">Firm</button>
-      </div>
-    </div>
     <button class="start-btn" id="startBtn" disabled>Start round</button>
-    <div class="start-sub" id="startSub">Pick at least one category</div>
+    <div class="start-sub" id="startSub">Round also ends instantly at 25 correct</div>
+  </div>
+</div>
+
+<!-- PLAYER SETUP (Impostor) -->
+<div class="screen" id="playerSetup">
+  <div class="back-row" style="padding: env(safe-area-inset-top,20px) 20px 0;">
+    <button class="back-btn" id="backToHomeFromPlayers">&#8592;</button>
+  </div>
+  <div class="brand" style="padding-top:10px;">
+    <div class="eyebrow">Impostor</div>
+    <h1 style="font-size:32px;">WHO'S IN?</h1>
+    <p>Add every player's name. One of them will secretly become the impostor.</p>
+  </div>
+  <div class="player-scroll">
+    <div id="playerList"></div>
+    <button class="add-player-btn" id="addPlayerBtn">+ Add player</button>
+  </div>
+  <div class="footer-bar">
+    <button class="start-btn" id="startImpostorBtn">Assign roles</button>
+    <div class="start-sub">Need at least 3 players</div>
+  </div>
+</div>
+
+<!-- IMPOSTOR REVEAL -->
+<div class="screen" id="impostorReveal">
+  <div class="reveal-progress" id="revealProgress">PLAYER 1 OF 4</div>
+  <div class="reveal-name" id="revealName">Adem</div>
+  <div class="reveal-card" id="revealCard">
+    <div class="hidden-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Tap to reveal</span>
+    </div>
+    <div class="shown-state">
+      <div class="reveal-role-tag" id="revealRoleTag">YOUR WORD</div>
+      <div class="reveal-word" id="revealWord">TURTLE</div>
+    </div>
+  </div>
+  <div class="reveal-hint">Tap the card again to hide it before you pass the phone on</div>
+  <div class="reveal-actions">
+    <button class="btn-next" id="nextPlayerBtn" disabled>Pass to next player</button>
+  </div>
+</div>
+
+<!-- IMPOSTOR DISCUSSION / RESULTS -->
+<div class="screen" id="impostorResults">
+  <div class="over-label" style="margin-top:20px;">Everyone's seen their word</div>
+  <h2 style="font-size:26px; text-align:center; margin:8px 22px;">Discuss, then vote out who you think the impostor is</h2>
+  <p class="sub" id="impostorWordReminder">Category: Food</p>
+  <div class="results-actions" style="padding:0 20px; margin-top:24px;">
+    <button class="btn-home" id="revealImpostorBtn">Reveal the impostor</button>
+  </div>
+  <div id="impostorRevealBox" style="display:none; text-align:center; margin-top:20px; padding:0 22px;">
+    <div class="over-label" style="color:var(--pass);">The impostor was</div>
+    <h2 id="impostorNameReveal" style="font-size:34px;">—</h2>
+    <p class="sub">The secret word was <span id="impostorWordReveal" style="color:var(--text); font-weight:700;">—</span></p>
+  </div>
+  <div class="results-actions" style="padding:0 20px; margin-top:14px;">
+    <button class="btn-home" id="impostorHomeBtn">Categories</button>
+    <button class="btn-again" id="impostorAgainBtn">Play again</button>
+  </div>
+</div>
+
+<!-- GUESS IT REVEAL -->
+<div class="screen" id="guessReveal">
+  <div class="reveal-progress">GUESS IT!</div>
+  <div class="reveal-name">Show this to the describer only</div>
+  <div class="reveal-card" id="guessRevealCard">
+    <div class="hidden-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Tap to reveal</span>
+    </div>
+    <div class="shown-state">
+      <div class="reveal-role-tag">YOUR WORD</div>
+      <div class="reveal-word" id="guessWordDisplay">TURTLE</div>
+    </div>
+  </div>
+  <div class="reveal-hint">Describer: memorise it, then hide the card and hit start</div>
+  <div class="reveal-actions">
+    <button class="btn-next" id="startGuessTimerBtn">Start 60s round</button>
+  </div>
+</div>
+
+<!-- GUESS IT TIMER -->
+<div class="screen" id="guessTimer">
+  <div class="game-top">
+    <button class="quit-btn" id="quitGuessBtn">&#10005;</button>
+    <div class="cat-tag">GUESS IT!</div>
+    <div class="score-pill" style="color:var(--amber)"><span id="guessTimeLeft">60</span><span class="lbl">sec</span></div>
+  </div>
+  <div class="timer-track"><div class="timer-fill" id="guessTimerFill"></div></div>
+  <div class="word-zone" style="justify-content:flex-start; padding-top:8vh;">
+    <div class="next-preview" style="font-size:14px; margin-bottom:6px;">EVERYONE ELSE IS GUESSING OUT LOUD</div>
+    <div class="clue-btn-wrap">
+      <div class="clue-ring" id="clueRing"></div>
+      <button class="clue-btn" id="clueBtn">GIVE<br>CLUE</button>
+    </div>
+    <div class="reveal-hint" id="clueHint">Tap once every clue — cooldown 3s</div>
+  </div>
+  <button class="got-it-btn" id="gotItBtn">THEY GOT IT!</button>
+</div>
+
+<!-- GUESS IT RESULT -->
+<div class="screen" id="guessResult">
+  <div class="over-label" style="margin-top:20px;" id="guessResultLabel">Nice one!</div>
+  <h2 style="font-size:30px; text-align:center; margin:8px 22px;" id="guessResultTitle">They got it!</h2>
+  <p class="sub" id="guessResultSub">The word was TURTLE</p>
+  <div class="results-actions" style="padding:0 20px; margin-top:24px;">
+    <button class="btn-home" id="guessHomeBtn">Categories</button>
+    <button class="btn-again" id="guessAgainBtn">Next word</button>
+  </div>
+</div>
+
+<!-- WOULD YOU RATHER -->
+<div class="screen" id="wyr">
+  <div class="game-top">
+    <button class="quit-btn" id="quitWyrBtn">&#10005;</button>
+    <div class="cat-tag">WOULD YOU RATHER</div>
+    <div style="width:34px;"></div>
+  </div>
+  <div class="wyr-round-tag" id="wyrRoundTag">ROUND 1</div>
+  <div class="wyr-vs">
+    <div class="wyr-option" id="wyrLeft"><div class="word" id="wyrLeftWord">PIZZA</div><div class="votes">Tap when it wins the vote</div></div>
+    <div class="wyr-or">OR</div>
+    <div class="wyr-option" id="wyrRight"><div class="word" id="wyrRightWord">TACOS</div><div class="votes">Tap when it wins the vote</div></div>
+  </div>
+  <div class="wyr-actions">
+    <button class="btn-endwyr" id="wyrEndBtn">End &amp; see results</button>
+    <button class="btn-next" id="wyrNextBtn" disabled>Next round</button>
+  </div>
+</div>
+
+<!-- WYR RESULTS -->
+<div class="screen" id="wyrResults">
+  <div class="over-label">Final tally</div>
+  <h2 style="font-family:'Archivo Black'; font-size:30px; margin:8px 0;">Would You Rather</h2>
+  <p class="sub" id="wyrRoundsPlayed">4 rounds played</p>
+  <div class="wyr-final-vs" id="wyrFinalVs"></div>
+  <div class="results-actions" style="width:100%; max-width:340px;">
+    <button class="btn-home" id="wyrHomeBtn">Categories</button>
+    <button class="btn-again" id="wyrAgainBtn">Play again</button>
   </div>
 </div>
 
 <!-- CALIBRATE -->
 <div class="screen" id="calibrate">
+  <svg class="icon" viewBox="0 0 100 100" fill="none">
+    <rect x="30" y="10" width="40" height="80" rx="10" stroke="#8CFF6B" stroke-width="4"/>
+    <circle cx="50" cy="76" r="3" fill="#8CFF6B"/>
+    <path d="M50 10 L50 4" stroke="#FFD23F" stroke-width="3" stroke-linecap="round"/>
+    <path d="M38 4 Q50 -4 62 4" stroke="#FFD23F" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </svg>
   <h2>Hold it to your forehead</h2>
-  <p>Screen facing your team. Hold the phone level, then tap to set your neutral position — and tilt to test before you start.</p>
-  <div class="gauge-wrap">
-    <svg class="gauge" viewBox="0 0 210 108">
-      <path d="M15 98 A90 90 0 0 1 195 98" stroke="#2E1B3D" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <path id="gaugeArcPass" d="M15 98 A90 90 0 0 1 105 8" stroke="#4A1F2A" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <path id="gaugeArcCorrect" d="M105 8 A90 90 0 0 1 195 98" stroke="#2E4A22" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <line id="gaugeNeedle" x1="105" y1="98" x2="105" y2="26" stroke="#FBF5FF" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="105" cy="98" r="6" fill="#FBF5FF"/>
-    </svg>
-    <div class="gauge-label-row"><span>&#9650; Tilt up = Pass</span><span>Tilt down = Correct &#9660;</span></div>
-  </div>
-  <div class="cal-status" id="calStatus">Motion sensor not started</div>
-  <button class="cal-btn" id="calBtn">Set neutral &amp; start</button>
-  <button class="reverse-btn" id="reverseBtn">Reverse tilt direction</button>
+  <p>Face the screen outward, toward your team. When you're ready, hold the phone level against your forehead and tap below — that becomes your neutral position.</p>
+  <button class="cal-btn" id="calBtn">I'm ready — calibrate</button>
   <button class="cal-link" id="skipCalBtn">Skip tilt, use tap controls instead</button>
 </div>
 
@@ -287,14 +558,28 @@
   <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
 
   <div class="word-zone" id="wordZone">
+    <div class="flash" id="flashPass"></div>
+    <div class="flash" id="flashCorrect"></div>
     <div class="tap-zone top" id="tapPass"></div>
     <div class="tap-zone bottom" id="tapCorrect"></div>
-    <div class="word-fit" id="wordFit"><div id="word">WORD</div></div>
-    <div class="countdown" id="countdown"><div class="num" id="countNum">3</div><div class="cue">Get it on your forehead</div></div>
+    <div id="word">WORD</div>
+    <div class="next-preview" id="nextPreview">NEXT — ····</div>
+
+    <div class="gauge-wrap">
+      <svg class="gauge" viewBox="0 0 210 108">
+        <path d="M15 98 A90 90 0 0 1 195 98" stroke="#2E1B3D" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path id="gaugeArcPass" d="M15 98 A90 90 0 0 1 105 8" stroke="#4A1F2A" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path id="gaugeArcCorrect" d="M105 8 A90 90 0 0 1 195 98" stroke="#2E4A22" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <line id="gaugeNeedle" x1="105" y1="98" x2="105" y2="26" stroke="#FBF5FF" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="105" cy="98" r="6" fill="#FBF5FF"/>
+      </svg>
+      <div class="gauge-label-row"><span>PASS</span><span>CORRECT</span></div>
+    </div>
+    <button class="mode-toggle" id="modeToggle">Switch to tap controls</button>
   </div>
 
-  <div class="bottom-hint" id="bottomHint">
-    <span><span class="dot pass"></span>Tilt up / tap top = Pass</span>
+  <div class="bottom-hint">
+    <span><span class="dot pass"></span>Tilt back / tap top = Pass</span>
     <span><span class="dot correct"></span>Tilt down / tap bottom = Correct</span>
   </div>
 </div>
@@ -304,8 +589,7 @@
   <div class="over-label">Round over</div>
   <h2 id="finalScore">0</h2>
   <div class="sub" id="finalSub">correct out of 0 words</div>
-  <div class="tip">Tap any word to move it to the other list</div>
-  <div class="scroll-area">
+  <div class="results-scroll">
     <div class="result-section correct">
       <h3><span class="dot correct" style="display:inline-block"></span>Got it (<span id="correctCount">0</span>)</h3>
       <div class="chip-list" id="correctList"></div>
@@ -321,8 +605,6 @@
   </div>
 </div>
 
-<div class="fx" id="fx"><span class="glyph" id="fxGlyph">&#10003;</span></div>
-
 <script>
 /* ================= WORD DATA ================= */
 const numbersLetters = (() => {
@@ -333,106 +615,95 @@ const numbersLetters = (() => {
 })();
 
 const CATEGORIES = {
-"Food": ["Apple","Cookie","Paella","Doner Kebab","Lettuce","Raw Turkey","Pear","Banana","Mustard","Ketchup","Salt","Pepper","Orange","Apple Juice","Coffee","Espresso","Beef Noodles","Soup","Baguette","Pizza","Hot Dog","Chicken Burger","Sausage","Hot Pot","Water","Rice Cakes","Zucchini","Tomato","Cucumber","Potato Chips","Fries","Honey","Lamb Skewer","Chicken Nuggets","Salad","Lasagna","Gyoza","Cabbage","Biscuits","Croissant","Teriyaki Chicken","Dutch Pancakes","Maple Syrup","Orange Juice","Strawberry","Matcha","Pide","Smoothie","Caramel","Soft Drink","Milk","Dandelion","Leek","Mandarin","Lemon","Lime","Cappuccino","Boba","Green Tea","Beef Patty","Crab","Lobster","Prawn","Calamari","Goat Milk","Coconut","Chocolate","Lollipop","Spaghetti","Fried Egg","Rice","Fish And Chips","Salmon","Canned Tuna","Churros","Butter Chicken","Curry","Cheese","Dim Sum","Ice Cream","Popsicle","Mint Chocolate Ice Cream","Strawberry Ice Cream","Chocolate Flakes","Coriander","Mint","Penne","Noodles","Soy Sauce","Mushroom","Bubblegum","Oyster","Caesar Salad","Corn Bread","Bacon Pie","Australian Meat Pie","Blood Sausage","Cheese Fondue","Chocolate Fondue","Naan Bread","Mediterranean Pizza","Margherita Pizza","BBQ Chicken Pizza","Green Grapes","Purple Grapes","Cheese And Spinach Gozleme","Fairy Bread","Vegemite Toast","Butter Toast","Beef Pho","Chicken Pho","Singaporean Noodles","Red Cabbage","Guava Juice","Hibiscus Tea","Carrots","Sunflower Seeds","Garlic Bread","Thai Noodles","Satay Chicken","Energy Drinks","Chilli Basil","Chicken Sandwich","Halloumi Cheese","Blue Cheese","Cheddar Cheese","Kimchi","Sushi","Sashimi","Tempura","Ramen","Dumplings","Spring Rolls","Fried Rice","Congee","Hummus","Falafel","Shawarma","Tacos","Burrito","Quesadilla","Nachos","Guacamole","Empanada","Pretzel","Bagel","Waffle","Pancake","French Toast","Omelette","Quiche","Risotto","Gnocchi","Tiramisu","Panna Cotta","Baklava","Gelato","Sorbet","Jelly","Marshmallow","Gummy Bear","Cotton Candy","Popcorn","Milkshake","Root Beer","Ginger Ale","Kombucha","Chai Latte","Hot Chocolate"],
+"Food": ["Apple","Cookie","Paella","Doner Kebab","Lettuce","Raw Turkey","Pear","Banana","Mustard","Ketchup","Salt","Pepper","Orange","Apple Juice","Coffee","Espresso","Beef Noodles","Soup","Baguette","Pizza","Hot Dog","Chicken Burger","Sausage","Hot Pot","Water","Rice Cakes","Zucchini","Tomato","Cucumber","Potato Chips","Fries","Honey","Lamb Skewer","Chicken Nuggets","Salad","Lasagna","Gyoza","Cabbage","Biscuits","Croissant","Teriyaki Chicken","Dutch Pancakes","Maple Syrup","Orange Juice","Strawberry","Matcha","Pide","Smoothie","Caramel","Soft Drink","Milk","Dandelion","Leek","Mandarin","Lemon","Lime","Cappuccino","Boba","Green Tea","Beef Patty","Crab","Lobster","Prawn","Calamari","Goat Milk","Coconut","Chocolate","Lollipop","Spaghetti","Fried Egg","Rice","Fish And Chips","Salmon","Canned Tuna","Churros","Butter Chicken","Curry","Cheese","Dim Sum","Ice Cream","Popsicle","Mint Chocolate Ice Cream","Strawberry Ice Cream","Chocolate Flakes","Coriander","Mint","Penne","Noodles","Soy Sauce","Mushroom","Bubblegum","Oyster","Caesar Salad","Corn Bread","Bacon Pie","Australian Meat Pie","Blood Sausage","Cheese Fondue","Chocolate Fondue","Naan Bread","Mediterranean Pizza","Margherita Pizza","BBQ Chicken Pizza","Green Grapes","Purple Grapes","Cheese And Spinach Gozleme","Fairy Bread","Vegemite Toast","Butter Toast","Beef Pho","Chicken Pho","Singaporean Noodles","Red Cabbage","Guava Juice","Hibiscus Tea","Carrots","Sunflower Seeds","Garlic Bread","Thai Noodles","Satay Chicken","Energy Drinks","Chilli Basil","Chicken Sandwich","Halloumi Cheese","Blue Cheese","Cheddar Cheese","Kimchi","Sushi","Sashimi","Tempura","Ramen","Dumplings","Spring Rolls","Fried Rice","Congee","Hummus","Falafel","Shawarma","Tacos","Burrito","Quesadilla","Nachos","Guacamole","Empanada","Pretzel","Bagel","Waffle","Pancake","French Toast","Omelette","Quiche","Risotto","Gnocchi","Tiramisu","Panna Cotta","Baklava","Gelato","Sorbet","Jelly","Marshmallow","Gummy Bear","Cotton Candy","Popcorn","Milkshake","Root Beer","Ginger Ale","Kombucha","Chai Latte","Hot Chocolate","Kebab","Falafel Wrap","Pita Bread","Tortilla","Nachos Supreme","Chili Con Carne","Meatballs","Beef Stew","Lamb Chop","Pork Chop","Bacon","Ham","Prosciutto","Salami","Pepperoni","Turkey Slices","Roast Chicken","Fried Chicken","Chicken Wings","Buffalo Wings","BBQ Ribs","Pulled Pork","Brisket","Steak","T-Bone Steak","Filet Mignon","Sirloin","Meatloaf","Shepherd's Pie","Cottage Pie","Beef Wellington","Yorkshire Pudding","Roast Potatoes","Mashed Potatoes","Baked Potato","Sweet Potato","Potato Salad","Coleslaw","Devilled Eggs","Egg Salad","Scrambled Eggs","Poached Egg","Eggs Benedict","French Onion Soup","Minestrone","Tomato Soup","Chicken Noodle Soup","Clam Chowder","Miso Soup","Wonton Soup","Tom Yum","Laksa","Bibimbap","Bulgogi","Kimbap","Japchae","Tteokbokki","Katsu Curry","Okonomiyaki","Takoyaki","Yakisoba","Yakitori","Onigiri","Udon","Soba","Peking Duck","Mapo Tofu","Kung Pao Chicken","Sweet And Sour Pork","Spring Onion Pancake","Char Siu","Xiaolongbao","Baozi","Wontons","Fried Wontons","Beef Rendang","Nasi Goreng","Satay Skewers","Pad Thai","Green Curry","Red Curry","Massaman Curry","Papaya Salad","Spring Rolls Vietnamese","Banh Mi","Fresh Spring Rolls","Butter Naan","Garlic Naan","Tandoori Chicken","Chicken Tikka","Chicken Tikka Masala","Palak Paneer","Dal","Samosa","Pakora","Biryani","Rogan Josh","Vindaloo","Lassi","Roti","Paratha","Idli","Dosa","Vada","Chutney","Pickle","Falafel Plate","Shakshuka","Baba Ganoush","Tabbouleh","Fattoush","Kibbeh","Manakish","Mezze Platter","Moussaka","Souvlaki","Gyros","Tzatziki","Spanakopita","Baklava Slice","Paella Valenciana","Tortilla Espanola","Churrasco Steak","Feijoada","Pao De Queijo","Empanadas","Arepas","Ceviche","Tamales","Mole Sauce","Elote","Chilaquiles","Enchiladas","Fajitas","Carnitas","Al Pastor Tacos","Guacamole And Chips","Cheese Platter","Charcuterie Board","Fondue","Raclette","Schnitzel","Sauerkraut","Bratwurst","Pretzel Bavarian","Spaetzle","Currywurst","Poutine","Perogies","Borscht","Beef Stroganoff","Pelmeni","Blini","Caviar","Smoked Salmon","Kippers","Full English Breakfast","Bangers And Mash","Cornish Pasty","Ploughman's Lunch","Trifle","Sticky Toffee Pudding","Scones","Clotted Cream","Victoria Sponge","Battenberg Cake","Christmas Pudding","Mince Pie","Custard","Rice Pudding","Bread Pudding","Apple Pie","Pumpkin Pie","Pecan Pie","Key Lime Pie","Cheesecake","Brownie","Blondie","Fudge","Nougat","Toffee","Peanut Brittle","Rock Candy","Candy Cane","Jelly Beans","Licorice","Taffy","Peanut Butter Cup","Cinnamon Roll Bun","Donut","Glazed Donut","Funnel Cake","Beignet","Macaron","Eclair","Profiterole","Danish Pastry","Strudel","Cannoli","Panettone","Mochi","Dango","Taiyaki","Shaved Ice","Bingsu","Halo Halo","Kulfi","Gulab Jamun","Jalebi","Rasgulla","Barfi","Peanuts","Cashews","Almonds","Walnuts","Pistachios","Hazelnuts","Macadamia Nuts","Pecans","Trail Mix","Granola","Muesli","Oatmeal","Cereal","Pancake Stack","Belgian Waffle","French Crepe","Nutella","Peanut Butter Jelly Sandwich","Grilled Cheese","Club Sandwich","BLT","Reuben Sandwich","Philly Cheesesteak","Meatball Sub","Corn Dog","Onion Rings","Mozzarella Sticks","Chicken Tenders","Buffalo Cauliflower","Loaded Fries","Chili Cheese Fries","Potato Wedges","Hash Browns","Tater Tots","Sushi Roll","California Roll","Spicy Tuna Roll","Nigiri","Sashimi Platter","Miso Glazed Fish","Teppanyaki","Hibachi","Shabu Shabu","Sukiyaki","Ramen Tonkotsu","Ramen Shoyu","Ramen Miso","Cup Noodles","Instant Noodles","Vegetable Stir Fry","Fried Tofu","Edamame","Seaweed Salad","Kelp Noodles","Miso Paste","Wasabi","Pickled Ginger","Soy Milk","Almond Milk","Oat Milk","Iced Coffee","Cold Brew","Frappuccino","Mocha","Latte","Flat White","Macchiato","Affogato","Hot Toddy","Sangria","Margarita","Pina Colada","Mai Tai","Daiquiri","Mojito Virgin","Iced Tea","Sweet Tea","Lemonade","Limeade","Ginger Beer","Tonic Water","Sparkling Water","Fruit Punch","Milk Tea","Taro Milk Tea","Thai Iced Tea","Horchata","Agua Fresca","Mango Lassi","Protein Shake","Smoothie Bowl","Acai Bowl","Overnight Oats","Chia Pudding","Avocado Toast","Eggs Florentine","Breakfast Burrito","Huevos Rancheros","Bacon And Eggs","Croque Madame","Bubble Waffle","Fish Taco","Shrimp Taco","Lobster Roll","Crab Cakes","Fish And Chips British","Battered Sausage","Mushy Peas","Gravy","Yorkshire Tea","Digestive Biscuit","Shortbread","Hobnob","Jaffa Cake","Wagon Wheel","Party Pie","Sausage Roll","Meat Pie","Pavlova","Lamington","Anzac Biscuit","Tim Tam","Vegemite Sandwich","Kiwi Fruit","Passionfruit","Dragon Fruit","Lychee","Rambutan","Durian","Jackfruit","Star Fruit","Persimmon","Fig","Date","Prune","Raisin","Sultana","Cranberry","Blackberry","Raspberry","Blueberry Muffin","Watermelon","Cantaloupe","Honeydew Melon","Pineapple","Papaya","Kiwi","Plum","Apricot","Nectarine","Peach","Cherry","Pomegranate","Avocado","Olive","Artichoke","Asparagus","Broccoli","Cauliflower","Brussels Sprouts","Kale","Spinach","Bok Choy","Arugula","Radish","Beetroot","Turnip","Parsnip","Sweet Corn","Pumpkin","Butternut Squash","Eggplant","Bell Pepper","Chili Pepper","Jalapeno","Habanero","Ginger Root","Turmeric","Cinnamon Stick","Vanilla Bean","Cardamom","Cloves","Nutmeg","Star Anise","Bay Leaf","Rosemary","Thyme","Basil","Oregano","Sage","Dill","Parsley","Chives","Fennel","Saffron","Paprika","Cumin","Chili Flakes","Peppercorn","Sea Salt","Himalayan Salt","Brown Sugar","Icing Sugar","Molasses","Corn Syrup","Agave Syrup","Olive Oil","Sesame Oil","Coconut Oil","Vinegar","Balsamic Vinegar","Worcestershire Sauce","Fish Sauce","Oyster Sauce","Hoisin Sauce","Sriracha","Tabasco","Ranch Dressing","Blue Cheese Dressing","Vinaigrette","Mayonnaise","Aioli","Pesto","Marinara Sauce","Alfredo Sauce","Bechamel Sauce","Hollandaise","Gravy Boat","Cranberry Sauce","Applesauce"],
 
-"Animals": ["Elephant","Dog","Cat","Tasmanian Devil","Lion","Tiger","Cheetah","Jaguar","Leopard","Lizard","Iguana","Wolf","Fox","Labrador","Deer","Elk","Chicken","Rooster","Cow","Horse","Mule","Donkey","Lynx","Bat","Parrot","Bird","Cod","Salmon","Fish","Goose","Turkey","Bull","Rhino","Hippo","Chimp","Zebra","Spider","Butterfly","House Fly","Giraffe","Snake","Viper","Python","Shark","Dolphin","Manatee","Beluga","Bush Turkey","Cavoodle","Kangaroo","Koala","Wombat","Numbat","Yak","Cattle","Pig","Wild Boar","Capybara","Ocelot","Panda","Raccoon","Bee","Silverfish","Tarantula","Scorpion","Wasp","Red Panda","Grizzly Bear","Polar Bear","Black Bear","Sloth","Gibbon","Lemur","Seagull","Orangutan","Gorilla","Skink","Panther","Beetle","Ladybug","Mouse","Rat","Llama","Alpaca","Wallaby","Quokka","Sea Turtle","Tortoise","Proboscis Monkey","Galah","Cockatoo","Hen","Chihuahua","Crocodile","Alligator","Pomeranian","Moose","Worm","Seal","Penguin","Crow","Magpie","Walrus","Elephant Seal","Okapi","Whale","Angelfish","Camel","Goat","Ibex","Skunk","Dove","Flamingo","Badger","Dodo","Squirrel","Chipmunk","Dinosaur","Pterodactyl","T-Rex","Triceratops","Tasmanian Tiger","Frog","Toad","Snail","Slug","X-Ray Fish","Goblin Shark","Great White Shark","Snow Leopard","Owl","Arctic Fox","Arctic Wolf","Snowy Owl","Mosquito","Bison","Buffalo","Human","Caveman","Phoenix","Hedgehog","Otter","Beaver","Swan","Mammoth","Poodle","Salamander","Newt","Tardigrade","Squid","Oyster","Orca","Platypus","Echidna","Armadillo","Anteater","Meerkat","Hyena","Warthog","Gazelle","Antelope","Ostrich","Emu","Kiwi Bird","Toucan","Hummingbird","Peacock","Pelican","Stork","Heron","Kingfisher","Jellyfish","Starfish","Seahorse","Octopus","Hermit Crab","Clownfish","Stingray","Eel","Piranha","Catfish","Mole","Porcupine","Weasel","Ferret","Mink"],
+"Animals": ["Elephant","Dog","Cat","Tasmanian Devil","Lion","Tiger","Cheetah","Jaguar","Leopard","Lizard","Iguana","Wolf","Fox","Labrador","Deer","Elk","Chicken","Rooster","Cow","Horse","Mule","Donkey","Lynx","Bat","Parrot","Bird","Cod","Salmon","Fish","Goose","Turkey","Bull","Rhino","Hippo","Chimp","Zebra","Spider","Butterfly","House Fly","Giraffe","Snake","Viper","Python","Shark","Dolphin","Manatee","Beluga","Bush Turkey","Cavoodle","Kangaroo","Koala","Wombat","Numbat","Yak","Cattle","Pig","Wild Boar","Capybara","Ocelot","Panda","Raccoon","Bee","Silverfish","Tarantula","Scorpion","Wasp","Red Panda","Grizzly Bear","Polar Bear","Black Bear","Sloth","Gibbon","Lemur","Seagull","Orangutan","Gorilla","Skink","Panther","Beetle","Ladybug","Mouse","Rat","Llama","Alpaca","Wallaby","Quokka","Sea Turtle","Tortoise","Proboscis Monkey","Galah","Cockatoo","Hen","Chihuahua","Crocodile","Alligator","Pomeranian","Moose","Worm","Seal","Penguin","Crow","Magpie","Walrus","Elephant Seal","Okapi","Whale","Angelfish","Camel","Goat","Ibex","Skunk","Dove","Flamingo","Badger","Dodo","Squirrel","Chipmunk","Dinosaur","Pterodactyl","T-Rex","Triceratops","Tasmanian Tiger","Frog","Toad","Snail","Slug","X-Ray Fish","Goblin Shark","Great White Shark","Snow Leopard","Owl","Arctic Fox","Arctic Wolf","Snowy Owl","Mosquito","Bison","Buffalo","Human","Caveman","Phoenix","Hedgehog","Otter","Beaver","Swan","Mammoth","Poodle","Salamander","Newt","Tardigrade","Squid","Oyster","Orca","Platypus","Echidna","Armadillo","Anteater","Meerkat","Hyena","Warthog","Gazelle","Antelope","Ostrich","Emu","Kiwi Bird","Toucan","Hummingbird","Peacock","Pelican","Stork","Heron","Kingfisher","Jellyfish","Starfish","Seahorse","Octopus","Hermit Crab","Clownfish","Stingray","Eel","Piranha","Catfish","Mole","Porcupine","Weasel","Ferret","Mink","Bald Eagle","Golden Eagle","Falcon","Hawk","Kite Bird","Vulture","Condor","Buzzard","Osprey","Harrier","Kestrel","Merlin Bird","Robin","Sparrow","Finch","Canary","Cockatiel","Budgie","Lovebird","Macaw","Kea","Kookaburra","Lorikeet","Rosella","Bowerbird","Lyrebird","Cassowary","Rhea","Kiwi","Puffin","Albatross","Frigatebird","Cormorant","Pelican Bird","Ibis","Spoonbill","Egret","Bittern","Coot","Moorhen","Grebe","Loon","Curlew","Sandpiper","Plover","Avocet","Tern","Skua","Gull","Cuckoo","Nightingale","Wren","Thrush","Starling","Blackbird","Woodpecker","Nuthatch","Chickadee","Tit Bird","Warbler","Vireo","Tanager","Cardinal Bird","Oriole","Grosbeak","Bunting","Lark","Pipit","Wagtail","Shrike","Jay","Rook","Jackdaw","Raven","Nightjar","Swift Bird","Bee-eater","Hoopoe","Roller Bird","Trogon","Quetzal","Hornbill","Barbet","Honeyeater","Fairywren","Bird Of Paradise","Sunbird","Weaverbird","Widowbird","Manakin","Cotinga","Antbird","Tapir","Peccary","Vicuna","Guanaco","Muntjac","Roe Deer","Red Deer","Fallow Deer","Reindeer","Caribou","Pronghorn","Wildebeest","Impala","Springbok","Oryx","Kudu","Eland","Waterbuck","Hartebeest","Duiker","Dik-Dik","Klipspringer","Gemsbok","Serval","Caracal","Margay","Fossa","Genet","Civet","Mongoose","Aardvark","Aardwolf","Bushbaby","Pangolin","Colugo","Tenrec","Solenodon","Numbat Animal","Bilby","Bandicoot","Tasmanian Devil Animal","Sugar Glider","Possum","Cuscus","Tree Kangaroo","Musky Rat-Kangaroo","Bettong","Potoroo","Dugong","Manatee Sea","Narwhal","Sperm Whale","Blue Whale","Humpback Whale","Minke Whale","Fin Whale","Right Whale","Bowhead Whale","Grey Whale","Pilot Whale","Vaquita","Porpoise","Bottlenose Dolphin","Spinner Dolphin","River Dolphin","Basking Shark","Whale Shark","Hammerhead Shark","Tiger Shark","Bull Shark","Nurse Shark","Reef Shark","Mako Shark","Thresher Shark","Lemon Shark","Wobbegong","Manta Ray","Electric Eel","Moray Eel","Barracuda","Marlin","Swordfish","Tuna","Mahi Mahi","Grouper","Snapper","Trout","Bass","Perch","Pike","Carp","Sturgeon","Anchovy","Sardine","Herring","Mackerel","Flounder","Halibut","Pufferfish","Lionfish","Angelfish Tropical","Betta Fish","Guppy","Molly Fish","Tetra","Cichlid","Koi","Goldfish","Axolotl","Mudpuppy","Hellbender","Caecilian","Tree Frog","Poison Dart Frog","Bullfrog","Cane Toad","Fire Salamander","Gecko","Chameleon","Monitor Lizard","Komodo Dragon","Bearded Dragon","Anole","Basilisk Lizard","Horned Lizard","Gila Monster","Chuckwalla","Tuatara","Boa Constrictor","Anaconda","King Cobra","Black Mamba","Rattlesnake","Coral Snake","Garter Snake","Corn Snake","Sea Snake","Grass Snake","Adder","Copperhead","Water Moccasin","Milk Snake","Hognose Snake","Vine Snake","Flying Snake","Gharial","Caiman","Saltwater Crocodile","Nile Crocodile","American Alligator","Chinese Alligator","Snapping Turtle","Box Turtle","Painted Turtle","Leatherback Turtle","Hawksbill Turtle","Loggerhead Turtle","Galapagos Tortoise","Aldabra Tortoise","Desert Tortoise","Red-Eared Slider","Softshell Turtle","Musk Turtle","Chinchilla","Guinea Pig","Hamster","Gerbil","Degu","Vole","Shrew","Pika","Hare","Jackrabbit","Prairie Dog","Groundhog","Marmot","Muskrat","Naked Mole Rat","Flying Squirrel","Dormouse","Springhare","Kangaroo Rat","Jerboa","Bandicoot Rat","Cane Rat","Coypu","Mara","Agouti","Paca","Sloth Bear","Sun Bear","Spectacled Bear","Kodiak Bear","American Black Bear","Asiatic Black Bear","Panda Red","Fisher Animal","Wolverine Animal","Marten","Sable","Stoat","Ermine","Mink Animal","Polecat","Tayra","Grison","Otter River","Sea Otter","Giant Otter","Binturong","Kinkajou","Coati","Ringtail","Olingo","Tamandua","Silky Anteater","Giant Anteater","Three-Toed Sloth","Two-Toed Sloth","Howler Monkey","Spider Monkey","Squirrel Monkey","Capuchin Monkey","Marmoset","Tamarin","Tarsier","Slow Loris","Galago","Aye-Aye","Ring-Tailed Lemur","Indri","Sifaka","Colobus Monkey","Mandrill","Baboon","Macaque","Langur","Douc Langur","Vervet Monkey","Patas Monkey","Bonobo","Siamang","Lar Gibbon","Golden Snub-Nosed Monkey","Emperor Tamarin","Praying Mantis","Grasshopper","Cricket Insect","Cicada","Dragonfly","Damselfly","Stick Insect","Leaf Insect","Cockroach","Termite","Ant","Weevil","Firefly","Dung Beetle","Stag Beetle","Rhino Beetle","Longhorn Beetle","Click Beetle","Water Strider","Aphid","Mantis Shrimp","Krill","Barnacle","Sea Urchin","Sand Dollar","Sea Cucumber","Nudibranch","Sea Anemone","Coral Polyp","Sea Sponge","Sea Slug","Chiton","Limpet","Conch","Cowrie","Abalone","Mussel","Clam","Scallop","Cuttlefish","Nautilus","Vampire Squid","Giant Squid","Colossal Squid","Blue-Ringed Octopus","Giant Pacific Octopus"],
 
-"Celebrities": ["Ed Sheeran","Taylor Swift","Justin Bieber","Jenna Ortega","Victoria Justice","Jace Norman","Cristiano Ronaldo","Ariana Grande","Lionel Messi","Neymar Jr","Kylian Mbappe","Bukayo Saka","LeBron James","Michael Jackson","Michael Jordan","Sabrina Carpenter","Ice Spice","Rihanna","The Weeknd","Beyonce","Harry Styles","Tiger Woods","Michael Phelps","Zayn Malik","Giannis Antetokounmpo","Justin Timberlake","Charlie Puth","Luis Fonsi","Psy","Donald Trump","Joe Biden","John F Kennedy","Anthony Albanese","Xi Jinping","Kim Jong Un","Theodore Roosevelt","IShowSpeed","KSI","Kai Cenat","MrBeast","Daddy Yankee","Usain Bolt","Eddie Murphy","Chris Hemsworth","Chris Pratt","Madonna","Lady Gaga","Miley Cyrus","Erling Haaland","Daniel Radcliffe","Emma Watson","Kim Jong Il","Shakira","Rema","Burna Boy","Khalid","Wiz Khalifa","Satoshi Tajiri","Billie Eilish","Olivia Rodrigo","Jennie","KATSEYE","Tame Impala","Jim Parsons","Tones And I","Zendaya","Tom Holland","Selena Gomez","Camila Cabello","Benson Boone","Arnold Schwarzenegger","Robert Downey Jr","Isabela Merced","Dwayne Johnson","Jennette McCurdy","Brad Pitt","Jimmy Fallon","Cynthia Erivo","Martin Luther King","Cardi B","Kylie Jenner","Kim Kardashian","Kanye West","Hugh Jackman","Leonardo DiCaprio","Vincent Van Gogh","Leonardo Da Vinci","Pedro Pascal","Diego Maradona","Socrates","Narendra Modi","Vladimir Putin","Abraham Lincoln","Barack Obama","Stephen Hawking","Albert Einstein","Julius Caesar","Gandhi","Isaac Newton","Nikola Tesla","Elon Musk","Marie Curie","Marilyn Monroe","Claudia Sheinbaum","Timothee Chalamet","Florence Pugh","Margot Robbie","Ryan Reynolds","Ryan Gosling","Emma Stone","Jennifer Lawrence","Scarlett Johansson","Will Smith","Denzel Washington","Morgan Freeman","Meryl Streep","Tom Hanks","Keanu Reeves","Johnny Depp","Angelina Jolie","Adele","Bruno Mars","Drake","Post Malone","Travis Scott","Doja Cat","SZA","Lil Nas X","Snoop Dogg","Eminem","Jay-Z","Kendrick Lamar","Serena Williams","Roger Federer","Rafael Nadal","Novak Djokovic","Simone Biles","Shaquille O'Neal","Kobe Bryant"],
+"Celebrities": ["Ed Sheeran","Taylor Swift","Justin Bieber","Jenna Ortega","Victoria Justice","Jace Norman","Cristiano Ronaldo","Ariana Grande","Lionel Messi","Neymar Jr","Kylian Mbappe","Bukayo Saka","LeBron James","Michael Jackson","Michael Jordan","Sabrina Carpenter","Ice Spice","Rihanna","The Weeknd","Beyonce","Harry Styles","Tiger Woods","Michael Phelps","Zayn Malik","Giannis Antetokounmpo","Justin Timberlake","Charlie Puth","Luis Fonsi","Psy","Donald Trump","Joe Biden","John F Kennedy","Anthony Albanese","Xi Jinping","Kim Jong Un","Theodore Roosevelt","IShowSpeed","KSI","Kai Cenat","MrBeast","Daddy Yankee","Usain Bolt","Eddie Murphy","Chris Hemsworth","Chris Pratt","Madonna","Lady Gaga","Miley Cyrus","Erling Haaland","Daniel Radcliffe","Emma Watson","Kim Jong Il","Shakira","Rema","Burna Boy","Khalid","Wiz Khalifa","Satoshi Tajiri","Billie Eilish","Olivia Rodrigo","Jennie","KATSEYE","Tame Impala","Jim Parsons","Tones And I","Zendaya","Tom Holland","Selena Gomez","Camila Cabello","Benson Boone","Arnold Schwarzenegger","Robert Downey Jr","Isabela Merced","Dwayne Johnson","Jennette McCurdy","Brad Pitt","Jimmy Fallon","Cynthia Erivo","Martin Luther King","Cardi B","Kylie Jenner","Kim Kardashian","Kanye West","Hugh Jackman","Leonardo DiCaprio","Vincent Van Gogh","Leonardo Da Vinci","Pedro Pascal","Diego Maradona","Socrates","Narendra Modi","Vladimir Putin","Abraham Lincoln","Barack Obama","Stephen Hawking","Albert Einstein","Julius Caesar","Gandhi","Isaac Newton","Nikola Tesla","Elon Musk","Marie Curie","Marilyn Monroe","Claudia Sheinbaum","Timothee Chalamet","Florence Pugh","Margot Robbie","Ryan Reynolds","Ryan Gosling","Emma Stone","Jennifer Lawrence","Scarlett Johansson","Will Smith","Denzel Washington","Morgan Freeman","Meryl Streep","Tom Hanks","Keanu Reeves","Johnny Depp","Angelina Jolie","Adele","Bruno Mars","Drake","Post Malone","Travis Scott","Doja Cat","SZA","Lil Nas X","Snoop Dogg","Eminem","Jay-Z","Kendrick Lamar","Serena Williams","Roger Federer","Rafael Nadal","Novak Djokovic","Simone Biles","Shaquille O'Neal","Kobe Bryant","Chappell Roan","Gracie Abrams","Tate McRae","Charli XCX","Dua Lipa","Sam Smith","Lewis Capaldi","George Ezra","Sia","Halsey","Lorde","Lizzo","Megan Thee Stallion","Nicki Minaj","J Cole","Future Rapper","21 Savage","Lil Baby","Gunna","Central Cee","Dave Rapper","Stormzy","Ed Balls","Rihanna Fenty","Rita Ora","Dua Lipa Pop","Anne-Marie","Jess Glynne","Jorja Smith","Raye","Central Cee UK","Aitch","Little Mix","Fifth Harmony","One Direction","Backstreet Boys","NSYNC","Spice Girls","Destiny's Child","TLC","En Vogue","Boyz II Men","New Kids On The Block","Take That","Westlife","Blackpink","BTS Members","Jungkook","V BTS","Jimin","Suga","RM","Jin","J-Hope","Twice Kpop","ITZY","NewJeans","Aespa","Stray Kids","Seventeen","ENHYPEN","Tomorrow X Together","Le Sserafim","IVE Kpop","Red Velvet","EXO","Big Bang","G-Dragon","CL Kpop","Psy Gangnam","Rain Singer","BoA","Anthony Joshua","Tyson Fury","Canelo Alvarez","Floyd Mayweather","Conor McGregor","Israel Adesanya","Jon Jones","Khabib Nurmagomedov","Ronda Rousey","Simone Biles Gymnast","Katie Ledecky","Sydney McLaughlin","Allyson Felix","Mo Farah","Eliud Kipchoge","Jamaica Sprinter","Shelly-Ann Fraser-Pryce","Sha'Carri Richardson","Novak Djokovic Tennis","Carlos Alcaraz","Iga Swiatek","Coco Gauff","Naomi Osaka","Venus Williams","Andy Murray","Rafael Nadal Tennis","Roger Federer Tennis","Kylian Mbappe Football","Vinicius Jr","Jude Bellingham","Pedri","Gavi Football","Robert Lewandowski","Karim Benzema","Luka Modric","Sergio Ramos","Virgil Van Dijk","Mohamed Salah","Sadio Mane","Kevin De Bruyne","Son Heung-min","Harry Kane","Marcus Rashford","Phil Foden","Jack Grealish","Declan Rice","Bukayo Saka Football","Trent Alexander-Arnold","Alisson Becker","Ederson","Thibaut Courtois","Manuel Neuer","Zlatan Ibrahimovic","Wayne Rooney","David Beckham","Steven Gerrard","Frank Lampard","Thierry Henry","Ronaldinho","Ronaldo Nazario","Zinedine Zidane","Pele","Diego Maradona Football","Johan Cruyff","George Best","Roberto Baggio","Andrea Pirlo","Paolo Maldini","Franco Baresi","Xavi Hernandez","Andres Iniesta","Carles Puyol","Gerard Pique","Sergio Aguero","Didier Drogba","Samuel Eto'o","George Weah","Michael Jordan Basketball","Magic Johnson","Larry Bird","Wilt Chamberlain","Kareem Abdul-Jabbar","Bill Russell","Kevin Durant","Stephen Curry","James Harden","Giannis Antetokounmpo Basketball","Luka Doncic","Nikola Jokic","Joel Embiid","Jayson Tatum","Damian Lillard","Russell Westbrook","Chris Paul","Kawhi Leonard","Paul George","Anthony Davis","Jimmy Butler","Ja Morant","Zion Williamson","Victor Wembanyama","Caitlin Clark","A'ja Wilson","Diana Taurasi","Sue Bird","Babe Ruth","Derek Jeter","Mike Trout","Shohei Ohtani","Aaron Judge","Tom Brady","Patrick Mahomes","Peyton Manning","Aaron Rodgers","Travis Kelce","Jerry Rice","Joe Montana","Wayne Gretzky","Sidney Crosby","Connor McDavid","Alexander Ovechkin","Mario Lemieux","Bobby Orr","Jack Nicklaus","Rory McIlroy","Scottie Scheffler","Jon Rahm","Phil Mickelson","Nick Kyrgios","Steve Irwin","David Attenborough","Bear Grylls","Gordon Ramsay","Jamie Oliver","Nigella Lawson","Guy Fieri","Anthony Bourdain","Ellen DeGeneres","Oprah Winfrey","James Corden","Trevor Noah","John Oliver","Conan O'Brien","Graham Norton","Jimmy Kimmel","Stephen Colbert","Seth Meyers","Kevin Hart","Dave Chappelle","Ricky Gervais","John Mulaney","Bo Burnham","Ali Wong","Steve Carell","Jim Carrey","Adam Sandler","Will Ferrell","Owen Wilson","Vince Vaughn","Seth Rogen","Jonah Hill","Channing Tatum","Chris Evans","Chris Pine","Chris Pratt Actor","Mark Ruffalo","Jeremy Renner","Paul Rudd","Anthony Mackie","Sebastian Stan","Tom Hiddleston","Benedict Cumberbatch","Idris Elba","Michael B Jordan","Chadwick Boseman","Samuel L Jackson","Morgan Freeman Actor","Denzel Washington Actor","Will Smith Actor","Jamie Foxx","Forest Whitaker","Viola Davis","Octavia Spencer","Lupita Nyong'o","Halle Berry","Regina King","Taraji P Henson","Zoe Saldana","Gal Gadot","Charlize Theron","Nicole Kidman","Cate Blanchett","Kate Winslet","Emily Blunt","Amy Adams","Sandra Bullock","Reese Witherspoon","Julia Roberts","Anne Hathaway","Natalie Portman","Jessica Chastain","Saoirse Ronan","Elle Fanning","Dakota Fanning","Millie Bobby Brown","Sydney Sweeney","Anya Taylor-Joy","Jenna Coleman","Emma Roberts","Ana De Armas","Penelope Cruz","Javier Bardem","Antonio Banderas","Salma Hayek"],
 
-"Video Games": ["Minecraft","Pokemon","Super Mario","Mario Kart","Rocket League","Fortnite","PUBG","Call Of Duty","GTA","Red Dead Redemption","Fall Guys","FIFA","NBA 2K","UFC","Stumble Guys","Apex Legends","Among Us","Granny","Legend Of Zelda","Animal Crossing","Pokemon Pokopia","Sackboy","God Of War","Honor Of Kings","World Of Warcraft","Palworld","Subway Surfers","Angry Birds","Fruit Ninja","Terraria","Clash Of Clans","Clash Royale","Brawl Stars","Stardew Valley","Sudoku","2048","Pokemon Go","Nintendo Switch Sports","Wii Sports","Minecraft Dungeons","Minecraft Legends","Escape The Backrooms","Final Fantasy","RuneScape","Silent Hill","The Last Of Us","Rocket Racing","Need For Speed","Undertale","Gran Turismo","Monopoly","Candy Crush","Jurassic World Evolution","Minecraft Story Mode","FC Mobile","Roblox","Valorant","Halo","League Of Legends","Counter Strike","Subnautica","Rhythm Heaven","Stray","Crash Bandicoot","Astro Bot","Little Big Planet","Cyberpunk","Club Penguin","Fallout","Tomodachi Life","Temple Run","Overcooked","Digimon","Just Dance","Star Fox","Pikmin","Kirby Air Riders","Street Fighter","Splatoon","Metroid","It Takes Two","Mega Man","Resident Evil","Poppy Playtime","Tetris","Tomb Raider","Untitled Goose Game","Star Wars","Madden","Xenoblade","Spider-Man","Sonic The Hedgehog","Pac-Man","Horizon Zero Dawn","GoldenEye","Jetpack Joyride","Baldur's Gate","Lords Of The Fallen","Super Smash Bros","Forza Horizon","Mortal Kombat","Hi-Fi Rush","Crossfire","Flight Simulator","Space Invaders","Donkey Kong Country","Luigi's Mansion","Life Is Strange","Rainbow Six Siege","The Witcher Wild Hunt","Doom","Elden Ring","Elder Scrolls","Genshin Impact","Hollow Knight","Celeste","Hades","Dark Souls","Bloodborne","Sekiro","Persona 5","Fire Emblem","Kirby","Mario Party","Metal Gear Solid","Death Stranding","Portal","Half-Life","Left 4 Dead","Team Fortress","Dead By Daylight","Phasmophobia","Lethal Company","Vampire Survivors","Balatro","Slay The Spire","Cuphead","Ori And The Blind Forest","Journey","Firewatch","Hearthstone"],
+"Video Games": ["Minecraft","Pokemon","Super Mario","Mario Kart","Rocket League","Fortnite","PUBG","Call Of Duty","GTA","Red Dead Redemption","Fall Guys","FIFA","NBA 2K","UFC","Stumble Guys","Apex Legends","Among Us","Granny","Legend Of Zelda","Animal Crossing","Pokemon Pokopia","Sackboy","God Of War","Honor Of Kings","World Of Warcraft","Palworld","Subway Surfers","Angry Birds","Fruit Ninja","Terraria","Clash Of Clans","Clash Royale","Brawl Stars","Stardew Valley","Sudoku","2048","Pokemon Go","Nintendo Switch Sports","Wii Sports","Minecraft Dungeons","Minecraft Legends","Escape The Backrooms","Final Fantasy","RuneScape","Silent Hill","The Last Of Us","Rocket Racing","Need For Speed","Undertale","Gran Turismo","Monopoly","Candy Crush","Jurassic World Evolution","Minecraft Story Mode","FC Mobile","Roblox","Valorant","Halo","League Of Legends","Counter Strike","Subnautica","Rhythm Heaven","Stray","Crash Bandicoot","Astro Bot","Little Big Planet","Cyberpunk","Club Penguin","Fallout","Tomodachi Life","Temple Run","Overcooked","Digimon","Just Dance","Star Fox","Pikmin","Kirby Air Riders","Street Fighter","Splatoon","Metroid","It Takes Two","Mega Man","Resident Evil","Poppy Playtime","Tetris","Tomb Raider","Untitled Goose Game","Star Wars","Madden","Xenoblade","Spider-Man","Sonic The Hedgehog","Pac-Man","Horizon Zero Dawn","GoldenEye","Jetpack Joyride","Baldur's Gate","Lords Of The Fallen","Super Smash Bros","Forza Horizon","Mortal Kombat","Hi-Fi Rush","Crossfire","Flight Simulator","Space Invaders","Donkey Kong Country","Luigi's Mansion","Life Is Strange","Rainbow Six Siege","The Witcher Wild Hunt","Doom","Elden Ring","Elder Scrolls","Genshin Impact","Hollow Knight","Celeste","Hades","Dark Souls","Bloodborne","Sekiro","Persona 5","Fire Emblem","Kirby","Mario Party","Metal Gear Solid","Death Stranding","Portal","Half-Life","Left 4 Dead","Team Fortress","Dead By Daylight","Phasmophobia","Lethal Company","Vampire Survivors","Balatro","Slay The Spire","Cuphead","Ori And The Blind Forest","Journey","Firewatch","Hearthstone","Assassin's Creed","Watch Dogs","Far Cry","Prince Of Persia","Tom Clancy's Ghost Recon","Splinter Cell","The Division","Battlefield","Titanfall","Apex","Overwatch","Overwatch 2","World Of Tanks","War Thunder","Warframe","Destiny","Destiny 2","Diablo","Diablo 4","World Of Warcraft Classic","Guild Wars","Star Wars The Old Republic","Final Fantasy XIV","Final Fantasy VII","Final Fantasy X","Kingdom Hearts","Chrono Trigger","Earthbound","Mother 3","Octopath Traveler","Bravely Default","Dragon Quest","Ni No Kuni","Tales Of Arise","Persona 4","Persona 3","Shin Megami Tensei","Yakuza","Like A Dragon","Judgment","Ghost Of Tsushima","Horizon Forbidden West","Days Gone","Uncharted","The Order 1886","Bloodborne 2","Returnal","Ratchet And Clank","Jak And Daxter","Sly Cooper","Crash Team Racing","Spyro","Banjo-Kazooie","Conker's Bad Fur Day","Perfect Dark","Killer Instinct","Gears Of War","Halo Infinite","Forza Motorsport","Sea Of Thieves","Ori And The Will Of The Wisps","Psychonauts","Broken Age","Grim Fandango","Monkey Island","Sam And Max","Day Of The Tentacle","Full Throttle","Myst","Riven","The Room","Limbo","Inside","Little Nightmares","Amnesia","Outlast","Five Nights At Freddy's Security Breach","Dead Space","Alien Isolation","Resident Evil Village","Resident Evil 4 Remake","Silent Hill 2 Remake","The Evil Within","Until Dawn","Man Of Medan","House Of Ashes","Detroit Become Human","Beyond Two Souls","Heavy Rain","Quantic Dream","Life Is Strange 2","The Walking Dead Game","Telltale Games","A Way Out","It Takes Two Sequel","Unravel","Little Big Planet 2","Rayman","Rayman Legends","Sonic Frontiers","Sonic Generations","Crash Bandicoot 4","Spyro Reignited","Mega Man X","Mega Man Zero","Castlevania","Bloodstained","Dead Cells","Hollow Knight Silksong","Axiom Verge","Guacamelee","Shovel Knight","Owlboy","Celeste Mountain","Super Meat Boy","Cuphead DLC","Hades 2","Risk Of Rain","Enter The Gungeon","Nuclear Throne","Spelunky","FTL","Into The Breach","XCOM","Civilization","Age Of Empires","Total War","Command And Conquer","StarCraft","Warcraft III","Company Of Heroes","Homeworld","Supreme Commander","Factorio","Satisfactory","Cities Skylines","SimCity","The Sims","RollerCoaster Tiger Tycoon","Planet Coaster","Zoo Tycoon","Two Point Hospital","Frostpunk","Rimworld","Oxygen Not Included","Don't Starve","Raft","Green Hell","The Forest","Sons Of The Forest","Ark Survival Evolved","Rust","DayZ","PUBG Mobile","Free Fire","Mobile Legends","Wild Rift","Teamfight Tactics","Dota 2","Heroes Of The Storm","Smite","Paladins","Rocket League Sideswipe","Trackmania","Gran Turismo 7","Wreckfest","Beam NG Drive","Cities Racing","Mario Golf","Mario Tennis","Wii Fit","Ring Fit Adventure","Just Dance 2024","Beat Saber","Job Simulator","Half-Life Alyx","Superhot","Rec Room","VRChat","Garry's Mod","Human Fall Flat","Goat Simulator","Untitled Goose Game 2","Surgeon Simulator","I Am Bread","Octodad","Getting Over It","Jump King","Only Up","Fall Guys Season","Gang Beasts","Tricky Towers","Overcooked 2","Moving Out","Cook Serve Delicious","PowerWash Simulator","House Flipper","Farming Simulator","Euro Truck Simulator","American Truck Simulator","Flight Simulator 2024","Kerbal Space Program","No Man's Sky","Elite Dangerous","Star Citizen","Everspace","Outer Wilds","Subnautica Below Zero","Abzu","Journey PS4","Flower Game","Gris","A Short Hike","Spiritfarer","Tunic","Kentucky Route Zero","Disco Elysium","Return Of The Obra Dinn","Papers Please","This War Of Mine","Valiant Hearts","Brothers A Tale Of Two Sons","Inside Out Game"],
 
-"Countries": ["USA","UK","UAE","Canada","Mexico","Austria","Australia","France","Spain","Germany","Italy","Turkiye","Switzerland","Ireland","China","Japan","South Africa","South Korea","Netherlands","New Zealand","Fiji","North Korea","Indonesia","India","Vietnam","Malaysia","Sri Lanka","Cyprus","Pakistan","Bangladesh","Saudi Arabia","Lebanon","Jamaica","Brazil","Argentina","Uruguay","Chile","Colombia","Russia","Uzbekistan","Azerbaijan","Syria","Croatia","Bosnia","Tanzania","Mongolia","Ukraine","Kazakhstan","Egypt","Algeria","Morocco","Vatican City","Uganda","Turkmenistan","Poland","Ecuador","Norway","Denmark","Finland","Thailand","Belarus","Greenland","Iceland","Albania","Philippines","Taiwan","Nepal","Afghanistan","Serbia","Sweden","Yemen","Dominica","Kosovo","Venezuela","Madagascar","Portugal","Cuba","Niger","Nigeria","Romania","Hungary","Bolivia","Estonia","Kenya","Ethiopia","Laos","Luxembourg","Paraguay","Panama","Sudan","Cape Verde","Ivory Coast","Latvia","Bhutan","Brunei","Mali","Guatemala","Jordan","Haiti","Kuwait","Iran","Iraq","Palestine","Israel","Ghana","North Macedonia","Honduras","South Sudan","Armenia","El Salvador","Libya","Liberia","Tajikistan","Andorra","San Marino","Bahamas","Antigua And Barbuda","Tonga","Liechtenstein","Malta","Solomon Islands","Seychelles","Belgium","Slovenia","Slovakia","Czech Republic","Montenegro","Moldova","Georgia","Bahrain","Qatar","Oman","Timor-Leste","Papua New Guinea","Samoa","Vanuatu","Kiribati","Palau","Marshall Islands","Micronesia","Comoros","Djibouti","Eritrea","Rwanda","Burundi","Zambia","Zimbabwe","Malawi","Mozambique","Namibia","Botswana","Lesotho","Eswatini","Gabon","Congo","DR Congo","Chad","Central African Republic","Cameroon","Equatorial Guinea","Togo","Benin","Sierra Leone","Guinea","Guinea-Bissau","Senegal","Mauritania"],
+"Countries": ["USA","UK","UAE","Canada","Mexico","Austria","Australia","France","Spain","Germany","Italy","Turkiye","Switzerland","Ireland","China","Japan","South Africa","South Korea","Netherlands","New Zealand","Fiji","North Korea","Indonesia","India","Vietnam","Malaysia","Sri Lanka","Cyprus","Pakistan","Bangladesh","Saudi Arabia","Lebanon","Jamaica","Brazil","Argentina","Uruguay","Chile","Colombia","Russia","Uzbekistan","Azerbaijan","Syria","Croatia","Bosnia","Tanzania","Mongolia","Ukraine","Kazakhstan","Egypt","Algeria","Morocco","Vatican City","Uganda","Turkmenistan","Poland","Ecuador","Norway","Denmark","Finland","Thailand","Belarus","Greenland","Iceland","Albania","Philippines","Taiwan","Nepal","Afghanistan","Serbia","Sweden","Yemen","Dominica","Kosovo","Venezuela","Madagascar","Portugal","Cuba","Niger","Nigeria","Romania","Hungary","Bolivia","Estonia","Kenya","Ethiopia","Laos","Luxembourg","Paraguay","Panama","Sudan","Cape Verde","Ivory Coast","Latvia","Bhutan","Brunei","Mali","Guatemala","Jordan","Haiti","Kuwait","Iran","Iraq","Palestine","Israel","Ghana","North Macedonia","Honduras","South Sudan","Armenia","El Salvador","Libya","Liberia","Tajikistan","Andorra","San Marino","Bahamas","Antigua And Barbuda","Tonga","Liechtenstein","Malta","Solomon Islands","Seychelles","Belgium","Slovenia","Slovakia","Czech Republic","Montenegro","Moldova","Georgia","Bahrain","Qatar","Oman","Timor-Leste","Papua New Guinea","Samoa","Vanuatu","Kiribati","Palau","Marshall Islands","Micronesia","Comoros","Djibouti","Eritrea","Rwanda","Burundi","Zambia","Zimbabwe","Malawi","Mozambique","Namibia","Botswana","Lesotho","Eswatini","Gabon","Congo","DR Congo","Chad","Central African Republic","Cameroon","Equatorial Guinea","Togo","Benin","Sierra Leone","Guinea","Guinea-Bissau","Senegal","Mauritania","Faroe Islands","Isle Of Man","Jersey","Guernsey","Gibraltar","Monaco","Aruba","Curacao","Puerto Rico","US Virgin Islands","British Virgin Islands","Cayman Islands","Bermuda","Turks And Caicos","Anguilla Territory","Montserrat","Guadeloupe","Martinique","French Polynesia","New Caledonia","American Samoa","Guam","Northern Mariana Islands","Cook Islands","Niue","Tokelau","Wallis And Futuna","Christmas Island","Norfolk Island","Falkland Islands","French Guiana","Suriname","Guyana","Belize","Costa Rica","Nicaragua","Trinidad And Tobago","Barbados","Grenada","Saint Lucia","Saint Vincent","Saint Kitts And Nevis","Cabo Verde","Sao Tome And Principe","Equatorial Guinea Country","Western Sahara","Somaliland","Transnistria","Nagorno-Karabakh","Northern Cyprus","Abkhazia","South Ossetia","Hong Kong","Macau","Tibet","Kurdistan Region","Catalonia","Basque Country","Scotland Nation","Wales Nation","England Nation","Northern Ireland","Greenland Territory","Svalbard","Aland Islands","Sikkim","Kashmir","Chechnya","Crimea","Puntland","Zanzibar","Bougainville","West Papua","East Timor","Sabah","Sarawak","Balochistan","Rojava","Silesia","Wallonia","Flanders","Bavaria","Prussia Historical","Ottoman Empire Region","Persia Historical","Mesopotamia","Gaul","Rhodesia Historical","Yugoslavia Historical","Czechoslovakia Historical","East Germany Historical","West Germany Historical","USSR Historical","British Empire","Roman Empire","Byzantine Empire","Holy Roman Empire","Austro-Hungarian Empire","Mongol Empire","Aztec Empire","Inca Empire","Maya Civilization","Ancient Egypt","Ancient Greece","Sumer","Babylon","Carthage","Phoenicia","Kingdom Of Kush","Ethiopia Empire","Zulu Kingdom","Mali Empire","Songhai Empire","Great Zimbabwe","Benin Empire","Ashanti Empire","Timbuktu Region","Siam Historical","Champa","Khmer Empire","Srivijaya","Majapahit","Joseon Korea","Edo Japan","Qing Dynasty","Ming Dynasty","Tang Dynasty","Han Dynasty","Silla","Goguryeo"],
 
-"Cartoon Characters": ["Pikachu","Charmander","Charizard","Bulbasaur","Squirtle","Eevee","Homer Simpson","Bart Simpson","Marge Simpson","Lisa Simpson","Peter Griffin","Stewie","Brian","Meg","Robin","SpongeBob","Patrick Star","Sandy","Mr Krabs","Squidward","Plankton","Peppa Pig","George Pig","Daddy Pig","Mummy Pig","Woody","Buzz Lightyear","Woody Woodpecker","Minion","Gru","Coraline","Teletubby","Miffy","Arthur","Rainbow Dash","Powerpuff Girls","Kuromi","Cinnamoroll","Judy Hopps","Mickey Mouse","Minnie Mouse","Pluto","Donald Duck","Luffy","Gojo","Megumi","Naruto","Bugs Bunny","Taz","Tom","Jerry","Garfield","Scooby Doo","Mike Wazowski","Sulley","Winnie The Pooh","Tigger","Jake The Dog","Chihiro","Totoro","Bluey","Bingo","Fred Flintstone","Luke Loud","Popeye","Goofy","Felix The Cat","Pink Panther","Hello Kitty","Goku","Gohan","Hank Hill","Rick Sanchez","Finn The Human","Moana","Maui","Kakamora","Joy","Anxiety","Sadness","Anger","Disgust","Envy","Miles Morales","Stitch","Lilo","Elsa","Anna","Barbie","Ken","Simba","Mufasa","Nala","Wolverine","Genie","Aladdin","Abu The Monkey","Belle","Rapunzel","Cinderella","Fiona","Superman","Lightning McQueen","WALL-E","Ariel","Sebastian","Batman","Kronk","Hades","Scar","Ursula","Dory","Nemo","Marlin","Remy The Rat","Dug","Perry The Platypus","Phineas","Ferb","Miguel Rivera","Shaggy","Velma","Daphne","Fred","He-Man","She-Ra","Voltron","Danny Phantom","Kim Possible","Jimmy Neutron","Timmy Turner","Cosmo","Wanda","Ed Edd n Eddy","Courage The Cowardly Dog","Dexter","Dee Dee","Johnny Bravo","Samurai Jack","Ben 10","Chowder","Mordecai","Rigby","Steven Universe","Garnet","Amethyst","Pearl","Marceline","Princess Bubblegum","Ice King"],
+"Cartoon Characters": ["Pikachu","Charmander","Charizard","Bulbasaur","Squirtle","Eevee","Homer Simpson","Bart Simpson","Marge Simpson","Lisa Simpson","Peter Griffin","Stewie","Brian","Meg","Robin","SpongeBob","Patrick Star","Sandy","Mr Krabs","Squidward","Plankton","Peppa Pig","George Pig","Daddy Pig","Mummy Pig","Woody","Buzz Lightyear","Woody Woodpecker","Minion","Gru","Coraline","Teletubby","Miffy","Arthur","Rainbow Dash","Powerpuff Girls","Kuromi","Cinnamoroll","Judy Hopps","Mickey Mouse","Minnie Mouse","Pluto","Donald Duck","Luffy","Gojo","Megumi","Naruto","Bugs Bunny","Taz","Tom","Jerry","Garfield","Scooby Doo","Mike Wazowski","Sulley","Winnie The Pooh","Tigger","Jake The Dog","Chihiro","Totoro","Bluey","Bingo","Fred Flintstone","Luke Loud","Popeye","Goofy","Felix The Cat","Pink Panther","Hello Kitty","Goku","Gohan","Hank Hill","Rick Sanchez","Finn The Human","Moana","Maui","Kakamora","Joy","Anxiety","Sadness","Anger","Disgust","Envy","Miles Morales","Stitch","Lilo","Elsa","Anna","Barbie","Ken","Simba","Mufasa","Nala","Wolverine","Genie","Aladdin","Abu The Monkey","Belle","Rapunzel","Cinderella","Fiona","Superman","Lightning McQueen","WALL-E","Ariel","Sebastian","Batman","Kronk","Hades","Scar","Ursula","Dory","Nemo","Marlin","Remy The Rat","Dug","Perry The Platypus","Phineas","Ferb","Miguel Rivera","Shaggy","Velma","Daphne","Fred","He-Man","She-Ra","Voltron","Danny Phantom","Kim Possible","Jimmy Neutron","Timmy Turner","Cosmo","Wanda","Ed Edd n Eddy","Courage The Cowardly Dog","Dexter","Dee Dee","Johnny Bravo","Samurai Jack","Ben 10","Chowder","Mordecai","Rigby","Steven Universe","Garnet","Amethyst","Pearl","Marceline","Princess Bubblegum","Ice King","Aang","Katara","Sokka","Toph","Zuko","Azula","Iroh","Appa","Momo","Korra","Bolin","Mako Korra","Asami","Ed Elric","Alphonse Elric","Roy Mustang","Light Yagami","L Death Note","Ryuk","Tanjiro","Nezuko","Zenitsu","Inosuke","Eren Yeager","Mikasa","Levi Ackerman","Armin","Izuku Midoriya","Bakugo","All Might","Todoroki","Gojo Satoru","Yuji Itadori","Nobara","Megumi Fushiguro","Sung Jin-Woo","Saitama","Genos","Tanjirou","Kirito","Asuna","Rem Anime","Emilia","Zero Two","Violet Evergarden","Tohru Dragon Maid","Anya Forger","Loid Forger","Yor Forger","Denji","Power Chainsaw","Aki Hayakawa","Vegeta","Piccolo","Frieza","Cell","Majin Buu","Trunks","Gohan Kid","Krillin","Bulma","Master Roshi","Ash Ketchum","Misty","Brock","Team Rocket","Meowth","Jigglypuff","Mewtwo","Snorlax","Gengar","Lucario","Greninja","Sonic Character","Tails","Knuckles","Amy Rose","Shadow The Hedgehog","Dr Robotnik","Cream The Rabbit","Silver The Hedgehog","Mario","Luigi","Princess Peach","Bowser","Yoshi","Toad Character","Donkey Kong","Diddy Kong","Wario","Waluigi","Rosalina","Link","Zelda","Ganondorf","Samus Aran","Kirby Character","Meta Knight","King Dedede","Fox McCloud","Falco","Captain Falcon","Ness","Pit Kid Icarus","Olimar","Bayonetta","Cloud Strife","Sephiroth","Tifa Lockhart","Aerith","Geralt Witcher","Master Chief","Cortana","Lara Croft","Nathan Drake","Kratos","Ellie Last Of Us","Joel","Aloy","Arthur Morgan","Solid Snake","Dante DMC","Bayonetta 2","Chun-Li","Ryu Street Fighter","Ken Masters","Scorpion Mortal Kombat","Sub-Zero","Raiden","Bugs Bunny Classic","Daffy Duck","Porky Pig","Tweety","Sylvester","Elmer Fudd","Wile E Coyote","Road Runner","Yosemite Sam","Foghorn Leghorn","Marvin The Martian","Speedy Gonzales","Pepe Le Pew","Betty Boop","Popeye Classic","Olive Oyl","Bluto","Casper The Ghost","Woody Woodpecker Classic","Chip And Dale","Donald Duck Classic","Daisy Duck","Scrooge McDuck","Huey Dewey Louie","Darkwing Duck","DuckTales","Kim Possible Character","Ron Stoppable","Rufus Kim Possible","Danny Phantom Character","Jimmy Neutron Character","Cindy Vortex","SpongeBob Character","Gary The Snail","Larry Lobster","Pearl Krabs","Sheldon Plankton","Doug Funnie","Rugrats Tommy","Chuckie Rugrats","Angelica Rugrats","Arnold Hey Arnold","Helga","CatDog","Rocko","Ren And Stimpy","Aang Character","Wander Over Yonder","Regular Show Characters","Uncle Grandpa","Teen Titans Go","Robin Teen Titans","Starfire","Raven Teen Titans","Beast Boy","Cyborg Teen Titans"],
 
-"TV Shows & Movies": ["Tom And Jerry","Adventure Time","Friends","Seinfeld","The Simpsons","Family Guy","South Park","Stranger Things","Young Sheldon","Big Bang Theory","Star Wars","Hulk","Spider-Man","Iron Man","The Wild Robot","Wicked","Cinderella","The Little Mermaid","Aladdin","Monsters Inc","A Minecraft Movie","My Little Pony","Powerpuff Girls","Karate Kid","Yes Day","Cobra Kai","The Middle","Sonic The Hedgehog","Five Nights At Freddy's","Frozen","Winnie The Pooh","Bambi","Harry Potter","Lord Of The Rings","Spirited Away","My Neighbour Totoro","The Amazing Digital Circus","Breaking Bad","Succession","The Wire","The Bear","Better Call Saul","Severance","The Sopranos","Slow Horses","The White Lotus","True Detective","The Last Of Us","Fargo","Squid Game","Narcos","Oppenheimer","Dune Part Two","The Dark Knight","Inception","Interstellar","Avatar The Way Of Water","Gladiator","Top Gun Maverick","Mad Max Fury Road","Everything Everywhere All At Once","Inglourious Basterds","Whiplash","Parasite","La La Land","The Boys","House Of The Dragon","The Mandalorian","Black Mirror","Fallout","Andor","Invincible","The Umbrella Academy","Peaky Blinders","The Witcher","Game Of Thrones","Yellowstone","Reacher","Gangs Of London","Loki","The Office","Ted Lasso","Abbott Elementary","Parks And Recreation","Brooklyn Nine-Nine","Modern Family","Schitt's Creek","What We Do In The Shadows","The Good Place","Fleabag","Community","Barry","Only Murders In The Building","Arrested Development","Spider-Man Into The Spider-Verse","Shrek","Toy Story","Spider-Man Across The Spider-Verse","Finding Nemo","Inside Out","How To Train Your Dragon","WALL-E","The Lion King","Zootopia","Puss In Boots","Rick And Morty","Avatar The Last Airbender","Bojack Horseman","Arcane","Futurama","Bob's Burgers","X-Men 97","Gravity Falls","Phineas And Ferb","Primal","Attack On Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Dragon Ball Z","My Hero Academia","Death Note","Fullmetal Alchemist","Naruto Shippuden","Chainsaw Man","The Backrooms","Obsession","The Batman","Joker","Wonder Woman","Aquaman","Black Panther","Guardians Of The Galaxy","Deadpool","Logan","Venom","Doctor Strange","Ant-Man","Thor","Captain America","Avengers Endgame","Jurassic Park","Jaws","E.T.","Back To The Future","Ghostbusters","Men In Black","The Matrix","John Wick","Kill Bill","Pulp Fiction","Fight Club","The Shawshank Redemption","Forrest Gump","Titanic","The Notebook","A Star Is Born"],
+"TV Shows & Movies": ["Tom And Jerry","Adventure Time","Friends","Seinfeld","The Simpsons","Family Guy","South Park","Stranger Things","Young Sheldon","Big Bang Theory","Star Wars","Hulk","Spider-Man","Iron Man","The Wild Robot","Wicked","Cinderella","The Little Mermaid","Aladdin","Monsters Inc","A Minecraft Movie","My Little Pony","Powerpuff Girls","Karate Kid","Yes Day","Cobra Kai","The Middle","Sonic The Hedgehog","Five Nights At Freddy's","Frozen","Winnie The Pooh","Bambi","Harry Potter","Lord Of The Rings","Spirited Away","My Neighbour Totoro","The Amazing Digital Circus","Breaking Bad","Succession","The Wire","The Bear","Better Call Saul","Severance","The Sopranos","Slow Horses","The White Lotus","True Detective","The Last Of Us","Fargo","Squid Game","Narcos","Oppenheimer","Dune Part Two","The Dark Knight","Inception","Interstellar","Avatar The Way Of Water","Gladiator","Top Gun Maverick","Mad Max Fury Road","Everything Everywhere All At Once","Inglourious Basterds","Whiplash","Parasite","La La Land","The Boys","House Of The Dragon","The Mandalorian","Black Mirror","Fallout","Andor","Invincible","The Umbrella Academy","Peaky Blinders","The Witcher","Game Of Thrones","Yellowstone","Reacher","Gangs Of London","Loki","The Office","Ted Lasso","Abbott Elementary","Parks And Recreation","Brooklyn Nine-Nine","Modern Family","Schitt's Creek","What We Do In The Shadows","The Good Place","Fleabag","Community","Barry","Only Murders In The Building","Arrested Development","Spider-Man Into The Spider-Verse","Shrek","Toy Story","Spider-Man Across The Spider-Verse","Finding Nemo","Inside Out","How To Train Your Dragon","WALL-E","The Lion King","Zootopia","Puss In Boots","Rick And Morty","Avatar The Last Airbender","Bojack Horseman","Arcane","Futurama","Bob's Burgers","X-Men 97","Gravity Falls","Phineas And Ferb","Primal","Attack On Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Dragon Ball Z","My Hero Academia","Death Note","Fullmetal Alchemist","Naruto Shippuden","Chainsaw Man","The Backrooms","Obsession","The Batman","Joker","Wonder Woman","Aquaman","Black Panther","Guardians Of The Galaxy","Deadpool","Logan","Venom","Doctor Strange","Ant-Man","Thor","Captain America","Avengers Endgame","Jurassic Park","Jaws","E.T.","Back To The Future","Ghostbusters","Men In Black","The Matrix","John Wick","Kill Bill","Pulp Fiction","Fight Club","The Shawshank Redemption","Forrest Gump","Titanic","The Notebook","A Star Is Born","The Godfather","Goodfellas","Casino Movie","Scarface","The Departed","Se7en","The Silence Of The Lambs","Zodiac","Prisoners","Gone Girl","Shutter Island","Memento","The Prestige","The Truman Show","Eternal Sunshine","Being John Malkovich","Donnie Darko","American Beauty","No Country For Old Men","There Will Be Blood","The Big Lebowski","Fargo Movie","Django Unchained","Once Upon A Time In Hollywood","Reservoir Dogs","The Hateful Eight","Jackie Brown","Deadpool 2","Guardians Of The Galaxy 3","Spider-Man No Way Home","Avengers Infinity War","Thor Ragnarok","Black Widow Movie","Shang-Chi","Eternals","Doctor Strange Multiverse","Ant-Man Quantumania","The Marvels","Captain Marvel","X-Men Days Of Future Past","Logan Movie","Deadpool Wolverine","The Suicide Squad","Aquaman Lost Kingdom","Shazam","Man Of Steel","Batman Begins","The Dark Knight Rises","Justice League","Wonder Woman 1984","Birds Of Prey","Joker Folie A Deux","Transformers","Star Trek","Star Trek Into Darkness","Star Wars A New Hope","Empire Strikes Back","Return Of The Jedi","The Phantom Menace","Attack Of The Clones","Revenge Of The Sith","The Force Awakens","The Last Jedi","Rise Of Skywalker","Rogue One","Solo A Star Wars Story","Ahsoka","The Book Of Boba Fett","Obi-Wan Kenobi","Rings Of Power","House Of Cards","Breaking Bad El Camino","Ozark","Peaky Blinders Movie","Money Heist","Elite Netflix","Dark Netflix","The Crown","Bridgerton","Wednesday Netflix","You Netflix","Outer Banks","Cobra Kai Show","Stranger Things Season","Sex Education","Never Have I Ever","Emily In Paris","The Umbrella Academy Show","Locke And Key","Shadow And Bone","Cursed Netflix","Vikings","The Last Kingdom","Rome HBO","Chernobyl HBO","Band Of Brothers","The Pacific","Watchmen HBO","Euphoria","Insecure","Silicon Valley","Curb Your Enthusiasm","Veep","The Wire Baltimore","Six Feet Under","Dexter","Homeland","24 Show","Prison Break","Lost Show","Fringe","The X-Files","Twin Peaks","Mr Robot","Westworld","Person Of Interest","Black Mirror Bandersnatch","Love Death Robots","Rick And Morty Movie","Gravity Falls Movie","Steven Universe Movie","The Owl House","Amphibia","Infinity Train","Hilda","Kipo","Central Park Show","Big Mouth","Human Resources","Housebroken","Solar Opposites","Final Space","Klaus Movie","The Bad Guys","Puss In Boots Last Wish","Turning Red","Luca Pixar","Soul Pixar","Onward","Coco Movie","Brave Pixar","Up Movie","Cars Movie","A Bug's Life","Wreck-It Ralph","Big Hero 6","Moana Movie","Encanto","Frozen 2","Tangled","Pocahontas","Mulan","Hercules Disney","Tarzan","Emperor's New Groove","Lilo And Stitch","Treasure Planet","Atlantis Disney","Meet The Robinsons","Bolt Movie","Chicken Little","Home On The Range","Dinosaur Disney","Fantasia","Pinocchio","Dumbo","Bambi Movie","Sleeping Beauty","101 Dalmatians","The Aristocats","The Jungle Book","The Fox And The Hound","Oliver And Company","The Rescuers","The Great Mouse Detective","The Black Cauldron"],
 
-"Occupations": ["Doctor","Nurse","Restaurant Owner","Chef","Waiter","Waitress","Actor","Actress","Singer","Musician","Artist","Songwriter","Composer","Teacher","Consultant","Office Worker","Zookeeper","Barber","Farmer","Stay-At-Home Parent","Pet Owner","Police Officer","Firefighter","Ice Cream Truck Owner","Taxi Driver","Uber Driver","YouTuber","Influencer","TikToker","Instagrammer","Athlete","Footballer","Basketball Player","Golfer","Swimmer","Olympian","Volleyball Player","Hockey Player","Lacrosse Player","Tennis Player","Badminton Player","Skier","Skydiver","Bungee Jumper","Shop Owner","Receptionist","Cashier","Painter","Sanctuary Owner","Flight Attendant","Pilot","Religious Leader","Lifeguard","Ninja","Twitch Streamer","Chess Player","Reality TV Contestant","Referee","Umpire","Football Coach","Basketball Coach","Golf Coach","Lacrosse Coach","Hockey Coach","Mascot","Circus Clown","Real Estate Agent","Soldier","Instructor","Swim Instructor","Rugby Player","Rugby Coach","Lawyer","Judge","Serial Killer","Brand Maker","Tire Shop Owner","Mechanic","Coder","Game Developer","Guitarist","Pianist","Orchestra Player","Violinist","Dentist","Surgeon","Movie Director","Game Show Winner","Dancer","Jockey","Makeup Artist","School Principal","Law Professor","Math Teacher","English Teacher","Scientist","Researcher","Science Teacher","Geologist","Zoologist","Biologist","Philosopher","Geography Teacher","Art Teacher","Clothes Designer","Carpenter","Architect","Carpet Shop Owner","Laundromat Owner","Casino Owner","Pet Groomer","Tutor","Diver","Electrician","Plumber","Welder","Blacksmith","Tailor","Cobbler","Librarian","Translator","Event Planner","Wedding Planner","Florist","Gardener","Landscaper","Beekeeper","Fisherman","Sailor","Ship Captain","Astronaut","Meteorologist","Paramedic","Veterinarian","Physiotherapist","Chiropractor","Psychiatrist","Psychologist","Journalist","News Anchor","Radio Host","Podcaster","Animator","Illustrator","Sculptor","Potter"],
+"Occupations": ["Doctor","Nurse","Restaurant Owner","Chef","Waiter","Waitress","Actor","Actress","Singer","Musician","Artist","Songwriter","Composer","Teacher","Consultant","Office Worker","Zookeeper","Barber","Farmer","Stay-At-Home Parent","Pet Owner","Police Officer","Firefighter","Ice Cream Truck Owner","Taxi Driver","Uber Driver","YouTuber","Influencer","TikToker","Instagrammer","Athlete","Footballer","Basketball Player","Golfer","Swimmer","Olympian","Volleyball Player","Hockey Player","Lacrosse Player","Tennis Player","Badminton Player","Skier","Skydiver","Bungee Jumper","Shop Owner","Receptionist","Cashier","Painter","Sanctuary Owner","Flight Attendant","Pilot","Religious Leader","Lifeguard","Ninja","Twitch Streamer","Chess Player","Reality TV Contestant","Referee","Umpire","Football Coach","Basketball Coach","Golf Coach","Lacrosse Coach","Hockey Coach","Mascot","Circus Clown","Real Estate Agent","Soldier","Instructor","Swim Instructor","Rugby Player","Rugby Coach","Lawyer","Judge","Serial Killer","Brand Maker","Tire Shop Owner","Mechanic","Coder","Game Developer","Guitarist","Pianist","Orchestra Player","Violinist","Dentist","Surgeon","Movie Director","Game Show Winner","Dancer","Jockey","Makeup Artist","School Principal","Law Professor","Math Teacher","English Teacher","Scientist","Researcher","Science Teacher","Geologist","Zoologist","Biologist","Philosopher","Geography Teacher","Art Teacher","Clothes Designer","Carpenter","Architect","Carpet Shop Owner","Laundromat Owner","Casino Owner","Pet Groomer","Tutor","Diver","Electrician","Plumber","Welder","Blacksmith","Tailor","Cobbler","Librarian","Translator","Event Planner","Wedding Planner","Florist","Gardener","Landscaper","Beekeeper","Fisherman","Sailor","Ship Captain","Astronaut","Meteorologist","Paramedic","Veterinarian","Physiotherapist","Chiropractor","Psychiatrist","Psychologist","Journalist","News Anchor","Radio Host","Podcaster","Animator","Illustrator","Sculptor","Potter","Butcher","Baker","Fishmonger","Grocer","Miller","Cooper Trade","Blacksmith Trade","Locksmith","Glazier","Roofer","Bricklayer","Mason","Plasterer","Painter Decorator","Upholsterer","Cabinet Maker","Joiner","Sawmill Worker","Lumberjack","Miner","Quarry Worker","Oil Rig Worker","Drilling Engineer","Surveyor","Cartographer","Urban Planner","Civil Engineer","Mechanical Engineer","Electrical Engineer","Software Engineer","Data Scientist","Cybersecurity Analyst","IT Support","Network Administrator","Web Developer","UX Designer","Graphic Designer","Product Manager","Project Manager","Business Analyst","Financial Advisor","Accountant","Auditor","Bank Teller","Investment Banker","Stockbroker","Insurance Agent","Actuary","Economist","Statistician","Market Researcher","Advertising Executive","Public Relations Officer","Copywriter","Editor","Proofreader","Publisher","Printer Trade","Bookbinder","Archivist","Curator","Museum Guide","Tour Guide","Travel Agent","Hotel Manager","Concierge","Housekeeper","Butler","Valet","Chauffeur","Bus Driver","Train Driver","Tram Driver","Truck Driver","Delivery Driver","Postal Worker","Courier","Warehouse Worker","Forklift Operator","Crane Operator","Bulldozer Operator","Construction Worker","Demolition Expert","Scaffolder","Health Inspector","Food Safety Officer","Quality Control Inspector","Factory Worker","Assembly Line Worker","Textile Worker","Fashion Designer","Costume Designer","Set Designer","Stagehand","Lighting Technician","Sound Engineer","Camera Operator","Film Editor","Screenwriter","Producer Film","Casting Director","Talent Agent","Stunt Performer","Voice Actor","Puppeteer","Radio DJ","Weather Presenter","Sports Commentator","Court Reporter","Paralegal","Notary","Bailiff","Probation Officer","Detective","Forensic Scientist","Coroner","Crime Scene Investigator","Bodyguard","Security Guard","Prison Guard","Customs Officer","Immigration Officer","Diplomat","Politician","Mayor","Senator","Civil Servant","Social Worker","Counselor","Career Coach","Human Resources Manager","Recruiter","Trainer Fitness","Personal Trainer","Nutritionist","Dietitian","Massage Therapist","Acupuncturist","Optometrist","Pharmacist","Radiologist","Anesthesiologist","Midwife","Podiatrist","Occupational Therapist","Speech Therapist","Audiologist","Orthodontist","Emergency Dispatcher","Air Traffic Controller","Ship Engineer","Marine Biologist","Wildlife Ranger","Park Ranger","Forester","Agricultural Scientist","Winemaker","Brewer","Distiller","Barista","Sommelier","Food Critic","Restaurant Critic","Caterer","Personal Chef","Pastry Chef","Line Cook","Sous Chef","Kitchen Porter","Ice Sculptor","Balloon Artist","Face Painter","Party Entertainer","Wedding Photographer","Portrait Photographer","Photojournalist","Videographer","Drone Operator","App Developer","Ethical Hacker","AI Researcher","Robotics Engineer","Aerospace Engineer","Nuclear Engineer","Marine Engineer","Petroleum Engineer","Environmental Scientist","Climate Scientist","Volcanologist","Seismologist","Astronomer","Astrophysicist"],
 
-"Everyday Objects": ["Keys","Car Keys","Blanket","Car","Phone","iPad","Mirror","Clothing","Sock","Shoe","Pillow","Cushion","Book","Catalogue","Magazine","Deodorant","Hair Gel","Moisturiser","Hand Cream","Backpack","School Bag","Notepad","Pencil","Crayon","Marker","Pokemon Card","Form","Homework","Wire","Cable","Charger","LED Lights","Switch","Nintendo Switch","PlayStation","Atari","Xbox","PC","MacBook","Laptop","Computer","Video Game","Radio","Cassette Player","Ball","Glasses","Beanie","Mask","Goggles","Towel","Shelf","Screw","Tape","Duct Tape","Bandage","First Aid Kit","Box","Zipper","Poster","Suitcase","Gaming Chair","Chair","Table","Vase","Window","Rubbish Bin","Food Packet","Money Box","Credit Card","Piggy Bank","Hiking Rope","Rope","Spatula","Fork","Spoon","Knife","Blade","Gift Card","Gift","Balloon","Plastic Bag","Shopping Bag","Perfume","Award","Fishing Rod","Fishing Bait","Bridge","Lumber","Log","Grass","Hair Strand","Necklace","Ice Cream Cone","Paint","Thermometer","Engine","Petrol Bottle","Lamp","Joystick","Fidget Spinner","Pencil Case","Ruler","Water Bottle","Guidebook","Paper","Tissue","Tissue Box","Pocketknife","Band-Aid","Medicine","Pills","Tablet","Photo","Photo Booth","Lego Bricks","Game Disc","Guitar","Violin","Piano","Keyboard","Chopping Board","String","Sewing Machine","Squishy Toy","Shoebox","Turtle Shell","Hat","Remote","Drone","Barbecue","Pet Bed","Cage","Pet Toy","Kibble Bag","Terrarium Tank","Fish Bowl","Plate","Soap","Tap","Pickaxe","Machete","Sword","Shovel","Rake","Axe","Chainsaw","Leaf Blower","Coin","Money","Banknote","TV","Toilet Paper","Umbrella","Raincoat","Gumboots","Thermos","Lunchbox","Apron","Oven Mitt","Whisk","Rolling Pin","Colander","Grater","Can Opener","Bottle Opener","Corkscrew","Ice Tray","Blender","Toaster","Kettle","Coaster","Placemat","Napkin","Candle","Candlestick","Matchbox","Lighter","Flashlight","Batteries","Extension Cord","Power Strip","Doorbell","Welcome Mat","Letterbox","Clothesline","Clothespin","Ironing Board","Iron"],
+"Everyday Objects": ["Keys","Car Keys","Blanket","Car","Phone","iPad","Mirror","Clothing","Sock","Shoe","Pillow","Cushion","Book","Catalogue","Magazine","Deodorant","Hair Gel","Moisturiser","Hand Cream","Backpack","School Bag","Notepad","Pencil","Crayon","Marker","Pokemon Card","Form","Homework","Wire","Cable","Charger","LED Lights","Switch","Nintendo Switch","PlayStation","Atari","Xbox","PC","MacBook","Laptop","Computer","Video Game","Radio","Cassette Player","Ball","Glasses","Beanie","Mask","Goggles","Towel","Shelf","Screw","Tape","Duct Tape","Bandage","First Aid Kit","Box","Zipper","Poster","Suitcase","Gaming Chair","Chair","Table","Vase","Window","Rubbish Bin","Food Packet","Money Box","Credit Card","Piggy Bank","Hiking Rope","Rope","Spatula","Fork","Spoon","Knife","Blade","Gift Card","Gift","Balloon","Plastic Bag","Shopping Bag","Perfume","Award","Fishing Rod","Fishing Bait","Bridge","Lumber","Log","Grass","Hair Strand","Necklace","Ice Cream Cone","Paint","Thermometer","Engine","Petrol Bottle","Lamp","Joystick","Fidget Spinner","Pencil Case","Ruler","Water Bottle","Guidebook","Paper","Tissue","Tissue Box","Pocketknife","Band-Aid","Medicine","Pills","Tablet","Photo","Photo Booth","Lego Bricks","Game Disc","Guitar","Violin","Piano","Keyboard","Chopping Board","String","Sewing Machine","Squishy Toy","Shoebox","Turtle Shell","Hat","Remote","Drone","Barbecue","Pet Bed","Cage","Pet Toy","Kibble Bag","Terrarium Tank","Fish Bowl","Plate","Soap","Tap","Pickaxe","Machete","Sword","Shovel","Rake","Axe","Chainsaw","Leaf Blower","Coin","Money","Banknote","TV","Toilet Paper","Umbrella","Raincoat","Gumboots","Thermos","Lunchbox","Apron","Oven Mitt","Whisk","Rolling Pin","Colander","Grater","Can Opener","Bottle Opener","Corkscrew","Ice Tray","Blender","Toaster","Kettle","Coaster","Placemat","Napkin","Candle","Candlestick","Matchbox","Lighter","Flashlight","Batteries","Extension Cord","Power Strip","Doorbell","Welcome Mat","Letterbox","Clothesline","Clothespin","Ironing Board","Iron","Stapler","Hole Punch","Paper Clip","Rubber Band","Sticky Notes","Highlighter","Whiteboard","Chalkboard","Chalk","Eraser","Pencil Sharpener","Glue Stick","Scissors","Envelope","Stamp","Rubber Stamp","Ink Pad","Filing Cabinet","Binder","Folder","Clipboard","Calculator","Abacus","Compass Geometry","Protractor","Set Square","Graph Paper","Sticky Tape","Masking Tape","Bubble Wrap","Cardboard Box","Packing Peanuts","Shipping Label","Barcode Scanner","Cash Register Machine","Receipt","Invoice","Wallet","Purse","Handbag","Tote Bag","Duffel Bag","Fanny Pack","Umbrella Stand","Coat Hanger","Wardrobe","Chest Of Drawers","Bookshelf","Bookend","Desk Lamp","Floor Lamp","Ceiling Fan","Air Conditioner","Heater Portable","Humidifier","Air Purifier","Vacuum Cleaner","Broom","Dustpan","Mop","Bucket","Sponge","Dish Soap","Laundry Detergent","Fabric Softener","Washing Machine","Dryer Machine","Clothes Rack","Sewing Kit","Thimble","Safety Pin","Buttons","Zip Tie","Velcro","Hook And Loop","Curtain Rod","Blinds","Rug","Carpet","Doormat","Wallpaper","Paint Roller","Paintbrush","Ladder","Toolbox","Hammer","Screwdriver","Wrench","Pliers","Drill","Nail Tool","Level Tool","Tape Measure","Sandpaper","Glue Gun","Superglue","WD-40","Padlock","Combination Lock","Key Ring","Doorknob","Hinge","Peephole","Security Camera","Smoke Detector","Fire Extinguisher","First Aid Box","Ear Plugs","Eye Mask Sleep","Alarm Clock","Wall Clock","Wristwatch","Smartwatch","Calendar","Diary","Journal","Sticky Notepad","Highlighting Marker","Whiteboard Marker","Laptop Stand","Mouse Pad","Webcam","Microphone","Headphones","Earbuds","Speaker Bluetooth","Power Bank","USB Drive","SD Card","Hard Drive","Router","Modem","Ethernet Cable","HDMI Cable","Extension Lead","Surge Protector","Multi Plug","Adapter Plug","Travel Adapter","Passport","Boarding Pass","Luggage Tag","Neck Pillow","Eye Drops","Sunscreen","Bug Spray","Hand Sanitizer","Wet Wipes","Cotton Buds","Nail Clippers","Tweezers","Hair Brush","Comb","Hair Dryer","Straightener","Curling Iron","Razor","Shaving Cream","Aftershave","Cologne","Face Wash","Toner","Serum","Sunblock Stick","Lip Balm","Cotton Pads","Makeup Brush","Foundation Makeup","Concealer","Mascara","Blush","Bronzer","Highlighter Makeup","Setting Spray","Nail Polish","Nail File","False Eyelashes","Hair Tie","Hairpin","Headband","Scrunchie","Wig","Contact Lenses","Contact Case","Reading Glasses","Sunglasses Case","Watch Strap","Cufflinks","Tie Clip","Bow Tie","Suspenders","Belt Buckle","Wallet Chain","Keychain","Lanyard","ID Badge","Whistle","Compass Tool","Binoculars","Telescope Tool","Magnifying Glass","Torch","Headlamp","Camping Stove","Sleeping Bag","Camping Mat","Tent Pegs","Hiking Boots","Walking Stick","Water Filter","Fire Starter","Multi-Tool","Swiss Army Knife","Carabiner","Bungee Cord","Tarp","Cooler Box","Picnic Blanket","Frisbee","Beach Ball","Beach Towel","Snorkel","Flippers","Wetsuit","Life Jacket","Paddleboard","Surfboard","Skateboard","Rollerblades","Bicycle Helmet","Bike Lock","Bike Pump","Training Wheels","Scooter","Skipping Rope","Hula Hoop","Jump Rope","Yoga Mat","Dumbbell","Resistance Band","Foam Roller","Gym Bag","Water Bottle Gym","Protein Shaker"],
 
-"Songs": ["Despacito","Shape Of You","Bad Habits","Espresso","Azizam","Sapphire","Roar","APT","Gabriela","A Thousand Years","A Thousand Miles","Watermelon Sugar","As It Was","What Makes You Beautiful","Eyes Closed","Drivers License","Bird Of A Feather","Lovely","Waka Waka","Hips Don't Lie","La La La","Baby","Stay","Daisies","Beauty And A Beat","Lonely","Happy Birthday","Calm Down","Rush E","Turkish March","River Flows In You","Baby Shark","See You Again","7 Years","Golden","Tuesday","Girls Just Wanna Have Fun","Billie Jean","Smooth Criminal","Human Nature","Bad","You Rock My World","ABC","Thriller","Ghostbusters","Blue","Life Goes On","Daylight","Miss You","Sorry","Champions","World Cup","Blinding Lights","Starboy","Oops I Did It Again","Colors","Dreamers","Dynamite","Happier","Wishlist","Shake It Off","Soda Pop","Happy","Babydoll","Runaway","Bye Bye Bye","We Can't Be Friends","Uptown Funk","Levitating","Peaches","Sunflower","Circles","Old Town Road","Havana","Senorita","Shallow","Someone Like You","Rolling In The Deep","Hello","Perfect","Photograph","Thinking Out Loud","Castle On The Hill","Bohemian Rhapsody","We Will Rock You","Don't Stop Believin'","Sweet Caroline","Mr Brightside","Take On Me","Never Gonna Give You Up","All Star","I Gotta Feeling","Party In The USA","Firework","California Gurls","Teenage Dream","Poker Face","Just Dance","Toxic","Umbrella","Single Ladies","Formation","Halo","Countdown","Work","Wrecking Ball","Party Rock Anthem","Gangnam Style","Dynamite BTS","Butter BTS","DNA BTS","How You Like That","Kill This Love","DDU-DU DDU-DU","Fancy","Cupid","Attention","Sorry Not Sorry","Side To Side","Thank U Next","7 Rings","Bad Guy","Ocean Eyes","Happier Than Ever","Break My Soul","Cuff It","Anti-Hero","Cruel Summer","Cardigan","Willow","Lover","Love Story","You Belong With Me","22","Style","Wildest Dreams","Blank Space","ME!","Delicate","Lose Yourself","In The End","Numb","One More Time","Around The World","Get Lucky","Instant Crush","Somebody That I Used To Know","Radioactive","Counting Stars","Sugar","Marry You","Uptown Girl","Piano Man","Africa","Don't Stop The Music","Yellow","Fix You","Viva La Vida","Clocks","The Scientist","Chasing Cars","Wonderwall","Creep","Hey Jude","Let It Be","Yesterday","Imagine","Stairway To Heaven","Hotel California","Sweet Child O' Mine","November Rain","Nothing Else Matters","Enter Sandman","Livin' On A Prayer","Take Me Home Country Roads","I Will Survive","Dancing Queen","Mamma Mia","Waterloo"],
+"Songs": ["Despacito","Shape Of You","Bad Habits","Espresso","Azizam","Sapphire","Roar","APT","Gabriela","A Thousand Years","A Thousand Miles","Watermelon Sugar","As It Was","What Makes You Beautiful","Eyes Closed","Drivers License","Bird Of A Feather","Lovely","Waka Waka","Hips Don't Lie","La La La","Baby","Stay","Daisies","Beauty And A Beat","Lonely","Happy Birthday","Calm Down","Rush E","Turkish March","River Flows In You","Baby Shark","See You Again","7 Years","Golden","Tuesday","Girls Just Wanna Have Fun","Billie Jean","Smooth Criminal","Human Nature","Bad","You Rock My World","ABC","Thriller","Ghostbusters","Blue","Life Goes On","Daylight","Miss You","Sorry","Champions","World Cup","Blinding Lights","Starboy","Oops I Did It Again","Colors","Dreamers","Dynamite","Happier","Wishlist","Shake It Off","Soda Pop","Happy","Babydoll","Runaway","Bye Bye Bye","We Can't Be Friends","Uptown Funk","Levitating","Peaches","Sunflower","Circles","Old Town Road","Havana","Senorita","Shallow","Someone Like You","Rolling In The Deep","Hello","Perfect","Photograph","Thinking Out Loud","Castle On The Hill","Bohemian Rhapsody","We Will Rock You","Don't Stop Believin'","Sweet Caroline","Mr Brightside","Take On Me","Never Gonna Give You Up","All Star","I Gotta Feeling","Party In The USA","Firework","California Gurls","Teenage Dream","Poker Face","Just Dance","Toxic","Umbrella","Single Ladies","Formation","Halo","Countdown","Work","Wrecking Ball","Party Rock Anthem","Gangnam Style","Dynamite BTS","Butter BTS","DNA BTS","How You Like That","Kill This Love","DDU-DU DDU-DU","Fancy","Cupid","Attention","Sorry Not Sorry","Side To Side","Thank U Next","7 Rings","Bad Guy","Ocean Eyes","Happier Than Ever","Break My Soul","Cuff It","Anti-Hero","Cruel Summer","Cardigan","Willow","Lover","Love Story","You Belong With Me","22","Style","Wildest Dreams","Blank Space","ME!","Delicate","Lose Yourself","In The End","Numb","One More Time","Around The World","Get Lucky","Instant Crush","Somebody That I Used To Know","Radioactive","Counting Stars","Sugar","Marry You","Uptown Girl","Piano Man","Africa","Don't Stop The Music","Yellow","Fix You","Viva La Vida","Clocks","The Scientist","Chasing Cars","Wonderwall","Creep","Hey Jude","Let It Be","Yesterday","Imagine","Stairway To Heaven","Hotel California","Sweet Child O' Mine","November Rain","Nothing Else Matters","Enter Sandman","Livin' On A Prayer","Take Me Home Country Roads","I Will Survive","Dancing Queen","Mamma Mia","Waterloo","Kill Bill SZA","Snooze","Vampire Olivia Rodrigo","Good 4 U","Drivers License Olivia","Deja Vu Olivia","Flowers Miley","Espresso Sabrina","Please Please Please","Taste Sabrina","Bed Chemistry Sabrina","Feather Sabrina","Nonsense","Greedy Tate McRae","Exes Tate McRae","Fantasy Tate McRae","Good Luck Babe","Pink Pony Club","HOT TO GO","Femininomenon","My Kink Is Karma","Casual Chappell","Redd Wine","Beg For You","Golden Hour","Vienna Billy Joel","Piano Man Billy Joel","Uptown Girl Billy Joel","We Didn't Start The Fire","Everybody Talks","Pumped Up Kicks","Ho Hey","Mr Sandman","Africa Toto Cover","Dont Stop Believin Live","Bicycle Race","Somebody To Love Queen","Under Pressure Queen","Killer Queen","Fat Bottomed Girls","Another One Bites The Dust","I Want To Break Free","Radio Ga Ga","Love Of My Life","Crazy Little Thing Called Love","Don't Stop Me Now","I Wanna Dance With Somebody","Greatest Love Of All","How Will I Know","So Emotional","Vogue Madonna","Like A Prayer","Material Girl","Into The Groove","Express Yourself","Ray Of Light","Music Madonna","Hung Up","4 Minutes","Since U Been Gone","Rehab Amy Winehouse","Back To Black","Valerie","Tears Dry On Their Own","You Know Im No Good","Rolling In The Deep Live","Set Fire To The Rain","Turning Tables","All I Ask","When We Were Young","Send My Love","Water Under The Bridge","Love In The Dark","Easy On Me","Oh My God Adele","I Drink Wine","Can I Get It","To Be Loved","Sour Grapes","All Too Well","Style Taylor","22 Taylor","Shake It Off Live","Bad Blood","Wildest Dreams Live","Look What You Made Me Do","Delicate Live","End Game","Gorgeous Taylor","Getaway Car","New Years Day","King Of My Heart","Dancing With Our Hands Tied","Dress Taylor","This Is Why We Cant Have Nice Things","Call It What You Want","I Did Something Bad","So It Goes","Ready For It","Betty Taylor","Exile Taylor","Illicit Affairs","My Tears Ricochet","The 1","August Taylor","Mirrorball","Seven Taylor","Invisible String","Champagne Problems","Gold Rush","Tis The Damn Season","No Body No Crime","Ivy Taylor","Cowboy Like Me","Long Story Short","Marjorie","Closure","Evermore","Right Where You Left Me","It's Time Imagine Dragons","Believer","Thunder","Whatever It Takes","Natural","Bad Liar","Zero Imagine Dragons","Bones Imagine Dragons","Enemy Imagine Dragons","Radioactive Live","Demons Imagine Dragons","On Top Of The World","I Bet My Life","Shots Imagine Dragons","Sucker Jonas Brothers","Cool Jonas Brothers","Only Human","Burnin Up","SOS Jonas Brothers","Year 3000","What A Man Gotta Do","Waffle House","Wings Jonas Brothers","Praying Kesha","Tik Tok Kesha","Die Young","Timber","Your Love Is My Drug","We R Who We R","Blow Kesha","Woman Kesha","Raising Hell","Joyride Kesha"],
 
-"Cities": ["Tokyo","Osaka","Kyoto","Washington","Los Angeles","Ottawa","Toronto","Mexico City","Rio De Janeiro","Sao Paulo","Brasilia","Buenos Aires","Bogota","Moscow","Saint Petersburg","Istanbul","Ankara","Shanghai","Beijing","Stockholm","Cairo","Tashkent","Warsaw","Zagreb","Seoul","Pyongyang","Kuala Lumpur","Jakarta","New Delhi","Mumbai","Canberra","Adelaide","Sydney","Perth","Izmir","Denizli","Athens","Madrid","Barcelona","Valencia","Mallorca","Rome","Parma","Milan","Berlin","Munich","Dortmund","London","Dublin","Glasgow","Manchester","Edinburgh","Cardiff","Liverpool","Amsterdam","Nicosia","Tirana","Brussels","Bern","Zurich","Vienna","Oslo","Copenhagen","Nairobi","Rabat","Panama City","Guatemala City","Kinshasa","Hobart","Leeds","Riyadh","Ashgabat","Minsk","Abu Dhabi","Kuwait City","Lisbon","Dhaka","Windhoek","Vilnius","San Marino","Vatican City","Guangzhou","Manila","New York","Hollywood","Kolkata","Shenzhen","Lagos","Islamabad","Karachi","Lahore","Kayseri","Malatya","Ho Chi Minh City","Chennai","Nagoya","Wuhan","Medellin","Hyderabad","Vancouver","Montreal","Calgary","Chicago","Boston","Miami","Seattle","San Francisco","Las Vegas","Houston","Dallas","Atlanta","Philadelphia","Nashville","Auckland"],
+"Cities": ["Tokyo","Osaka","Kyoto","Washington","Los Angeles","Ottawa","Toronto","Mexico City","Rio De Janeiro","Sao Paulo","Brasilia","Buenos Aires","Bogota","Moscow","Saint Petersburg","Istanbul","Ankara","Shanghai","Beijing","Stockholm","Cairo","Tashkent","Warsaw","Zagreb","Seoul","Pyongyang","Kuala Lumpur","Jakarta","New Delhi","Mumbai","Canberra","Adelaide","Sydney","Perth","Izmir","Denizli","Athens","Madrid","Barcelona","Valencia","Mallorca","Rome","Parma","Milan","Berlin","Munich","Dortmund","London","Dublin","Glasgow","Manchester","Edinburgh","Cardiff","Liverpool","Amsterdam","Nicosia","Tirana","Brussels","Bern","Zurich","Vienna","Oslo","Copenhagen","Nairobi","Rabat","Panama City","Guatemala City","Kinshasa","Hobart","Leeds","Riyadh","Ashgabat","Minsk","Abu Dhabi","Kuwait City","Lisbon","Dhaka","Windhoek","Vilnius","San Marino","Vatican City","Guangzhou","Manila","New York","Hollywood","Kolkata","Shenzhen","Lagos","Islamabad","Karachi","Lahore","Kayseri","Malatya","Ho Chi Minh City","Chennai","Nagoya","Wuhan","Medellin","Hyderabad","Vancouver","Montreal","Calgary","Chicago","Boston","Miami","Seattle","San Francisco","Las Vegas","Houston","Dallas","Atlanta","Philadelphia","Nashville","Auckland","Marseille","Lyon","Nice France","Toulouse","Bordeaux","Strasbourg","Naples","Turin","Florence","Venice","Bologna","Genoa","Palermo","Seville","Granada","Bilbao","Malaga","Porto","Aveiro","Frankfurt","Hamburg","Cologne","Stuttgart","Dusseldorf","Leipzig","Dresden","Nuremberg","Rotterdam","The Hague","Utrecht","Eindhoven","Antwerp","Ghent","Bruges","Gothenburg","Malmo","Bergen","Trondheim","Helsinki","Tampere","Reykjavik","Krakow","Gdansk","Wroclaw","Poznan","Brno","Bratislava","Budapest","Bucharest","Sofia","Belgrade","Sarajevo","Ljubljana","Skopje","Podgorica","Chisinau","Kyiv","Kharkiv","Odesa","Lviv","Yekaterinburg","Novosibirsk","Vladivostok","Baku","Yerevan","Tbilisi","Almaty","Bishkek","Dushanbe","Ulaanbaatar","Chengdu","Chongqing","Xian","Nanjing","Hangzhou","Suzhou","Tianjin","Qingdao","Dalian","Harbin","Fukuoka","Sapporo","Yokohama","Kobe","Hiroshima","Sendai","Busan","Incheon","Daegu","Gwangju","Jeju City","Taipei","Kaohsiung","Bangkok","Chiang Mai","Phuket City","Hanoi","Da Nang","Phnom Penh","Vientiane","Yangon","Singapore City","Johor Bahru","Penang","Surabaya","Bandung","Bali Denpasar","Colombo","Kathmandu","Thimphu","Male","Muscat","Doha","Manama","Amman","Beirut","Damascus","Baghdad","Tehran","Kabul","Peshawar","Faisalabad","Multan","Chittagong","Sylhet","Bengaluru","Chennai City","Pune","Ahmedabad","Jaipur","Lucknow","Surat","Kanpur","Nagpur","Bhopal","Cape Town","Johannesburg","Durban","Pretoria","Port Elizabeth","Bloemfontein","Accra","Abuja","Kano","Abidjan","Dakar","Bamako","Ouagadougou","Kampala","Kigali","Addis Ababa","Khartoum","Tripoli","Tunis","Algiers","Casablanca","Marrakesh","Fez","Luanda","Maputo","Harare","Lusaka","Gaborone","Windhoek City","Antananarivo","Port Louis","Victoria Seychelles","Quito","La Paz","Sucre","Asuncion","Montevideo","Caracas","Georgetown","Paramaribo","Cayenne","San Jose Costa Rica","Managua","Tegucigalpa","San Salvador","Guatemala City Capital","Belmopan","Havana","Santo Domingo","Port Au Prince","Kingston Jamaica","Nassau","Bridgetown","Portland Oregon","San Diego","San Antonio","Austin","Jacksonville","Columbus Ohio","Charlotte","Indianapolis","Denver","Detroit","Memphis","Baltimore","Milwaukee","Albuquerque","Tucson","Sacramento","Kansas City","Cleveland","Minneapolis","Tampa","Orlando","Pittsburgh","Cincinnati","St Louis","Salt Lake City","Portland Maine","Anchorage","Honolulu","Edmonton","Winnipeg","Quebec City","Halifax","Victoria BC","Christchurch","Wellington","Hamilton NZ","Gold Coast","Newcastle Australia","Wollongong","Geelong","Townsville","Cairns","Darwin","Alice Springs","Launceston"],
 
 "Numbers & Letters": numbersLetters,
 
-"Historical Events": ["Titanic Sinking","USA Independence Day","1969 Moon Landing","Hiroshima Bombing","9/11","World War 1","World War 2","Israel-Palestine Conflict","Iran-USA Conflict","Ukraine-Russia Conflict","Invention Of The Printing Press","Fall Of Rome","D-Day","Invention Of Writing","Invention Of The Telephone","Invention Of Television","Invention Of Photography","Invention Of The iPhone","Mothman Sighting","Virginia Bridge Collapse","Cold War","Berlin Wall Fall","The Renaissance","The Plague","The Black Death","The Dancing Plague","Hantavirus Outbreak","Coronavirus Pandemic","Adolf Hitler Born","Queen Elizabeth Died","Albert Einstein Death","The French Revolution","The Russian Revolution","Invention Of The Internet","Nikola Tesla's Electricity Discovery","Discovery Of Penicillin","Pompeii Eruption","Pol Pot's Reign","Chernobyl Nuclear Disaster","Hindenburg Disaster","Japan Tohoku Earthquake","2023 Turkiye-Syria Earthquakes","Boxing Day Tsunami","Moon Landing Conspiracy Theories"],
+"Historical Events": ["Titanic Sinking","USA Independence Day","1969 Moon Landing","Hiroshima Bombing","9/11","World War 1","World War 2","Israel-Palestine Conflict","Iran-USA Conflict","Ukraine-Russia Conflict","Invention Of The Printing Press","Fall Of Rome","D-Day","Invention Of Writing","Invention Of The Telephone","Invention Of Television","Invention Of Photography","Invention Of The iPhone","Mothman Sighting","Virginia Bridge Collapse","Cold War","Berlin Wall Fall","The Renaissance","The Plague","The Black Death","The Dancing Plague","Hantavirus Outbreak","Coronavirus Pandemic","Adolf Hitler Born","Queen Elizabeth Died","Albert Einstein Death","The French Revolution","The Russian Revolution","Invention Of The Internet","Nikola Tesla's Electricity Discovery","Discovery Of Penicillin","Pompeii Eruption","Pol Pot's Reign","Chernobyl Nuclear Disaster","Hindenburg Disaster","Japan Tohoku Earthquake","2023 Turkiye-Syria Earthquakes","Boxing Day Tsunami","Moon Landing Conspiracy Theories","The Wright Brothers First Flight","The Signing Of The Magna Carta","The Battle Of Hastings","The Crusades","The Spanish Inquisition","The Age Of Exploration","Columbus Reaching The Americas","The Boston Tea Party","The American Civil War","The Abolition Of Slavery","The Suffragette Movement","Women Winning The Right To Vote","The Great Depression","The New Deal","The Wall Street Crash","The Prohibition Era","The Space Race","The First Man On The Moon","The Apollo 13 Mission","The Challenger Disaster","The Fall Of The Soviet Union","The Cuban Missile Crisis","The Vietnam War","The Korean War","The Gulf War","The Iraq War","The Arab Spring","The Rwandan Genocide","The Bosnian War","The Partition Of India","Nelson Mandela's Release","The End Of Apartheid","The Assassination Of JFK","The Assassination Of Martin Luther King","The Civil Rights Movement","The March On Washington","The Watergate Scandal","The Signing Of The Declaration Of Independence","The Louisiana Purchase","The California Gold Rush","The Industrial Revolution","The Invention Of The Steam Engine","The Invention Of The Light Bulb","The Invention Of The Automobile","The Invention Of The Airplane","The Invention Of The Computer","The Invention Of The Radio","The Titanic Movie Premiere","The Great Fire Of London","The Great Chicago Fire","The San Francisco Earthquake 1906","The Dust Bowl","The Spanish Flu Pandemic","The Discovery Of DNA","The Discovery Of Gravity","The Theory Of Relativity","The Invention Of Vaccines","The Eradication Of Smallpox","The First Heart Transplant","The Human Genome Project","The Discovery Of X-Rays","The Manhattan Project","The Trinity Nuclear Test","The Fukushima Disaster","The Deepwater Horizon Oil Spill","The Exxon Valdez Spill","The Y2K Scare","The Dot-Com Bubble","The 2008 Financial Crisis","The Brexit Vote","The Signing Of The Treaty Of Versailles","The League Of Nations Formation","The Formation Of The United Nations","The Marshall Plan","The Space Shuttle Program","The Voyager Golden Record Launch","The Discovery Of Pluto","Pluto Losing Planet Status","The First Cloned Sheep Dolly"],
 
-"Actions": ["Run","Walk","Sleep","Swim","Kick","Kick A Ball","Tennis Racket","Ping Pong","Faint","Stab","Gun Shoot","Cut","Applying A Bandage","Jump","Sprint","Drift","Turn","Flip","Front Flip","Back Flip","Type","Write","Thumbs Up","Stretch","Yawn","Fists Clenched","Nail Biting","Scared","Bite","Punch","Missed Punch","Handball","Drive","Steering A Wheel","Fall","Surprised","Astonished","Tease","Laugh","Four Legged Creature","Dragon","Fly","Levitate","Talk","Yell","Basketball Shot","Golf Swing","Volleyball Spike","Diving","Gymnastics","Squat","Eating With Chopsticks","Tongue Out","Mouse Face","Knee Attack","Spread Out Toes","Point Down Toes","Wiggle Ears","Click A Mouse","Typing On Phone","Typing On Keyboard","Play Piano","Play Guitar","Play Violin","Conduct An Orchestra","Sing","Choir Teacher","Wiggle Fingers","Chop Down A Tree","Dancing","Tango","Strut Walking","Indian Dancing","Spanish Dancing","Bully Walking","Eating A Burger","Eating Watermelon","Eating","Drinking A Cup Of Water","Drinking","Drinking Through A Straw","Eating Kiwi With A Spoon","Eating A Lamb Skewer","Eating An Apple","Squeeze","Squeezing A Lemon","Reloading A Gun","Catwalk","Hip Hop Dancing","Talking On The Phone","Climbing","Free Hang Climb","Zombie Walk","Michael Jackson Thriller Dance","Clearing Your Throat","So Happy","Putting On A Hat","Firing A Rifle","Walking In A Circle","Crouch","Crouch Walk","Crouch Run","Dodge","Look Over Shoulder","Skateboarding","Punching Bag","Backpack On","Push A Button","Singing With A Mic","Mic Drop","Baseball Hit","Plant Seeds","Pick Fruit","Hold Your Breath","Throw A Grenade","Launch A Missile","Car Crash","Brace For Impact","Kiss","Hug","Texting Your Crush","Bathing","Brushing Your Teeth","Applying Toothpaste","Teleport","Telekinesis","Chess Move","Football Header","Watching TV","Mesmerised","Wave Arms","Listening To Music","Using Headphones","Dropping Your Phone","Sword Slash","Cristiano Ronaldo Celebration","Bicycle Kick","Shuffling Cards","Shooting A Pistol","Locked In","Locking A Door"],
+"Actions": ["Run","Walk","Sleep","Swim","Kick","Kick A Ball","Tennis Racket","Ping Pong","Faint","Stab","Gun Shoot","Cut","Applying A Bandage","Jump","Sprint","Drift","Turn","Flip","Front Flip","Back Flip","Type","Write","Thumbs Up","Stretch","Yawn","Fists Clenched","Nail Biting","Scared","Bite","Punch","Missed Punch","Handball","Drive","Steering A Wheel","Fall","Surprised","Astonished","Tease","Laugh","Four Legged Creature","Dragon","Fly","Levitate","Talk","Yell","Basketball Shot","Golf Swing","Volleyball Spike","Diving","Gymnastics","Squat","Eating With Chopsticks","Tongue Out","Mouse Face","Knee Attack","Spread Out Toes","Point Down Toes","Wiggle Ears","Click A Mouse","Typing On Phone","Typing On Keyboard","Play Piano","Play Guitar","Play Violin","Conduct An Orchestra","Sing","Choir Teacher","Wiggle Fingers","Chop Down A Tree","Dancing","Tango","Strut Walking","Indian Dancing","Spanish Dancing","Bully Walking","Eating A Burger","Eating Watermelon","Eating","Drinking A Cup Of Water","Drinking","Drinking Through A Straw","Eating Kiwi With A Spoon","Eating A Lamb Skewer","Eating An Apple","Squeeze","Squeezing A Lemon","Reloading A Gun","Catwalk","Hip Hop Dancing","Talking On The Phone","Climbing","Free Hang Climb","Zombie Walk","Michael Jackson Thriller Dance","Clearing Your Throat","So Happy","Putting On A Hat","Firing A Rifle","Walking In A Circle","Crouch","Crouch Walk","Crouch Run","Dodge","Look Over Shoulder","Skateboarding","Punching Bag","Backpack On","Push A Button","Singing With A Mic","Mic Drop","Baseball Hit","Plant Seeds","Pick Fruit","Hold Your Breath","Throw A Grenade","Launch A Missile","Car Crash","Brace For Impact","Kiss","Hug","Texting Your Crush","Bathing","Brushing Your Teeth","Applying Toothpaste","Teleport","Telekinesis","Chess Move","Football Header","Watching TV","Mesmerised","Wave Arms","Listening To Music","Using Headphones","Dropping Your Phone","Sword Slash","Cristiano Ronaldo Celebration","Bicycle Kick","Shuffling Cards","Shooting A Pistol","Locked In","Locking A Door","Somersault","Cartwheel","Handstand","Headstand","Splits","High Kick","Roundhouse Kick","Karate Chop","Judo Throw","Wrestling Pin","Arm Wrestle","Tug Of War","Rowing","Kayaking Motion","Surfing Stance","Skateboard Trick","Ollie","Kickflip","Snowboarding","Skiing Motion","Ice Skating","Figure Skating Spin","Hockey Slapshot","Cricket Bowl","Cricket Bat Swing","Rugby Tackle","Football Tackle","Quarterback Throw","Field Goal Kick","Serve Tennis","Backhand","Forehand","Badminton Smash","Table Tennis Serve","Bowling Strike","Archery Aim","Javelin Throw","Shot Put","Discus Throw","Long Jump","High Jump","Pole Vault","Hurdles","Relay Baton Pass","Marathon Running","Sprint Start","Push Up","Sit Up","Pull Up","Bicep Curl","Deadlift","Bench Press","Squat Jump","Burpee","Plank","Yoga Pose","Meditation Pose","Tai Chi Move","Boxing Jab","Uppercut","Roundhouse Punch","Shadow Boxing","Wax On Wax Off","Karate Kick","Sword Fighting","Fencing Lunge","Shield Block","Bow And Arrow Draw","Slingshot Aim","Lasso Throw","Whip Crack","Rope Climb","Wall Climb","Ladder Climb","Tightrope Walk","Juggling","Unicycle Riding","Pogo Stick Jump","Trampoline Bounce","Diving Board Jump","Cannonball Dive","Belly Flop","Doggy Paddle","Breaststroke","Butterfly Stroke","Backstroke Swimming","Treading Water","Snorkeling Motion","Scuba Diving","Free Falling","Parachute Landing","Bungee Jump","Rock Climbing","Abseiling","Ziplining","Horse Riding","Trotting","Galloping","Bull Riding","Rodeo Roping","Fishing Cast","Reeling In A Fish","Hunting Aim","Sneaking","Tiptoeing","Army Crawl","Duck And Cover","Salute","Marching","Goose Step","Standing At Attention","Bowing","Curtsy","Handshake","Fist Bump","High Five","Group Hug","Piggyback Ride","Carrying Someone Bridal Style","Wheelbarrow Race","Sack Race","Three Legged Race","Egg And Spoon Race","Limbo Dance","Conga Line","Line Dancing","Square Dancing","Ballet Pirouette","Ballet Plie","Breakdance Spin","Popping And Locking","Robot Dance","Twerking","Salsa Dancing","Swing Dancing","Waltz","Foxtrot","Cha Cha","Belly Dancing","Irish Dancing","Flamenco","Bollywood Dance","Yodeling","Beatboxing","Whistling","Humming","Snapping Fingers","Clapping","Stomping","Air Guitar","Drum Solo","DJ Scratching","Conducting An Orchestra","Painting A Canvas","Sculpting Clay","Knitting","Crocheting","Origami Folding","Calligraphy Writing","Sketching"],
 
-"Brands": ["Sony","PlayStation","Microsoft","Xbox","Nintendo","Spotify","YouTube","YouTube Music","YouTube Kids","Mojang","Pokemon","Nestle","McDonald's","KFC","Hungry Jack's","Burger King","Temu","Shein","Walmart","Kmart","Lego","MrBeast","Target","Epic Games","Copilot","Grok","ChatGPT","Claude","Google","Chrome","Adobe Acrobat","FIFA","UEFA","Unity","Blender","GitHub","Minecraft Education","Lynx","Rexona","Twirl","Cadbury","Hershey's","Chupa Chups","Supercell","Real Madrid","FC Barcelona","Manchester United","iTunes","Yahoo","Apple","Samsung","Amazon","Netflix","Disney","Nike","Adidas","Puma","Under Armour","Coca-Cola","Pepsi","Red Bull","Monster Energy","Oreo","Kellogg's","Doritos","Pringles","Lay's","Subway","Domino's","Pizza Hut","Starbucks","Dunkin'","IKEA","H&M","Zara","Gucci","Louis Vuitton","Rolex","Tesla","BMW","Mercedes-Benz","Toyota","Ford","Ferrari","Lamborghini","Harley-Davidson","Rolls-Royce","Snapchat","Instagram","TikTok","Facebook","WhatsApp","Twitter","Discord","Reddit","LinkedIn","Roblox","Steam","EA Sports","Activision","Riot Games","Ubisoft","Rockstar Games","Dell","HP","Intel","AMD","Nvidia","Logitech","Bose","JBL","Beats","Airbnb","Uber","Lyft","DoorDash","Gillette","Colgate","Dove","Pantene","L'Oreal","Vaseline","Band-Aid","Duracell","Energizer","7-Eleven","Costco","Home Depot","Bunnings","JB Hi-Fi","Officeworks","Mattel","Hasbro","Fisher-Price","Barbie","Hot Wheels","Crayola","Nerf","Hallmark","Warner Bros","Universal Pictures","Paramount","Sony Pictures","Marvel Studios","DC Comics","Cartoon Network","Nickelodeon","Disney Channel","BBC","CNN","ESPN","Fox News","National Geographic","Discovery Channel","HBO","Hulu","Amazon Prime Video","Peacock","Apple TV","Twitch","SoundCloud","Tidal","Amazon Music","Pandora","Shazam","Garmin","Fitbit","GoPro","DJI","Canon","Nikon","Panasonic","LG","Philips","Whirlpool","Dyson","Roomba","KitchenAid","Nespresso","Keurig","Ninja Kitchen","Vitamix","Yeti","Stanley","Hydro Flask","Crocs","Vans","Converse","New Balance","Reebok","Fila","Champion","Timberland","The North Face","Patagonia","Columbia","Levi's","Wrangler","Calvin Klein","Tommy Hilfiger","Ralph Lauren","Victoria's Secret","American Eagle","Gap","Old Navy","Forever 21","Uniqlo","Primark","Aldi","Woolworths","Coles","Tesco","Whole Foods","Trader Joe's","Chick-fil-A","Wendy's","Taco Bell","Chipotle","Panda Express","Five Guys","In-N-Out","Krispy Kreme","Baskin Robbins","Ben & Jerry's","Haagen-Dazs","M&M's","Snickers","Kit Kat","Twix","Skittles","Starburst","Sour Patch Kids","Trident","Wrigley's","Red Rooster"],
+"Brands": ["Sony","PlayStation","Microsoft","Xbox","Nintendo","Spotify","YouTube","YouTube Music","YouTube Kids","Mojang","Pokemon","Nestle","McDonald's","KFC","Hungry Jack's","Burger King","Temu","Shein","Walmart","Kmart","Lego","MrBeast","Target","Epic Games","Copilot","Grok","ChatGPT","Claude","Google","Chrome","Adobe Acrobat","FIFA","UEFA","Unity","Blender","GitHub","Minecraft Education","Lynx","Rexona","Twirl","Cadbury","Hershey's","Chupa Chups","Supercell","Real Madrid","FC Barcelona","Manchester United","iTunes","Yahoo","Apple","Samsung","Amazon","Netflix","Disney","Nike","Adidas","Puma","Under Armour","Coca-Cola","Pepsi","Red Bull","Monster Energy","Oreo","Kellogg's","Doritos","Pringles","Lay's","Subway","Domino's","Pizza Hut","Starbucks","Dunkin'","IKEA","H&M","Zara","Gucci","Louis Vuitton","Rolex","Tesla","BMW","Mercedes-Benz","Toyota","Ford","Ferrari","Lamborghini","Harley-Davidson","Rolls-Royce","Snapchat","Instagram","TikTok","Facebook","WhatsApp","Twitter","Discord","Reddit","LinkedIn","Roblox","Steam","EA Sports","Activision","Riot Games","Ubisoft","Rockstar Games","Dell","HP","Intel","AMD","Nvidia","Logitech","Bose","JBL","Beats","Airbnb","Uber","Lyft","DoorDash","Gillette","Colgate","Dove","Pantene","L'Oreal","Vaseline","Band-Aid","Duracell","Energizer","7-Eleven","Costco","Home Depot","Bunnings","JB Hi-Fi","Officeworks","Mattel","Hasbro","Fisher-Price","Barbie","Hot Wheels","Crayola","Nerf","Hallmark","Warner Bros","Universal Pictures","Paramount","Sony Pictures","Marvel Studios","DC Comics","Cartoon Network","Nickelodeon","Disney Channel","BBC","CNN","ESPN","Fox News","National Geographic","Discovery Channel","HBO","Hulu","Amazon Prime Video","Peacock","Apple TV","Twitch","SoundCloud","Tidal","Amazon Music","Pandora","Shazam","Garmin","Fitbit","GoPro","DJI","Canon","Nikon","Panasonic","LG","Philips","Whirlpool","Dyson","Roomba","KitchenAid","Nespresso","Keurig","Ninja Kitchen","Vitamix","Yeti","Stanley","Hydro Flask","Crocs","Vans","Converse","New Balance","Reebok","Fila","Champion","Timberland","The North Face","Patagonia","Columbia","Levi's","Wrangler","Calvin Klein","Tommy Hilfiger","Ralph Lauren","Victoria's Secret","American Eagle","Gap","Old Navy","Forever 21","Uniqlo","Primark","Aldi","Woolworths","Coles","Tesco","Whole Foods","Trader Joe's","Chick-fil-A","Wendy's","Taco Bell","Chipotle","Panda Express","Five Guys","In-N-Out","Krispy Kreme","Baskin Robbins","Ben & Jerry's","Haagen-Dazs","M&M's","Snickers","Kit Kat","Twix","Skittles","Starburst","Sour Patch Kids","Trident","Wrigley's","Red Rooster","Visa","Mastercard","American Express","PayPal","Venmo","Cash App","Stripe","Square","Robinhood","Coinbase","Binance","Bitcoin","Ethereum","Chase Bank","Bank Of America","Wells Fargo","HSBC","Barclays","Deutsche Bank","Goldman Sachs","JP Morgan","BlackRock","Vanguard","Fidelity","Boeing","Airbus","Lockheed Martin","Raytheon","General Electric","Siemens","Bosch","Honeywell","3M","DuPont","ExxonMobil","Chevron","Shell","BP","Total Energies","Saudi Aramco","General Motors","Chrysler","Jeep","Dodge","Cadillac","Chevrolet","Buick","GMC","Subaru","Mazda","Mitsubishi","Suzuki","Kia","Hyundai","Volkswagen","Audi","Porsche","Bentley","Aston Martin","Bugatti","Maserati","Alfa Romeo","Fiat","Peugeot","Renault","Citroen","Volvo","Land Rover","Jaguar","Mini Cooper","Skoda","Seat","Michelin","Goodyear","Bridgestone","Pirelli","Firestone","Shell Gas","BP Gas","Chevron Gas","Mobil","Exxon","Caltex","Ampol","Wendy's Burger","Arby's","Sonic Drive-In","Jack In The Box","Whataburger","Culver's","Shake Shack","White Castle","Long John Silver's","Popeyes","Church's Chicken","Zaxby's","Raising Cane's","El Pollo Loco","Panera Bread","Au Bon Pain","Cinnabon","Auntie Anne's","Orange Julius","Jamba Juice","Smoothie King","Tim Hortons","Second Cup","Peet's Coffee","Caribou Coffee","Costa Coffee","Nero Cafe","Pret A Manger","Boost Juice","Guzman Y Gomez","Grill'd","Nando's","Wagamama","Yo Sushi","Itsu","Leon Restaurants","Five Below","Dollar Tree","Dollar General","Big Lots","TJ Maxx","Marshalls","Ross Dress For Less","Burlington","Nordstrom","Macy's","JCPenney","Kohl's","Sears","Belk","Dillard's","Bloomingdale's","Saks Fifth Avenue","Neiman Marcus","Bed Bath And Beyond","Container Store","Williams Sonoma","Crate And Barrel","Pottery Barn","World Market","HomeGoods","Wayfair","Overstock","Etsy","eBay","AliExpress","Alibaba","Rakuten","Zalando","ASOS","Boohoo","PrettyLittleThing","Fashion Nova","Lululemon","Athleta","Gymshark","Under Armour Gear","Speedo","Arena Swim","TYR","Salomon","Merrell","Keen Footwear","Birkenstock","Dr Martens","Clarks","Skechers","ASICS","Brooks Running","Saucony","Hoka","On Running","Allbirds","Toms Shoes","Steve Madden","Aldo Shoes","Nine West","Kate Spade","Michael Kors","Coach Bags","Fendi","Prada","Versace","Armani","Dolce And Gabbana","Burberry","Balenciaga","Yves Saint Laurent","Chanel","Dior","Hermes","Cartier","Tiffany And Co","Swarovski","Pandora Jewelry","Fossil Watches","Casio","Seiko","Citizen Watches","Garmin Watches","Whoop","Oura Ring","Bang And Olufsen","Sonos","Marshall Speakers","Sennheiser","Audio-Technica","Razer","SteelSeries","Corsair","ASUS","Acer","Lenovo","MSI","Zoom App","Slack","Notion","Trello","Asana","Monday.com","Salesforce","SAP","Oracle","IBM","Cisco","VMware","Adobe Photoshop","Canva","Figma","Squarespace","Wix","Shopify","WordPress","Mailchimp","HubSpot","Zendesk"],
 
-"Mixed": ["Book","Lemon","Cup","Matcha","Emma Watson","Ed Sheeran","Animal","Mixer","Water Bottle","Gun","Rifle","Pistol","Project","Tanzania","Tasmania","Somalia","Sudan","Conflict","Music","Physics","Isaac Newton","Bin","Apple","Stem","Technology","MacBook","Rattle","Dot","Charades","Raspberry","Mint Chocolate Chip Ice Cream","Turkiye","Yak","Dinosaur","McDonald's","Iconic","Shape Of You","Watermelon Sugar","First Kiss","First Crush","Price Tag","Pokemon","Squirtle","Okey Dokey","Donkey","Spawn Egg","Poached Egg","Deer Antlers","Flag","Heater","Perfume","Essential Oils","Science","Tissue","Tissue Box","Camping","Tent","Campfire","School Camp","Kayak","Canoe","Paddle","Death","Coffin","Religion","Islam","Eucalyptus","Hibiscus","Dog Fur","Fire","Table","Gold","Door Handle","Keys","Car Keys","Ramen","Kanye West","P Diddy","Michael Jackson","Pterodactyl","Obsession","The Backrooms","Eyeless Jack","Laughing Jack","Analog Horror","Hazel","Bowl","Cactus","Cactus Needle","Pin","Cat Food","Kibble Bag","Ooshie","Deadpool","Wolverine","Remote Control","Catalogue","Model","3D Model","Pixels","Lamp","Paper","School Book","Birds","Paper Towel","Bath Towel","Bubble Bath","Snoopy","Sony","PlayStation","Xbox","Microsoft","Nintendo Switch","Atari","Describing A Dog To Someone Who's Never Seen One","Scotland","Kurdistan","Bully","Bubblegum","World Cup Songs","Watermelon Slice","Machete","Chopping Axe","Mining Pickaxe","Quotation Marks","Period","Teacher","Leech","Zombie","Scary","Stupidity","Therapist","Sociopath","Dirt Path","Mycelium","Podzol","Poland Flag","Vanilla","Magnolia","Lilac","Blueberries","Beehive","Wasp Nest","Eagle Nest","Lily Pad","Water Lily","Bottled Water","Pollution","Plastic","Megalodon Teeth","Shark Fin Soup","Animal Tail","Blue Jeans","Ripped Jeans","Nightmares","Dreams","Tracksuit","Wedding Dress","Bride","Wedding Suit","Joystick","Socks","Fruit Bowl","Ivy","Banana","Kissing Booth","Lipstick","Eyeliner","Three Dots Icon","Artefact","Gift","Ottoman Empire","Wisdom","Peppa Pig","Cable","Cord","Chewing On Cords","Moonwalk","Vegetable Oil","Thunderstorm","Rainbow","Volcano","Earthquake","Tsunami","Avalanche","Glacier","Desert","Jungle","Waterfall","Cave","Mountain Peak","Sunrise","Sunset","Eclipse","Constellation","Telescope","Microscope","Magnet","Compass","Hourglass","Sundial","Chessboard","Dice","Playing Cards","Jigsaw Puzzle","Kite","Yo-Yo","Slingshot","Boomerang","Trampoline","Seesaw","Merry-Go-Round","Ferris Wheel","Roller Coaster","Haunted House","Magic Trick","Magician","Wizard","Witch","Potion","Crystal Ball","Tarot Card","Fortune Teller","Black Cat","Broken Mirror","Four-Leaf Clover","Horseshoe","Rabbit's Foot","Genie Lamp","Treasure Chest","Pirate Ship","Message In A Bottle","Anchor","Lighthouse","Treasure Map","Buried Treasure","Quicksand","Secret Passage","Trapdoor","Drawbridge","Moat","Castle Tower","Dungeon","Throne","Crown","Scepter","Royal Guard","Knight In Armor","Jousting","Catapult","Medieval Banquet"]
+"Mixed": ["Book","Lemon","Cup","Matcha","Emma Watson","Ed Sheeran","Animal","Mixer","Water Bottle","Gun","Rifle","Pistol","Project","Tanzania","Tasmania","Somalia","Sudan","Conflict","Music","Physics","Isaac Newton","Bin","Apple","Stem","Technology","MacBook","Rattle","Dot","Charades","Raspberry","Mint Chocolate Chip Ice Cream","Turkiye","Yak","Dinosaur","McDonald's","Iconic","Shape Of You","Watermelon Sugar","First Kiss","First Crush","Price Tag","Pokemon","Squirtle","Okey Dokey","Donkey","Spawn Egg","Poached Egg","Deer Antlers","Flag","Heater","Perfume","Essential Oils","Science","Tissue","Tissue Box","Camping","Tent","Campfire","School Camp","Kayak","Canoe","Paddle","Death","Coffin","Religion","Islam","Eucalyptus","Hibiscus","Dog Fur","Fire","Table","Gold","Door Handle","Keys","Car Keys","Ramen","Kanye West","P Diddy","Michael Jackson","Pterodactyl","Obsession","The Backrooms","Eyeless Jack","Laughing Jack","Analog Horror","Hazel","Bowl","Cactus","Cactus Needle","Pin","Cat Food","Kibble Bag","Ooshie","Deadpool","Wolverine","Remote Control","Catalogue","Model","3D Model","Pixels","Lamp","Paper","School Book","Birds","Paper Towel","Bath Towel","Bubble Bath","Snoopy","Sony","PlayStation","Xbox","Microsoft","Nintendo Switch","Atari","Describing A Dog To Someone Who's Never Seen One","Scotland","Kurdistan","Bully","Bubblegum","World Cup Songs","Watermelon Slice","Machete","Chopping Axe","Mining Pickaxe","Quotation Marks","Period","Teacher","Leech","Zombie","Scary","Stupidity","Therapist","Sociopath","Dirt Path","Mycelium","Podzol","Poland Flag","Vanilla","Magnolia","Lilac","Blueberries","Beehive","Wasp Nest","Eagle Nest","Lily Pad","Water Lily","Bottled Water","Pollution","Plastic","Megalodon Teeth","Shark Fin Soup","Animal Tail","Blue Jeans","Ripped Jeans","Nightmares","Dreams","Tracksuit","Wedding Dress","Bride","Wedding Suit","Joystick","Socks","Fruit Bowl","Ivy","Banana","Kissing Booth","Lipstick","Eyeliner","Three Dots Icon","Artefact","Gift","Ottoman Empire","Wisdom","Peppa Pig","Cable","Cord","Chewing On Cords","Moonwalk","Vegetable Oil","Thunderstorm","Rainbow","Volcano","Earthquake","Tsunami","Avalanche","Glacier","Desert","Jungle","Waterfall","Cave","Mountain Peak","Sunrise","Sunset","Eclipse","Constellation","Telescope","Microscope","Magnet","Compass","Hourglass","Sundial","Chessboard","Dice","Playing Cards","Jigsaw Puzzle","Kite","Yo-Yo","Slingshot","Boomerang","Trampoline","Seesaw","Merry-Go-Round","Ferris Wheel","Roller Coaster","Haunted House","Magic Trick","Magician","Wizard","Witch","Potion","Crystal Ball","Tarot Card","Fortune Teller","Black Cat","Broken Mirror","Four-Leaf Clover","Horseshoe","Rabbit's Foot","Genie Lamp","Treasure Chest","Pirate Ship","Message In A Bottle","Anchor","Lighthouse","Treasure Map","Buried Treasure","Quicksand","Secret Passage","Trapdoor","Drawbridge","Moat","Castle Tower","Dungeon","Throne","Crown","Scepter","Royal Guard","Knight In Armor","Jousting","Catapult","Medieval Banquet","Stapler","Snow Globe","Bookmark","Postcard","Passport Stamp","Vending Machine","Traffic Light","Zebra Crossing","Roundabout","Speed Bump","Parking Meter","Toll Booth","Escalator","Elevator","Revolving Door","Fire Escape","Manhole Cover","Fire Hydrant","Street Lamp","Bus Stop","Train Platform","Ticket Barrier","Airport Runway","Baggage Claim","Duty Free","Boarding Gate","Life Raft","Submarine","Periscope","Anchor Chain","Ship Wheel","Captain's Hat","Pirate Flag","Desert Island","Palm Tree","Coconut","Oasis","Camel Caravan","Sand Dune","Igloo","Sled","Snowman","Snow Angel","Icicle","Frost","Fog","Mist","Dew","Frostbite","Sunburn","Heatstroke","Mirage","Rainforest","Canopy","Vine","Waterfall Jungle","Quicksand Trap","Volcano Eruption","Lava Flow","Ash Cloud","Tectonic Plate","Fault Line","Sinkhole","Cave Painting","Stalactite","Stalagmite","Underground River","Geyser","Hot Spring","Iceberg","Glacier Melt","Polar Ice Cap","Northern Lights","Meteor Shower","Shooting Star","Comet","Asteroid Belt","Black Hole","Supernova","Space Station","Rocket Launch","Astronaut Suit","Moon Rover","Mars Rover","Satellite Dish","Radio Telescope","Solar Panel","Wind Turbine","Hydroelectric Dam","Nuclear Reactor","Power Grid","Circuit Board","Battery Pack","Solar Eclipse","Lunar Eclipse","Rainbow Arc","Double Rainbow","Thunder Clap","Lightning Bolt","Tornado Funnel","Hurricane Eye","Storm Surge","Flood Water","Drought Land","Wildfire","Forest Fire Smoke","Ash Fall","Earthquake Tremor","Aftershock","Tsunami Wave","Riptide","Undertow","Whirlpool","Rapids","Waterwheel","Windmill","Scarecrow","Haystack","Barn","Silo","Tractor","Plough","Pitchfork","Wheelbarrow","Greenhouse","Beehive Farm","Chicken Coop","Pig Sty","Sheep Pen","Stable","Saddle","Horseshoe Item","Cattle Fence","Milking Machine","Shearing","Vineyard","Orchard","Rice Paddy","Cornfield","Wheat Field","Sunflower Field","Lavender Field","Tea Plantation","Coffee Plantation","Cocoa Farm","Spice Market","Fish Market","Street Market","Flea Market","Farmers Market","Night Market","Souvenir Shop","Antique Shop","Pawn Shop","Thrift Store","Bookstore","Record Store","Toy Store","Candy Store","Bakery Shop","Butcher Shop","Barber Shop","Nail Salon","Tattoo Parlor","Arcade","Bowling Alley","Pool Hall","Karaoke Bar","Nightclub","Comedy Club","Movie Theater","Drive-In Cinema","Planetarium","Aquarium","Zoo Enclosure","Safari Park","Petting Zoo","Botanical Garden","Rose Garden","Maze Hedge","Scarecrow Field","Corn Maze","Pumpkin Patch","Apple Orchard Pick","Christmas Tree Farm","Ice Rink","Ski Resort","Water Park","Amusement Park","Carnival","Circus Tent","Fair Ground","Ferris Wheel Ride","Bumper Cars","House Of Mirrors","Fun House","Petting Farm","Escape Room","Laser Tag","Paintball","Go Kart Track","Mini Golf","Driving Range","Batting Cage","Climbing Wall","Trampoline Park"]
 };
 
 /* ================= STATE ================= */
-const $ = id => document.getElementById(id);
-let TRIGGER = 30;      // degrees from neutral before a word resolves
-const REARM   = 12;    // must come back inside this before the next trigger
-const LOCKOUT = 800;   // dead time after each word, swallows the return swing
-
+let currentMode = 'foreheads';
 let selectedCats = new Set();
 let roundLength = 60;
-let deck = [], deckIndex = 0;
-let score = 0, correctWords = [], passedWords = [];
-let roundActive = false, endAt = 0, rafId = null;
+let deck = [];
+let deckIndex = 0;
+let score = 0;
+let correctWords = [];
+let passedWords = [];
+let timeLeft = 0;
+let timerInterval = null;
+let tiltEnabled = false;
+let baselineBeta = null;
+let lastTrigger = 0;
+let roundActive = false;
 
-let tiltMode = false;          // true once motion events are actually arriving
-let sensorSource = null;       // 'motion' | 'orientation' — first one wins
-let baseline = null, tiltValue = 0, armed = true, lastTrigger = 0, lockUntil = 0;
-let gx = 0, gy = 0, gz = 0, gInit = false;   // smoothed gravity vector
-let reverse = false;
-let motionSeen = false;
-let wakeLock = null;
+const $ = id => document.getElementById(id);
 
-/* ================= AUDIO (the holder can't see the screen) ================= */
-let ac = null;
-function initAudio(){
-  if(ac){ if(ac.state === 'suspended') ac.resume(); return; }
-  // iOS: opt out of the ring/silent switch muting Web Audio (Safari 16.4+)
-  try{ if(navigator.audioSession) navigator.audioSession.type = 'playback'; }catch(e){}
-  try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ ac = null; }
-  if(ac && ac.state === 'suspended') ac.resume();
-}
-function tone(freq, dur, type='square', vol=0.18, delay=0){
-  if(!ac) return;
-  const t = ac.currentTime + delay;
-  const osc = ac.createOscillator(), gain = ac.createGain();
-  osc.type = type; osc.frequency.setValueAtTime(freq, t);
-  gain.gain.setValueAtTime(vol, t);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.connect(gain); gain.connect(ac.destination);
-  osc.start(t); osc.stop(t + dur + 0.02);
-}
-const sfx = {
-  // bright bell: fundamental plus two harmonics, long decay
-  correct(){
-    tone(1046.5, 0.55, 'sine', 0.32);
-    tone(1568.0, 0.42, 'sine', 0.16, 0.005);
-    tone(2093.0, 0.28, 'sine', 0.07, 0.01);
-  },
-  // flat descending groan
-  pass(){
-    tone(233.1, 0.20, 'sawtooth', 0.24);
-    tone(174.6, 0.34, 'sawtooth', 0.24, 0.14);
-  },
-  tick(){ tone(880, 0.05, 'sine', 0.14); },
-  go(){ tone(523.3, 0.12, 'square', 0.22); tone(784.0, 0.26, 'square', 0.22, 0.1); },
-  over(){ tone(300, 0.3, 'sawtooth', 0.22); tone(200, 0.5, 'sawtooth', 0.22, 0.25); }
+const MODE_INFO = {
+  foreheads: { eyebrow:'Heads-up describing game', title:'FOREHEADS', desc:'Hold the phone to your forehead. Someone describes the word without saying it. Tilt down when you get it, tilt back to pass.', showTime:true, startLabel:'Start round', startSub:'Round also ends instantly at 25 correct' },
+  impostor: { eyebrow:'Deduction', title:'IMPOSTOR', desc:'Pick the categories the secret word can come from.', showTime:false, startLabel:'Choose players', startSub:'Everyone gets the same word, except one impostor' },
+  guessit: { eyebrow:'Timed describing', title:'GUESS IT!', desc:'Pick the categories the secret word can come from.', showTime:false, startLabel:'Get a word', startSub:'One person sees it, everyone else has 60 seconds' },
+  wyr: { eyebrow:'Vote', title:'WOULD YOU RATHER', desc:'Pick the categories words will be pulled from.', showTime:false, startLabel:'Start voting', startSub:'Two words face off — the group votes out loud' }
 };
-function buzz(pattern){ if(navigator.vibrate) navigator.vibrate(pattern); }
 
-/* ================= HOME ================= */
+/* ================= MODE SELECT ================= */
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    currentMode = card.dataset.mode;
+    enterHomeForMode();
+  });
+});
+$('backToModeBtn').addEventListener('click', () => showScreen('modeSelect'));
+
+function enterHomeForMode(){
+  const info = MODE_INFO[currentMode];
+  $('homeEyebrow').textContent = info.eyebrow;
+  $('homeTitle').textContent = info.title;
+  $('homeDesc').textContent = info.desc;
+  $('timeSettingRow').style.display = info.showTime ? 'flex' : 'none';
+  $('startBtn').textContent = info.startLabel;
+  $('startSub').textContent = info.startSub;
+  updateStartBtn();
+  showScreen('home');
+}
+
+/* ================= HOME SCREEN (category picker) ================= */
 function buildCatGrid(){
   const grid = $('catGrid');
   grid.innerHTML = '';
   Object.keys(CATEGORIES).forEach(name => {
     const tile = document.createElement('div');
     tile.className = 'cat-tile';
-    tile.innerHTML = '<div class="check"></div><span class="name">'+name+'</span><span class="count">'+CATEGORIES[name].length+' words</span>';
+    tile.innerHTML = `<div class="check"></div><span class="name">${name}</span><span class="count">${CATEGORIES[name].length} words</span>`;
     tile.addEventListener('click', () => {
-      if(selectedCats.has(name)){ selectedCats.delete(name); tile.classList.remove('selected'); }
+      if (selectedCats.has(name)) { selectedCats.delete(name); tile.classList.remove('selected'); }
       else { selectedCats.add(name); tile.classList.add('selected'); }
       updateStartBtn();
     });
@@ -440,40 +711,16 @@ function buildCatGrid(){
   });
 }
 function updateStartBtn(){
-  const n = selectedCats.size;
-  $('startBtn').disabled = n === 0;
-  $('startSub').textContent = n === 0
-    ? 'Pick at least one category'
-    : n + (n===1?' category':' categories') + ' \u00B7 ends at 25 correct';
+  $('startBtn').disabled = selectedCats.size === 0;
 }
 buildCatGrid();
-updateStartBtn();
-
-$('selectAllBtn').addEventListener('click', () => {
-  Object.keys(CATEGORIES).forEach(n => selectedCats.add(n));
-  document.querySelectorAll('.cat-tile').forEach(t => t.classList.add('selected'));
-  updateStartBtn();
-});
-$('clearAllBtn').addEventListener('click', () => {
-  selectedCats.clear();
-  document.querySelectorAll('.cat-tile').forEach(t => t.classList.remove('selected'));
-  updateStartBtn();
-});
 
 $('timeOpts').addEventListener('click', e => {
   const btn = e.target.closest('.time-opt');
   if(!btn) return;
-  e.currentTarget.querySelectorAll('.time-opt').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.time-opt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   roundLength = parseInt(btn.dataset.t,10);
-});
-
-$('sensOpts').addEventListener('click', e => {
-  const btn = e.target.closest('.sens-opt');
-  if(!btn) return;
-  e.currentTarget.querySelectorAll('.sens-opt').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  TRIGGER = parseInt(btn.dataset.s,10);
 });
 
 function showScreen(id){
@@ -482,331 +729,516 @@ function showScreen(id){
 }
 
 $('startBtn').addEventListener('click', () => {
-  buildDeck();
-  resetCalScreen();
-  showScreen('calibrate');
+  if(currentMode === 'foreheads'){
+    buildDeck();
+    showScreen('calibrate');
+  } else if(currentMode === 'impostor'){
+    showScreen('playerSetup');
+  } else if(currentMode === 'guessit'){
+    startGuessIt();
+  } else if(currentMode === 'wyr'){
+    startWyr();
+  }
 });
 
 function buildDeck(){
-  const seen = new Set(); const words = [];
+  let words = [];
   selectedCats.forEach(name => {
-    CATEGORIES[name].forEach(w => {
-      const key = w.toLowerCase();
-      if(seen.has(key)) return;      // no duplicates across categories
-      seen.add(key);
-      words.push({word:w, cat:name});
-    });
+    CATEGORIES[name].forEach(w => words.push({word:w, cat:name}));
   });
+  // shuffle
   for(let i=words.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [words[i],words[j]] = [words[j],words[i]];
   }
-  deck = words; deckIndex = 0;
+  deck = words;
+  deckIndex = 0;
 }
 
-/* ================= MOTION =================
-   Gravity-based pitch, not deviceorientation beta: a phone held to your
-   forehead sits near beta 90, which is exactly where orientation readings
-   go unstable. Three guards against double-firing:
-     - reject samples where the vector isn't ~1g (that's a flick, not a tilt)
-     - low-pass filter the vector
-     - hard lockout after each word so the return swing is swallowed
-*/
-function handleReading(rawPitch, src){
-  if(sensorSource && src !== sensorSource) return;
-  if(!sensorSource){
-    sensorSource = src;
-    if(src === 'motion') window.removeEventListener('deviceorientation', onOrientation);
-  }
-  motionSeen = true;
-  if(baseline === null) baseline = rawPitch;
-  // tilt the screen toward the floor -> positive -> "correct"
-  tiltValue = (baseline - rawPitch) * (reverse ? -1 : 1);
-  updateGaugeNeedle(tiltValue);
-  if(!roundActive || !tiltMode) return;
+function pickRandomWordFromSelected(){
+  const pool = [];
+  selectedCats.forEach(name => CATEGORIES[name].forEach(w => pool.push(w)));
+  if(pool.length === 0) return null;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
 
-  const now = Date.now();
-  if(now < lockUntil) return;
-
-  if(!armed){
-    if(Math.abs(tiltValue) < REARM){
-      armed = true;
-      baseline = rawPitch;              // re-neutralise wherever you actually settled
+/* ================= CALIBRATE / PERMISSIONS ================= */
+$('calBtn').addEventListener('click', async () => {
+  let granted = false;
+  try{
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+      const res = await DeviceOrientationEvent.requestPermission();
+      granted = res === 'granted';
+    } else if (typeof DeviceOrientationEvent !== 'undefined'){
+      granted = true;
     }
-    return;
-  }
-  // slow drift correction so a sagging arm doesn't creep into a false trigger
-  if(Math.abs(tiltValue) < 6) baseline += (rawPitch - baseline) * 0.02;
+  }catch(e){ granted = false; }
 
-  if(tiltValue >= TRIGGER){ armed = false; lastTrigger = now; lockUntil = now + LOCKOUT; resolveWord(true); }
-  else if(tiltValue <= -TRIGGER){ armed = false; lastTrigger = now; lockUntil = now + LOCKOUT; resolveWord(false); }
-}
-function onMotion(e){
-  const g = e.accelerationIncludingGravity;
-  if(!g || g.x === null || g.y === null || g.z === null) return;
-  const mag = Math.hypot(g.x, g.y, g.z);
-  if(Math.abs(mag - 9.81) > 3.5) return;          // being shaken, not tilted
-  if(!gInit){ gx = g.x; gy = g.y; gz = g.z; gInit = true; }
-  else { const a = 0.2; gx += (g.x-gx)*a; gy += (g.y-gy)*a; gz += (g.z-gz)*a; }
-  handleReading(Math.atan2(gz, Math.hypot(gx, gy)) * 180 / Math.PI, 'motion');
-}
-function onOrientation(e){
-  if(e.beta === null || e.beta === undefined) return;
-  handleReading(-e.beta, 'orientation');
-}
-function attachSensors(){
-  window.addEventListener('devicemotion', onMotion);
-  window.addEventListener('deviceorientation', onOrientation);
-}
-function detachSensors(){
-  window.removeEventListener('devicemotion', onMotion);
-  window.removeEventListener('deviceorientation', onOrientation);
-  sensorSource = null;
-}
-function updateGaugeNeedle(v){
-  const clamped = Math.max(-TRIGGER, Math.min(TRIGGER, v));
-  const rad = (clamped / TRIGGER) * 80 * Math.PI/180;
-  const cx=105, cy=98, len=72;
-  const needle = $('gaugeNeedle');
-  if(needle){
-    needle.setAttribute('x2', (cx + len*Math.sin(rad)).toFixed(1));
-    needle.setAttribute('y2', (cy - len*Math.cos(rad)).toFixed(1));
-  }
-  $('gaugeArcCorrect').classList.toggle('hot', v >= TRIGGER);
-  $('gaugeArcPass').classList.toggle('hot', v <= -TRIGGER);
-}
-
-/* ---- calibration: two taps, so you can test the needle before playing ---- */
-function resetCalScreen(){
-  if(tiltMode){
-    $('calStatus').textContent = 'Tilt live \u2014 try it, then tap start';
-    $('calStatus').className = 'cal-status ok';
-    $('calBtn').textContent = 'Start round';
-  } else {
-    $('calStatus').textContent = 'Motion sensor not started';
-    $('calStatus').className = 'cal-status';
-    $('calBtn').textContent = 'Enable tilt';
-  }
-}
-
-$('calBtn').addEventListener('click', function(){
-  initAudio();
-  if(tiltMode){ startRound(); return; }
-
-  // requestPermission must be called synchronously inside the tap on iOS —
-  // no await before it, or Safari drops the user activation and never prompts
-  const req = (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function')
-    ? DeviceMotionEvent.requestPermission()
-    : Promise.resolve('granted');
-
-  $('calStatus').textContent = 'Asking for motion access\u2026';
-  $('calStatus').className = 'cal-status';
-
-  req.then(function(res){
-    if(res !== 'granted'){
-      $('calStatus').textContent = 'Motion denied \u2014 tap controls only';
-      $('calStatus').className = 'cal-status bad';
-      $('calBtn').textContent = 'Start with tap controls';
-      tiltMode = false;
-      return;
-    }
-    motionSeen = false; baseline = null; sensorSource = null; gInit = false;
-    attachSensors();
-    setTimeout(function(){
-      if(motionSeen){
-        tiltMode = true;
-        $('calStatus').textContent = 'Tilt live \u2014 try it, then tap start';
-        $('calStatus').className = 'cal-status ok';
-        $('calBtn').textContent = 'Start round';
-      } else {
-        tiltMode = false;
-        detachSensors();
-        $('calStatus').textContent = 'No sensor data \u2014 tap controls only';
-        $('calStatus').className = 'cal-status bad';
-        $('calBtn').textContent = 'Start with tap controls';
+  if(granted){
+    tiltEnabled = true;
+    let gotReading = false;
+    const testHandler = (e) => {
+      if(e.beta !== null){
+        gotReading = true;
+        baselineBeta = e.beta;
       }
-    }, 1200);
-  }).catch(function(){
-    $('calStatus').textContent = 'Motion unavailable \u2014 tap controls only';
-    $('calStatus').className = 'cal-status bad';
-    $('calBtn').textContent = 'Start with tap controls';
-    tiltMode = false;
-  });
+    };
+    window.addEventListener('deviceorientation', testHandler, { once:true });
+    setTimeout(()=>{
+      if(!gotReading){ tiltEnabled = false; }
+      startRound();
+    }, 250);
+  } else {
+    tiltEnabled = false;
+    startRound();
+  }
 });
 
-$('reverseBtn').addEventListener('click', () => {
-  reverse = !reverse;
-  $('reverseBtn').textContent = reverse ? 'Direction reversed \u2713' : 'Reverse tilt direction';
-});
 $('skipCalBtn').addEventListener('click', () => {
-  initAudio();
-  tiltMode = false; detachSensors();
+  tiltEnabled = false;
   startRound();
 });
 
 /* ================= GAME ================= */
-async function keepAwake(){
-  try{ if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); }catch(e){}
-}
-function releaseAwake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
-
 function startRound(){
-  score = 0; correctWords = []; passedWords = [];
-  roundActive = false; armed = true; lockUntil = 0;
+  score = 0;
+  correctWords = [];
+  passedWords = [];
+  timeLeft = roundLength;
+  roundActive = true;
   $('scoreNum').textContent = '0';
   $('timerFill').style.width = '100%';
   $('timerFill').style.background = 'var(--amber)';
-  keepAwake();
+  $('modeToggle').textContent = tiltEnabled ? 'Switch to tap controls' : 'Tilt not available — using tap';
+  setupTiltListener();
   showScreen('game');
   showNextWord();
-  runCountdown();
+  timerInterval = setInterval(tick, 1000);
 }
 
-function runCountdown(){
-  const el = $('countdown'), num = $('countNum');
-  el.classList.add('on');
-  let n = 3;
-  num.textContent = n; sfx.tick(); buzz(30);
-  const iv = setInterval(() => {
-    n--;
-    if(n > 0){ num.textContent = n; sfx.tick(); buzz(30); }
-    else{
-      clearInterval(iv);
-      el.classList.remove('on');
-      sfx.go(); buzz([40,40,80]);
-      baseline = null; gInit = false; lockUntil = 0; armed = true;  // neutral = wherever it is now
-      roundActive = true;
-      endAt = Date.now() + roundLength*1000;
-      fitWord();
-      rafId = requestAnimationFrame(tick);
-    }
-  }, 800);
+function setupTiltListener(){
+  window.removeEventListener('deviceorientation', onTilt);
+  if(tiltEnabled){
+    window.addEventListener('deviceorientation', onTilt);
+  }
 }
+
+function onTilt(e){
+  if(!roundActive || !tiltEnabled || baselineBeta === null) return;
+  const now = Date.now();
+  if(now - lastTrigger < 700) {
+    updateGaugeNeedle(e.beta - baselineBeta);
+    return;
+  }
+  const delta = e.beta - baselineBeta;
+  updateGaugeNeedle(delta);
+  if(delta > 10){
+    lastTrigger = now;
+    resolveWord(true);
+  } else if(delta < -10){
+    lastTrigger = now;
+    resolveWord(false);
+  }
+}
+
+function updateGaugeNeedle(delta){
+  const clamped = Math.max(-20, Math.min(20, delta));
+  const angleDeg = (clamped / 20) * 80; // -80 to 80 deg from vertical
+  const rad = (angleDeg) * Math.PI/180;
+  const cx=105, cy=98, len=72;
+  const x2 = cx + len*Math.sin(rad);
+  const y2 = cy - len*Math.cos(rad);
+  const needle = $('gaugeNeedle');
+  if(needle){ needle.setAttribute('x2', x2.toFixed(1)); needle.setAttribute('y2', y2.toFixed(1)); }
+}
+
+$('modeToggle').addEventListener('click', () => {
+  tiltEnabled = !tiltEnabled;
+  setupTiltListener();
+  $('modeToggle').textContent = tiltEnabled ? 'Switch to tap controls' : 'Switch to tilt controls';
+  if(tiltEnabled){
+    window.addEventListener('deviceorientation', (e)=>{ if(e.beta!==null) baselineBeta = e.beta; }, {once:true});
+  }
+});
+
+$('tapPass').addEventListener('click', () => resolveWord(false));
+$('tapCorrect').addEventListener('click', () => resolveWord(true));
 
 function showNextWord(){
-  if(deckIndex >= deck.length) buildDeck();
+  if(deckIndex >= deck.length){
+    // reshuffle and continue if we run out
+    buildDeck();
+  }
   const entry = deck[deckIndex];
   $('word').textContent = entry.word;
   $('catTag').textContent = entry.cat.toUpperCase();
-  fitWord();
+  const preview = deck[deckIndex+1] ? deck[deckIndex+1].word : deck[0].word;
+  $('nextPreview').textContent = 'NEXT — ' + preview;
 }
-
-/* shrink-to-fit: measures the real box instead of guessing with vw */
-function fitWord(){
-  const el = $('word'), box = $('wordFit');
-  const maxW = box.clientWidth, maxH = box.clientHeight;
-  if(!maxW || !maxH) return;
-  let lo = 16, hi = Math.min(maxH, 260);
-  for(let i=0;i<14;i++){
-    const mid = (lo+hi)/2;
-    el.style.fontSize = mid+'px';
-    if(el.scrollWidth <= maxW && el.scrollHeight <= maxH) lo = mid; else hi = mid;
-  }
-  el.style.fontSize = Math.floor(lo)+'px';
-}
-window.addEventListener('resize', () => { if($('game').classList.contains('active')) fitWord(); });
-window.addEventListener('orientationchange', () => setTimeout(fitWord, 250));
 
 function resolveWord(isCorrect){
   if(!roundActive) return;
   const entry = deck[deckIndex];
   if(isCorrect){
-    score++; correctWords.push(entry.word);
+    score++;
+    correctWords.push(entry.word);
     $('scoreNum').textContent = score;
-    flashFx('correct'); sfx.correct(); buzz(45);
+    flashFx('flashCorrect');
+    if(navigator.vibrate) navigator.vibrate(40);
   } else {
     passedWords.push(entry.word);
-    flashFx('pass'); sfx.pass(); buzz([20,30,20]);
+    flashFx('flashPass');
+    if(navigator.vibrate) navigator.vibrate([20,30,20]);
   }
   deckIndex++;
-  if(score >= 25){ endRound(); return; }
+  if(score >= 25){
+    endRound();
+    return;
+  }
   showNextWord();
 }
 
-function flashFx(kind){
-  const el = $('fx');
-  $('fxGlyph').innerHTML = (kind === 'correct') ? '&#10003;' : '&#10007;';
-  el.classList.remove('go', 'correct', 'pass');
-  void el.offsetWidth;                       // force reflow so the animation restarts
-  el.classList.add(kind, 'go');
+function flashFx(id){
+  const el = $(id);
+  el.classList.remove('go');
+  void el.offsetWidth;
+  el.classList.add('go');
 }
 
-/* clock-based, so backgrounding can't skew the round */
-let lastWholeSecond = -1;
 function tick(){
-  if(!roundActive) return;
-  const remain = Math.max(0, endAt - Date.now());
-  $('timerFill').style.width = (remain/(roundLength*1000))*100 + '%';
-  const secs = Math.ceil(remain/1000);
-  if(secs !== lastWholeSecond){
-    lastWholeSecond = secs;
-    if(secs <= 5 && secs > 0) sfx.tick();
+  timeLeft--;
+  const pct = Math.max(0,(timeLeft/roundLength)*100);
+  $('timerFill').style.width = pct + '%';
+  if(timeLeft <= 10){ $('timerFill').style.background = 'var(--pass)'; }
+  if(timeLeft <= 0){
+    endRound();
   }
-  if(remain <= 10000) $('timerFill').style.background = 'var(--pass)';
-  if(remain <= 0){ endRound(); return; }
-  rafId = requestAnimationFrame(tick);
 }
 
-$('quitBtn').addEventListener('click', () => endRound());
-$('tapPass').addEventListener('click', () => resolveWord(false));
-$('tapCorrect').addEventListener('click', () => resolveWord(true));
+$('quitBtn').addEventListener('click', () => {
+  endRound(true);
+});
 
 function endRound(){
-  if(!roundActive && !$('game').classList.contains('active')) return;
   roundActive = false;
-  if(rafId) cancelAnimationFrame(rafId);
-  $('countdown').classList.remove('on');
-  detachSensors();
-  releaseAwake();
-  sfx.over(); buzz([80,60,180]);
+  clearInterval(timerInterval);
+  window.removeEventListener('deviceorientation', onTilt);
   renderResults();
   showScreen('results');
 }
 
 /* ================= RESULTS ================= */
 function renderResults(){
-  score = correctWords.length;
   $('finalScore').textContent = score;
-  const total = correctWords.length + passedWords.length;
-  $('finalSub').textContent = 'correct out of ' + total + ' word' + (total===1?'':'s') + ' seen';
+  const total = score + passedWords.length;
+  $('finalSub').textContent = `correct out of ${total} word${total===1?'':'s'} seen`;
   $('correctCount').textContent = correctWords.length;
   $('passCount').textContent = passedWords.length;
-  renderChips($('correctList'), correctWords, 'correct');
-  renderChips($('passList'), passedWords, 'pass');
-}
-function renderChips(container, list, kind){
-  container.innerHTML = '';
-  if(!list.length){
-    container.innerHTML = '<span class="chip" style="opacity:.5">' + (kind==='correct'?'None yet':'None') + '</span>';
-    return;
-  }
-  list.forEach((w, i) => {
-    const c = document.createElement('div');
-    c.className = 'chip'; c.textContent = w;
-    c.addEventListener('click', () => {
-      if(kind === 'correct'){ correctWords.splice(i,1); passedWords.push(w); }
-      else { passedWords.splice(i,1); correctWords.push(w); }
-      renderResults();
-    });
-    container.appendChild(c);
+
+  const cList = $('correctList');
+  cList.innerHTML = correctWords.length ? '' : '<span class="chip" style="opacity:.5">None yet</span>';
+  correctWords.forEach(w => {
+    const c = document.createElement('div'); c.className='chip'; c.textContent = w; cList.appendChild(c);
+  });
+
+  const pList = $('passList');
+  pList.innerHTML = passedWords.length ? '' : '<span class="chip" style="opacity:.5">None</span>';
+  passedWords.forEach(w => {
+    const c = document.createElement('div'); c.className='chip'; c.textContent = w; pList.appendChild(c);
   });
 }
 
 $('againBtn').addEventListener('click', () => {
   buildDeck();
-  resetCalScreen();
   showScreen('calibrate');
 });
-$('homeBtn').addEventListener('click', () => showScreen('home'));
-
-/* block pull-to-refresh during play only; the list screens still scroll */
-document.addEventListener('touchmove', function(e){
-  if($('game').classList.contains('active')) e.preventDefault();
-}, { passive:false });
-
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible' && roundActive) keepAwake();
+$('homeBtn').addEventListener('click', () => {
+  showScreen('home');
 });
+
+/* ================= IMPOSTOR ================= */
+let players = ['','',''];
+let impostorAssignment = null; // {word, impostorIndex}
+let revealIndex = 0;
+let revealedThisCard = false;
+
+function renderPlayerList(){
+  const list = $('playerList');
+  list.innerHTML = '';
+  players.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `<input type="text" maxlength="16" placeholder="Player ${i+1} name" value="${name.replace(/"/g,'&quot;')}">
+      <button class="player-remove">&#10005;</button>`;
+    const input = row.querySelector('input');
+    input.addEventListener('input', () => { players[i] = input.value; });
+    row.querySelector('.player-remove').addEventListener('click', () => {
+      if(players.length <= 1) return;
+      players.splice(i,1);
+      renderPlayerList();
+    });
+    list.appendChild(row);
+  });
+}
+renderPlayerList();
+
+$('backToHomeFromPlayers').addEventListener('click', () => showScreen('home'));
+
+$('addPlayerBtn').addEventListener('click', () => {
+  if(players.length >= 12) return;
+  players.push('');
+  renderPlayerList();
+});
+
+$('startImpostorBtn').addEventListener('click', () => {
+  const names = players.map(n => n.trim()).filter(n => n.length > 0);
+  if(names.length < 3){
+    alert('Add at least 3 players first.');
+    return;
+  }
+  players = names;
+  beginImpostorRound();
+});
+
+function beginImpostorRound(){
+  const word = pickRandomWordFromSelected();
+  if(!word){ alert('Pick at least one category first.'); showScreen('home'); return; }
+  const impostorIndex = Math.floor(Math.random()*players.length);
+  impostorAssignment = { word, impostorIndex };
+  revealIndex = 0;
+  showImpostorCard();
+  showScreen('impostorReveal');
+}
+
+function showImpostorCard(){
+  revealedThisCard = false;
+  const name = players[revealIndex];
+  $('revealProgress').textContent = `PLAYER ${revealIndex+1} OF ${players.length}`;
+  $('revealName').textContent = name;
+  const card = $('revealCard');
+  card.classList.remove('shown','impostor');
+  const isImpostor = revealIndex === impostorAssignment.impostorIndex;
+  $('revealRoleTag').textContent = isImpostor ? 'YOU ARE THE' : 'YOUR WORD';
+  $('revealWord').textContent = isImpostor ? 'IMPOSTOR' : impostorAssignment.word;
+  $('revealRoleTag').className = 'reveal-role-tag' + (isImpostor ? ' impostor' : '');
+  card.dataset.impostor = isImpostor ? '1' : '0';
+  $('nextPlayerBtn').disabled = true;
+  $('nextPlayerBtn').textContent = revealIndex === players.length-1 ? 'Start discussion' : 'Pass to next player';
+}
+
+$('revealCard').addEventListener('click', function(){
+  const card = this;
+  const willShow = !card.classList.contains('shown');
+  if(willShow){
+    card.classList.add('shown');
+    if(card.dataset.impostor === '1') card.classList.add('impostor');
+    revealedThisCard = true;
+    $('nextPlayerBtn').disabled = false;
+  } else {
+    card.classList.remove('shown','impostor');
+  }
+});
+
+$('nextPlayerBtn').addEventListener('click', () => {
+  const card = $('revealCard');
+  card.classList.remove('shown','impostor');
+  if(revealIndex < players.length - 1){
+    revealIndex++;
+    showImpostorCard();
+  } else {
+    $('impostorWordReminder').textContent = `${players.length} players — one of them is the impostor`;
+    $('impostorRevealBox').style.display = 'none';
+    showScreen('impostorResults');
+  }
+});
+
+$('revealImpostorBtn').addEventListener('click', () => {
+  $('impostorNameReveal').textContent = players[impostorAssignment.impostorIndex];
+  $('impostorWordReveal').textContent = impostorAssignment.word;
+  $('impostorRevealBox').style.display = 'block';
+});
+
+$('impostorHomeBtn').addEventListener('click', () => showScreen('home'));
+$('impostorAgainBtn').addEventListener('click', () => beginImpostorRound());
+
+/* ================= GUESS IT ================= */
+let guessWord = '';
+let guessTimeLeft = 60;
+let guessTimerInterval = null;
+let clueCooldownActive = false;
+
+function startGuessIt(){
+  const word = pickRandomWordFromSelected();
+  if(!word){ alert('Pick at least one category first.'); showScreen('home'); return; }
+  guessWord = word;
+  $('guessWordDisplay').textContent = guessWord;
+  $('guessRevealCard').classList.remove('shown');
+  showScreen('guessReveal');
+}
+
+$('guessRevealCard').addEventListener('click', function(){
+  this.classList.toggle('shown');
+});
+
+$('startGuessTimerBtn').addEventListener('click', () => {
+  $('guessRevealCard').classList.remove('shown');
+  beginGuessTimer();
+});
+
+function beginGuessTimer(){
+  guessTimeLeft = 60;
+  $('guessTimeLeft').textContent = guessTimeLeft;
+  $('guessTimerFill').style.width = '100%';
+  $('guessTimerFill').style.background = 'var(--amber)';
+  clueCooldownActive = false;
+  $('clueBtn').disabled = false;
+  $('clueHint').textContent = 'Tap once every clue — cooldown 3s';
+  showScreen('guessTimer');
+  clearInterval(guessTimerInterval);
+  guessTimerInterval = setInterval(guessTick, 1000);
+}
+
+function guessTick(){
+  guessTimeLeft--;
+  $('guessTimeLeft').textContent = Math.max(0,guessTimeLeft);
+  const pct = Math.max(0,(guessTimeLeft/60)*100);
+  $('guessTimerFill').style.width = pct + '%';
+  if(guessTimeLeft <= 10){ $('guessTimerFill').style.background = 'var(--pass)'; }
+  if(guessTimeLeft <= 0){
+    clearInterval(guessTimerInterval);
+    finishGuessIt(false);
+  }
+}
+
+$('clueBtn').addEventListener('click', function(){
+  if(clueCooldownActive) return;
+  clueCooldownActive = true;
+  this.disabled = true;
+  $('clueHint').textContent = 'Cooling down...';
+  if(navigator.vibrate) navigator.vibrate(15);
+  setTimeout(() => {
+    clueCooldownActive = false;
+    this.disabled = false;
+    $('clueHint').textContent = 'Ready — tap for next clue';
+  }, 3000);
+});
+
+$('gotItBtn').addEventListener('click', () => {
+  clearInterval(guessTimerInterval);
+  finishGuessIt(true);
+});
+
+$('quitGuessBtn').addEventListener('click', () => {
+  clearInterval(guessTimerInterval);
+  showScreen('home');
+});
+
+function finishGuessIt(success){
+  if(success){
+    $('guessResultLabel').textContent = 'Nice one!';
+    $('guessResultLabel').style.color = 'var(--correct)';
+    $('guessResultTitle').textContent = 'They got it!';
+  } else {
+    $('guessResultLabel').textContent = "Time's up";
+    $('guessResultLabel').style.color = 'var(--pass)';
+    $('guessResultTitle').textContent = "Didn't quite get there";
+  }
+  $('guessResultSub').textContent = `The word was ${guessWord}`;
+  showScreen('guessResult');
+}
+
+$('guessHomeBtn').addEventListener('click', () => showScreen('home'));
+$('guessAgainBtn').addEventListener('click', () => startGuessIt());
+
+/* ================= WOULD YOU RATHER ================= */
+let wyrRounds = [];
+let wyrCurrent = null;
+let wyrTappedSide = null;
+
+function startWyr(){
+  const pool = [];
+  selectedCats.forEach(name => CATEGORIES[name].forEach(w => pool.push(w)));
+  if(pool.length < 2){ alert('Pick at least one category with 2+ words.'); showScreen('home'); return; }
+  wyrRounds = [];
+  nextWyrRound(pool);
+  showScreen('wyr');
+}
+
+function nextWyrRound(poolOverride){
+  const pool = poolOverride || (() => { const p=[]; selectedCats.forEach(name => CATEGORIES[name].forEach(w => p.push(w))); return p; })();
+  let a = pool[Math.floor(Math.random()*pool.length)];
+  let b = pool[Math.floor(Math.random()*pool.length)];
+  let tries = 0;
+  while(b === a && tries < 20){ b = pool[Math.floor(Math.random()*pool.length)]; tries++; }
+  wyrCurrent = { left: a, right: b, winner: null };
+  wyrTappedSide = null;
+  $('wyrRoundTag').textContent = `ROUND ${wyrRounds.length + 1}`;
+  $('wyrLeftWord').textContent = a;
+  $('wyrRightWord').textContent = b;
+  $('wyrLeft').classList.remove('tapped');
+  $('wyrRight').classList.remove('tapped');
+  $('wyrLeft').querySelector('.votes').textContent = 'Tap when it wins the vote';
+  $('wyrRight').querySelector('.votes').textContent = 'Tap when it wins the vote';
+  $('wyrNextBtn').disabled = true;
+}
+
+function selectWyrSide(side){
+  wyrTappedSide = side;
+  wyrCurrent.winner = side === 'left' ? wyrCurrent.left : wyrCurrent.right;
+  $('wyrLeft').classList.toggle('tapped', side==='left');
+  $('wyrRight').classList.toggle('tapped', side==='right');
+  $('wyrLeft').querySelector('.votes').textContent = side==='left' ? 'Winner' : 'Tap when it wins the vote';
+  $('wyrRight').querySelector('.votes').textContent = side==='right' ? 'Winner' : 'Tap when it wins the vote';
+  $('wyrNextBtn').disabled = false;
+}
+
+$('wyrLeft').addEventListener('click', () => selectWyrSide('left'));
+$('wyrRight').addEventListener('click', () => selectWyrSide('right'));
+
+$('wyrNextBtn').addEventListener('click', () => {
+  wyrRounds.push(wyrCurrent);
+  nextWyrRound();
+});
+
+$('quitWyrBtn').addEventListener('click', () => showScreen('home'));
+
+$('wyrEndBtn').addEventListener('click', () => {
+  if(wyrCurrent && wyrCurrent.winner && !wyrRounds.includes(wyrCurrent)){
+    wyrRounds.push(wyrCurrent);
+  }
+  renderWyrResults();
+  showScreen('wyrResults');
+});
+
+function renderWyrResults(){
+  $('wyrRoundsPlayed').textContent = `${wyrRounds.length} round${wyrRounds.length===1?'':'s'} played`;
+  const container = $('wyrFinalVs');
+  container.innerHTML = '';
+  if(wyrRounds.length === 0){
+    container.innerHTML = '<p class="sub">No rounds completed yet</p>';
+    return;
+  }
+  wyrRounds.forEach(r => {
+    const row = document.createElement('div');
+    row.style.width = '100%';
+    row.style.marginBottom = '10px';
+    row.innerHTML = `
+      <div class="wyr-final-vs" style="margin:0;">
+        <div class="wyr-final-card ${r.winner===r.left?'winner':''}"><div class="fword">${r.left}</div></div>
+        <div class="wyr-final-card ${r.winner===r.right?'winner':''}"><div class="fword">${r.right}</div></div>
+      </div>`;
+    container.appendChild(row);
+  });
+}
+
+$('wyrHomeBtn').addEventListener('click', () => showScreen('home'));
+$('wyrAgainBtn').addEventListener('click', () => startWyr());
+
+/* prevent accidental scroll/zoom during game */
+document.addEventListener('touchmove', function(e){
+  const lockedScreens = ['game','guessTimer','wyr','impostorReveal'];
+  if(lockedScreens.some(id => $(id).classList.contains('active'))) e.preventDefault();
+}, { passive:false });
 </script>
 </body>
 </html>
